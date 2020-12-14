@@ -1,3 +1,66 @@
+// This is the position of the subtitle array that is currently being displayed
+let pos = 0;
+
+// The subtitle array before putting our subtitles in there
+let subs = [];
+
+// Subtitle calibration/Synchronization
+let offset = 0;
+let direction = "earlier";
+
+function buttonClicked(e) {
+  const action = e.currentTarget.myParam;
+
+  // Enables us to jump between sentences. Either to the next or to the previous sentence
+  if (subs) {
+    const time = video.currentTime;
+    const firstPos = pos === 0;
+    const lastPos = pos === subs.length - 1;
+    const rangeNotValid = (firstPos && action < 0) || (lastPos && action > 0);
+
+    // Jump back to the start of the same sentence if the sentence has been played longer than one second.
+    if (action < 0 && time > subs[pos].start + 1) {
+      video.currentTime = subs[pos].start;
+
+      // Jump to the previous or next spot in the video as long as we stay in the correct range (we don't leave the subs array)
+    } else if (!rangeNotValid) {
+      video.currentTime = subs[pos + action].start;
+    }
+  }
+}
+
+// Retrieving subtitles from backend
+chrome.runtime.onMessage.addListener(messageReceived);
+
+function messageReceived(action) {
+  if (action.subtitles) {
+    subs = action.subtitles;
+  }
+
+  if (action.calibration) {
+    subtitleCalibrator(action.calibration);
+  }
+}
+
+function subtitleCalibrator(calibration) {
+  let offset = 0;
+
+  if (calibration.direction === "earlier") {
+    offset = calibration.offset * -1;
+  } else {
+    offset = calibration.offset;
+  }
+
+  // Calculate the new start and end times for the whole subtitle array
+  calibratedSubs = [];
+
+  subs.forEach(elem => {
+    calibratedSubs.push({ start: elem.start + offset, end: elem.end + offset, text: elem.text });
+  });
+
+  subs = calibratedSubs;
+}
+
 var regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 
 var tc = {
@@ -11,7 +74,7 @@ var tc = {
     forceLastSavedSpeed: false, //default: false
     audioBoolean: false, // default: false
     startHidden: false, // default: false
-    controllerOpacity: 0.3, // default: 0.3
+    controllerOpacity: 0.5, // default: 0.5
     keyBindings: [],
     blacklist: `\
       www.instagram.com
@@ -295,15 +358,13 @@ function defineVideoController() {
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
 
-        <div id="controller" style="top:${top}; left:${left}; opacity:${
-      tc.settings.controllerOpacity
-    }">
-          <div data-action="drag" class="draggable">These are the subtitles for The Martian. Enjoy!</div>
+        <div id="controller" style="top:${top}; left:${left}; opacity:${tc.settings.controllerOpacity}">
+          <button data-action="rewind" class="rw">«</button>
+          <div data-action="drag" class="draggable" style="display: inline">Please select your subtitles, then click play!</div>
+          <button data-action="advance" class="rw">»</button> 
           <div id="controls">
-            <button data-action="rewind" class="rw">«</button>
             <button data-action="slower">&minus;</button>
             <button data-action="faster">&plus;</button>
-            <button data-action="advance" class="rw">»</button>
             <button data-action="display" class="hideButton">&times;</button>
           </div>
         </div>
@@ -549,7 +610,7 @@ function initializeNow(document) {
   var docs = Array(document);
   try {
     if (inIframe()) docs.push(window.top.document);
-  } catch (e) {}
+  } catch (e) { }
 
   docs.forEach(function (doc) {
     doc.addEventListener(
@@ -711,6 +772,25 @@ function setSpeed(video, speed) {
   refreshCoolDown();
   log("setSpeed finished: " + speed, 5);
 }
+
+// tc.mediaElements.forEach(function (v) {
+//   console.log("inside for each loop")
+//   v.ontimeupdate = () => {
+//     if (subs && subs.length > 1) {
+//       const time = v.currentTime;
+
+//       console.log("inside time update")
+
+//       const newPos = subs.findIndex(el => el.start <= time && el.end > time);
+
+//       // If a match was found update "pos"
+//       if (newPos !== -1) {
+//         pos = newPos;
+//         subtitleBox.innerHTML = subs[pos].text;
+//       }
+//     }
+//   };
+// });
 
 function runAction(action, value, e) {
   log("runAction Begin", 5);

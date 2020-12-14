@@ -6,6 +6,24 @@
     <script src="popup.js"></script>
   </head>
   <body>
+    <h1>Movie Subtitles</h1>
+    <button id="loader">Load subtitles</button>
+    <h3>Subtitles out of sync?</h3>
+    <div>
+      <p>Show subtitles</p>
+      <input id="calibration-offset" type="number"></input>
+      <p>seconds</p>
+      <select id="calibration-direction">
+        <option>earlier</option>
+        <option>later</option>
+      </select>
+      <button id="calibration-confirmation">save</button>
+      <button id="calibration-reset">reset</button>
+    </div>
+    <hr />
+    <hr />
+    <script src="subtitleLoader.js"></script>
+    <script src="subtitleCalibration.js"></script>
     <button id="enable" class="hide">Enable</button>
     <button id="disable">Disable</button>
     <span id="status" class="hide"></span>

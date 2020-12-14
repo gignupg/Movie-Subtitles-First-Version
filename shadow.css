@@ -5,7 +5,7 @@
 }
 
 :host(:hover) #controls {
-  display: inline;
+  display: block;
 }
 
 #controller {
@@ -28,10 +28,6 @@
   opacity: 0.7;
 }
 
-#controller:hover > .draggable {
-  margin-right: 0.8em;
-}
-
 #controls {
   display: none;
 }
@@ -42,7 +38,7 @@
 }
 
 #controller.dragging #controls {
-  display: inline;
+  display: block;
 }
 
 .draggable {
@@ -87,7 +83,7 @@ button:active {
 }
 
 button.rw {
-  opacity: 0.65;
+  opacity: 1;
 }
 
 button.hideButton {

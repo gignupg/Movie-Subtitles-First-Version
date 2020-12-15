@@ -53,6 +53,8 @@ document.getElementById("loader").onclick = function () {
                 }
             }
 
+            console.log("hola desde subtitleLoader.js", subs)
+
             // Sending our subtitle array to the content script
             chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
                 // const message = { subtitles: subs };

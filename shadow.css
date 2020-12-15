@@ -11,7 +11,8 @@
 #controller {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
+  text-align: center;
 
   background: black;
   color: white;
@@ -44,6 +45,7 @@
 .draggable {
   cursor: -webkit-grab;
   font-size: 2.5rem;
+  display: inline;
 }
 
 .draggable:active {

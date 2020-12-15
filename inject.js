@@ -1,8 +1,10 @@
+let monitoring = false;
+
 // This is the position of the subtitle array that is currently being displayed
 let pos = 0;
 
 // The subtitle array before putting our subtitles in there
-let subs = [];
+let subs = [{text: "No subtitles selected."}];
 
 // Subtitle calibration/Synchronization
 let offset = 0;
@@ -360,7 +362,7 @@ function defineVideoController() {
 
         <div id="controller" style="top:${top}; left:${left}; opacity:${tc.settings.controllerOpacity}">
           <button data-action="rewind" class="rw">«</button>
-          <div data-action="drag" class="draggable" style="display: inline">Please select your subtitles, then click play!</div>
+          <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
           <button data-action="advance" class="rw">»</button> 
           <div id="controls">
             <button data-action="slower">&minus;</button>
@@ -401,7 +403,7 @@ function defineVideoController() {
       .querySelector("#controller")
       .addEventListener("mousedown", (e) => e.stopPropagation(), false);
 
-    this.speedIndicator = shadow.querySelector("span");
+    this.speedIndicator = shadow.getElementById("subtitles");
     var fragment = document.createDocumentFragment();
     fragment.appendChild(wrapper);
 
@@ -557,6 +559,7 @@ function initializeWhenReady(document) {
   }
   log("End initializeWhenReady", 5);
 }
+
 function inIframe() {
   try {
     return window.self !== window.top;
@@ -564,6 +567,7 @@ function inIframe() {
     return true;
   }
 }
+
 function getShadow(parent) {
   let result = [];
   function getChild(parent) {
@@ -752,6 +756,11 @@ function initializeNow(document) {
     initializeWhenReady(childDocument);
   });
   log("End initializeNow", 5);
+
+  if (!monitoring) {
+    monitoring = true;
+    monitorPlaybackTime();
+  } 
 }
 
 function setSpeed(video, speed) {
@@ -767,30 +776,30 @@ function setSpeed(video, speed) {
     video.playbackRate = Number(speedvalue);
   }
   var speedIndicator = video.vsc.speedIndicator;
-  speedIndicator.textContent = speedvalue;
+  speedIndicator.textContent = subs[pos].text;
   tc.settings.lastSpeed = speed;
   refreshCoolDown();
   log("setSpeed finished: " + speed, 5);
 }
 
-// tc.mediaElements.forEach(function (v) {
-//   console.log("inside for each loop")
-//   v.ontimeupdate = () => {
-//     if (subs && subs.length > 1) {
-//       const time = v.currentTime;
+function monitorPlaybackTime() {
+  tc.mediaElements.forEach(v => {
+    v.ontimeupdate = () => {
+      if (subs && subs.length > 1) {
+        const time = v.currentTime;
+        const newPos = subs.findIndex(el => el.start <= time && el.end > time);
 
-//       console.log("inside time update")
+        // If a match was found update "pos"
+        if (newPos !== -1) {
+          pos = newPos;
+          v.vsc.speedIndicator.textContent = subs[pos].text;
+        }
+      }
+    };
+  });
+}
 
-//       const newPos = subs.findIndex(el => el.start <= time && el.end > time);
 
-//       // If a match was found update "pos"
-//       if (newPos !== -1) {
-//         pos = newPos;
-//         subtitleBox.innerHTML = subs[pos].text;
-//       }
-//     }
-//   };
-// });
 
 function runAction(action, value, e) {
   log("runAction Begin", 5);
@@ -815,10 +824,21 @@ function runAction(action, value, e) {
     if (!v.classList.contains("vsc-cancelled")) {
       if (action === "rewind") {
         log("Rewind", 5);
-        v.currentTime -= value;
+
+        if (v.currentTime > subs[pos].start + 1) {
+          v.currentTime = subs[pos].start
+          
+        } else if (pos !== 0) {
+          v.currentTime = subs[pos - 1].start;
+        }
+        
       } else if (action === "advance") {
         log("Fast forward", 5);
-        v.currentTime += value;
+
+        if (pos !== subs.length - 1) {
+          v.currentTime = subs[pos + 1].start;
+        }
+        
       } else if (action === "faster") {
         log("Increase speed", 5);
         // Maximum playback speed in Chrome is set to 16:
@@ -948,9 +968,9 @@ function handleDrag(video, e) {
 
   const startDragging = (e) => {
     let style = shadowController.style;
-    let dx = e.clientX - initialMouseXY[0];
+    // let dx = e.clientX - initialMouseXY[0];
     let dy = e.clientY - initialMouseXY[1];
-    style.left = initialControllerXY[0] + dx + "px";
+    // style.left = initialControllerXY[0] + dx + "px";
     style.top = initialControllerXY[1] + dy + "px";
   };
 

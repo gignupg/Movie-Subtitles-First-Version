@@ -260,8 +260,7 @@ function restore_options() {
     document.getElementById("audioBoolean").checked = storage.audioBoolean;
     document.getElementById("enabled").checked = storage.enabled;
     document.getElementById("startHidden").checked = storage.startHidden;
-    document.getElementById("controllerOpacity").value =
-      storage.controllerOpacity;
+    document.getElementById("controllerOpacity").value = storage.controllerOpacity;
     document.getElementById("blacklist").value = storage.blacklist;
 
     // ensure that there is a "display" binding for upgrades from versions that had it as a separate binding

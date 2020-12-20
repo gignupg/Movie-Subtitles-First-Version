@@ -4,7 +4,7 @@ let monitoring = false;
 let pos = 0;
 
 // The subtitle array before putting our subtitles in there
-let subs = [{text: "No subtitles selected."}];
+let subs = [{ text: "No subtitles selected." }];
 
 // Subtitle calibration/Synchronization
 let offset = 0;
@@ -61,6 +61,18 @@ function subtitleCalibrator(calibration) {
   });
 
   subs = calibratedSubs;
+}
+
+function timeInSeconds(time) {
+  const split = time.split(/:|,/);
+
+  const s1 = Number(split[0] * 60 * 60);   // hours
+  const s2 = Number(split[1] * 60);        // minutes
+  const s3 = Number(split[2]);             // seconds
+  const s4 = split[3];             // milliseconds
+
+  const seconds = s1 + s2 + s3;
+  return seconds + "." + s4;
 }
 
 var regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
@@ -361,13 +373,18 @@ function defineVideoController() {
         </style>
 
         <div id="controller" style="top:${top}; left:${left}; opacity:${tc.settings.controllerOpacity}">
+          <input id="chooseFile" type="file" accept=".srt"></input>
           <button data-action="rewind" class="rw">«</button>
           <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
           <button data-action="advance" class="rw">»</button> 
           <div id="controls">
+            <span style="font-size: 14px;">Size:</span>
             <button data-action="slower">&minus;</button>
             <button data-action="faster">&plus;</button>
-            <button data-action="display" class="hideButton">&times;</button>
+            <span style="margin-left: 30px; font-size: 14px;">Brightness:</span>
+            <button data-action="lighter">&minus;</button>
+            <button data-action="darker">&plus;</button>
+            <button data-action="display" class="hideButton" style="margin-left: 30px;">&times;</button>
           </div>
         </div>
       `;
@@ -380,6 +397,77 @@ function defineVideoController() {
       },
       true
     );
+
+    // shadow.querySelector("#choosefile").addEventListener(
+    //   "mousedown",
+    //   (e) => {
+    //     runAction(e.target.dataset["action"], false, e);
+    //     e.stopPropagation();
+    //   },
+    //   true
+    // );
+
+    shadow.getElementById("chooseFile").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader;
+      reader.onload = () => {
+        const srtFile = reader.result.split("\n");
+        const newSubs = [{ text: "" }];
+        let count = 0;
+        let type = null;
+
+        for (let i = 0; i < srtFile.length; i++) {
+          const line = srtFile[i].trim();
+
+          if (type === "time") {
+            type = "text";
+            const split = line.split(/ --> /);
+            const start = timeInSeconds(split[0]);
+            const end = timeInSeconds(split[1]);
+
+            // Updating the object
+            newSubs[count].start = Number(start);
+            newSubs[count].end = Number(end);
+
+          } else if (type === "text") {
+            if (!srtFile[i + 1].trim()) type = null;
+
+            newSubs[count].text += line + " ";
+
+          } else if (!line) {
+            count++;
+
+          } else if (!isNaN(line)) {
+            type = "time";
+            newSubs.push({ text: "" });
+          }
+        }
+
+        if (!newSubs[newSubs.length - 1].text) newSubs.pop();
+
+        // Adding "Skip Start" manually
+        if (newSubs[0].start > 5) {
+          newSubs.unshift({ text: "Skip silence (" + Math.round(newSubs[0].start) + " seconds)", start: 0, end: newSubs[0].start });
+        }
+
+        // Adding "Skip silence" to our subtitle array (newSubs)
+        for (let i = 1; i < newSubs.length; i++) {
+          const silence = newSubs[i].start - newSubs[i - 1].end;
+          if (silence > 5) {
+            newSubs.splice(i, 0, {
+              text: "Skip silence (" + Math.round(silence) + " seconds)",
+              start: newSubs[i - 1].end,
+              end: newSubs[i].start
+            });
+          }
+        }
+
+        // Updating our active subtitle array (subs)
+        subs = newSubs;
+      };
+
+      reader.readAsText(file);
+    });
 
     shadow.querySelectorAll("button").forEach(function (button) {
       button.addEventListener(
@@ -489,8 +577,8 @@ function setupListener() {
   function updateSpeedFromEvent(video) {
     // It's possible to get a rate change on a VIDEO/AUDIO that doesn't have
     // a video controller attached to it.  If we do, ignore it.
-    if (!video.vsc)
-      return;
+    if (!video.vsc) return;
+
     var speedIndicator = video.vsc.speedIndicator;
     var src = video.currentSrc;
     var speed = Number(video.playbackRate.toFixed(2));
@@ -760,7 +848,7 @@ function initializeNow(document) {
   if (!monitoring) {
     monitoring = true;
     monitorPlaybackTime();
-  } 
+  }
 }
 
 function setSpeed(video, speed) {
@@ -799,8 +887,6 @@ function monitorPlaybackTime() {
   });
 }
 
-
-
 function runAction(action, value, e) {
   log("runAction Begin", 5);
 
@@ -826,19 +912,39 @@ function runAction(action, value, e) {
         log("Rewind", 5);
 
         if (v.currentTime > subs[pos].start + 1) {
-          v.currentTime = subs[pos].start
-          
+          v.currentTime = subs[pos].start;
+
         } else if (pos !== 0) {
           v.currentTime = subs[pos - 1].start;
         }
-        
+
       } else if (action === "advance") {
         log("Fast forward", 5);
 
         if (pos !== subs.length - 1) {
           v.currentTime = subs[pos + 1].start;
         }
+
+      } else if (action === "lighter") {      
+        const style = controller.shadowRoot.querySelector("#controller").style;
+        const newOpacity = (Number(style.opacity) - 0.1).toFixed(1);
+
+        if (newOpacity >= 0.1) {
+          style.opacity = newOpacity;
+          chrome.storage.sync.set({ controllerOpacity: newOpacity });
+        }
         
+
+      } else if (action === "darker") {
+        const style = controller.shadowRoot.querySelector("#controller").style;
+        const newOpacity = (Number(style.opacity) + 0.1).toFixed(1);
+
+        if (newOpacity <= 1) {
+          style.opacity = newOpacity;
+          chrome.storage.sync.set({ controllerOpacity: newOpacity });
+        }
+
+
       } else if (action === "faster") {
         log("Increase speed", 5);
         // Maximum playback speed in Chrome is set to 16:

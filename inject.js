@@ -373,18 +373,20 @@ function defineVideoController() {
         </style>
 
         <div id="controller" style="top:${top}; left:${left}; opacity:${tc.settings.controllerOpacity}">
-          <input id="chooseFile" type="file" accept=".srt"></input>
           <button data-action="rewind" class="rw">«</button>
           <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
           <button data-action="advance" class="rw">»</button> 
           <div id="controls">
             <span style="font-size: 14px;">Size:</span>
-            <button data-action="slower">&minus;</button>
-            <button data-action="faster">&plus;</button>
+            <button data-action="smaller">&minus;</button>
+            <button data-action="bigger">&plus;</button>
             <span style="margin-left: 30px; font-size: 14px;">Brightness:</span>
             <button data-action="lighter">&minus;</button>
             <button data-action="darker">&plus;</button>
-            <button data-action="display" class="hideButton" style="margin-left: 30px;">&times;</button>
+            <span style="margin-left: 30px;">
+              <label for="chooseFile" class="fileLabel">Select Subtitles</label>
+              <input id="chooseFile" type="file" accept=".srt"></input>
+            </span>
           </div>
         </div>
       `;
@@ -398,14 +400,7 @@ function defineVideoController() {
       true
     );
 
-    // shadow.querySelector("#choosefile").addEventListener(
-    //   "mousedown",
-    //   (e) => {
-    //     runAction(e.target.dataset["action"], false, e);
-    //     e.stopPropagation();
-    //   },
-    //   true
-    // );
+    shadow.querySelector("#subtitles").style.fontSize = "28px";
 
     shadow.getElementById("chooseFile").addEventListener("change", (e) => {
       const file = e.target.files[0];
@@ -925,7 +920,7 @@ function runAction(action, value, e) {
           v.currentTime = subs[pos + 1].start;
         }
 
-      } else if (action === "lighter") {      
+      } else if (action === "lighter") {
         const style = controller.shadowRoot.querySelector("#controller").style;
         const newOpacity = (Number(style.opacity) - 0.1).toFixed(1);
 
@@ -933,7 +928,6 @@ function runAction(action, value, e) {
           style.opacity = newOpacity;
           chrome.storage.sync.set({ controllerOpacity: newOpacity });
         }
-        
 
       } else if (action === "darker") {
         const style = controller.shadowRoot.querySelector("#controller").style;
@@ -944,22 +938,24 @@ function runAction(action, value, e) {
           chrome.storage.sync.set({ controllerOpacity: newOpacity });
         }
 
+      } else if (action === "smaller") {
+        const style = controller.shadowRoot.querySelector("#subtitles").style;
+        const oldSize = Number(style.fontSize.replace(/px/, ""));
+        const newSize = (oldSize - 2) + "px";
 
-      } else if (action === "faster") {
-        log("Increase speed", 5);
-        // Maximum playback speed in Chrome is set to 16:
-        // https://cs.chromium.org/chromium/src/third_party/blink/renderer/core/html/media/html_media_element.cc?gsn=kMinRate&l=166
-        var s = Math.min(
-          (v.playbackRate < 0.1 ? 0.0 : v.playbackRate) + value,
-          16
-        );
-        setSpeed(v, s);
-      } else if (action === "slower") {
-        log("Decrease speed", 5);
-        // Video min rate is 0.0625:
-        // https://cs.chromium.org/chromium/src/third_party/blink/renderer/core/html/media/html_media_element.cc?gsn=kMinRate&l=165
-        var s = Math.max(v.playbackRate - value, 0.07);
-        setSpeed(v, s);
+        if (oldSize > 14) {
+          style.fontSize = newSize;
+        }
+
+      } else if (action === "bigger") {
+        const style = controller.shadowRoot.querySelector("#subtitles").style;
+        const oldSize = Number(style.fontSize.replace(/px/, ""));
+        const newSize = (oldSize + 2) + "px";
+
+        if (oldSize < 88) {
+          style.fontSize = newSize;
+        }
+
       } else if (action === "reset") {
         log("Reset speed", 5);
         resetSpeed(v, 1.0);

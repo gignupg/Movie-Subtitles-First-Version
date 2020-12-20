@@ -44,7 +44,6 @@
 
 .draggable {
   cursor: -webkit-grab;
-  font-size: 2.5rem;
   display: inline;
 }
 
@@ -91,4 +90,22 @@ button.rw {
 button.hideButton {
   opacity: 0.65;
   margin-right: 2px;
+}
+
+#chooseFile {
+  display: none;
+}
+
+.fileLabel:hover {
+  cursor: pointer;
+}
+
+.fileLabel {
+  border: solid gray 1px;
+  background-color: white;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 900;
+  color: black;
+  padding: 2px 5px;
 }

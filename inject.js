@@ -461,7 +461,7 @@ function defineVideoController() {
         subs = newSubs;
       };
 
-      reader.readAsText(file);
+      reader.readAsText(file, 'ISO-8859-1');
     });
 
     shadow.querySelectorAll("button").forEach(function (button) {

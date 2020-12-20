@@ -89,6 +89,7 @@ var tc = {
     audioBoolean: false, // default: false
     startHidden: false, // default: false
     controllerOpacity: 0.5, // default: 0.5
+    fontSize: "28px",
     keyBindings: [],
     blacklist: `\
       www.instagram.com
@@ -193,6 +194,7 @@ chrome.storage.sync.get(tc.settings, function (storage) {
       startHidden: tc.settings.startHidden,
       enabled: tc.settings.enabled,
       controllerOpacity: tc.settings.controllerOpacity,
+      fontSize: tc.settings.fontSize,
       blacklist: tc.settings.blacklist.replace(regStrip, "")
     });
   }
@@ -204,6 +206,7 @@ chrome.storage.sync.get(tc.settings, function (storage) {
   tc.settings.enabled = Boolean(storage.enabled);
   tc.settings.startHidden = Boolean(storage.startHidden);
   tc.settings.controllerOpacity = Number(storage.controllerOpacity);
+  tc.settings.fontSize = String(storage.fontSize);
   tc.settings.blacklist = String(storage.blacklist);
 
   // ensure that there is a "display" binding (for upgrades from versions that had it as a separate binding)
@@ -400,7 +403,7 @@ function defineVideoController() {
       true
     );
 
-    shadow.querySelector("#subtitles").style.fontSize = "28px";
+    shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize;
 
     shadow.getElementById("chooseFile").addEventListener("change", (e) => {
       const file = e.target.files[0];
@@ -945,6 +948,7 @@ function runAction(action, value, e) {
 
         if (oldSize > 14) {
           style.fontSize = newSize;
+          chrome.storage.sync.set({ fontSize: newSize });
         }
 
       } else if (action === "bigger") {
@@ -954,6 +958,7 @@ function runAction(action, value, e) {
 
         if (oldSize < 88) {
           style.fontSize = newSize;
+          chrome.storage.sync.set({ fontSize: newSize });
         }
 
       } else if (action === "reset") {

@@ -411,13 +411,14 @@ function defineVideoController() {
 
     shadow.querySelectorAll(".prev-next-button").forEach(elem => elem.style.fontSize = tc.settings.fontSize);
 
-    function yourCheckFunction() {
-      console.log("sadölkjsadföjkl")
-    }
+    const resizer = new ResizeObserver(handleResize);
+    resizer.observe(this.video);
 
-    ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "msfullscreenchange"].forEach(
-      eventType => this.video.addEventListener(eventType, yourCheckFunction, false)
-    );
+    function handleResize() {
+      console.log("something changed");
+
+      shadow.querySelector("#controller").style.top = "50px";
+    }
 
     shadow.querySelector("#background-div").addEventListener("mouseenter", () => {
       if (!this.video.paused) {

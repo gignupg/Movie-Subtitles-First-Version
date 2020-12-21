@@ -1,4 +1,5 @@
 let monitoring = false;
+let pausing = false;
 
 // This is the position of the subtitle array that is currently being displayed
 let pos = 0;
@@ -376,9 +377,9 @@ function defineVideoController() {
         </style>
 
         <div id="controller" style="top:${top}; left:${left}; opacity:${tc.settings.controllerOpacity}">
-          <button data-action="rewind" class="rw">«</button>
+          <button data-action="rewind" class="rw prev-next-button">«</button>
           <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
-          <button data-action="advance" class="rw">»</button> 
+          <button data-action="advance" class="rw prev-next-button">»</button> 
           <div id="controls">
             <span style="font-size: 14px;">Size:</span>
             <button data-action="smaller">&minus;</button>
@@ -403,7 +404,27 @@ function defineVideoController() {
       true
     );
 
-    shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize;
+    shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize
+
+    shadow.querySelector("#controller").addEventListener("mouseenter", () => {
+      console.log("mouseenter")
+      if (!this.video.paused) {
+        console.log("mouseenter if statement")
+        this.video.muted = true;
+        this.video.pause();
+        pausing = true;
+      }
+    })
+
+    shadow.querySelector("#controller").addEventListener("mouseleave", () => {
+      console.log("mouseleave")
+      if (pausing) {
+        console.log("mouseleave if statement")
+        this.video.muted = true;
+        this.video.play();
+        pausing = false;
+      }
+    })
 
     shadow.getElementById("chooseFile").addEventListener("change", (e) => {
       const file = e.target.files[0];

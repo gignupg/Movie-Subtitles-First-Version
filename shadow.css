@@ -8,6 +8,15 @@
   display: block;
 }
 
+:host(:hover) .prev-next-button {
+  display: inline;
+  margin: 5px 20px;
+}
+
+.prev-next-button {
+  display: none;
+}
+
 #controller {
   position: absolute;
   top: 0;
@@ -31,6 +40,7 @@
 
 #controls {
   display: none;
+  margin-top: 10px;
 }
 
 #controller.dragging {
@@ -40,6 +50,10 @@
 
 #controller.dragging #controls {
   display: block;
+}
+
+#controller.dragging .prev-next-button {
+  display: inline;
 }
 
 .draggable {

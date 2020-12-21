@@ -1,7 +1,5 @@
 * {
-  line-height: 1.8em;
   font-family: sans-serif;
-  font-size: 13px;
 }
 
 :host(:hover) #controls {
@@ -10,11 +8,16 @@
 
 :host(:hover) .prev-next-button {
   display: inline;
-  margin: 5px 20px;
+  margin: 5px 5px;
 }
 
 .prev-next-button {
   display: none;
+  text-decoration: none;
+  font-weight: 900;
+  background-color: transparent;
+  color: white;
+  border: none;
 }
 
 #controller {
@@ -22,14 +25,10 @@
   top: 0;
   right: 0;
   text-align: center;
-
-  background: black;
+  background: transparent;
   color: white;
-
   border-radius: 30px;
   padding: 6px 12px 6px 12px;
-  margin: 10px 10px 10px 15px;
-
   cursor: default;
   z-index: 9999999;
 }
@@ -40,7 +39,7 @@
 
 #controls {
   display: none;
-  margin-top: 10px;
+  margin: 5px;
 }
 
 #controller.dragging {
@@ -65,7 +64,14 @@
   cursor: -webkit-grabbing;
 }
 
-button {
+#background-div {
+  background-color: black;
+  display: inline-block;
+  border-radius: 40px;
+  padding: 5px 20px;
+}
+
+#controls > button {
   opacity: 1;
   cursor: pointer;
   color: black;
@@ -89,6 +95,7 @@ button:hover {
   opacity: 1;
   background: #2196f3;
   color: #ffffff;
+  cursor: pointer;
 }
 
 button:active {
@@ -115,10 +122,10 @@ button.hideButton {
 }
 
 .fileLabel {
-  border: solid gray 1px;
   background-color: white;
   border-radius: 15px;
   font-size: 14px;
   color: black;
   padding: 2px 5px;
+  font-weight: 900;
 }

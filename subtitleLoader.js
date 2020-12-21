@@ -46,7 +46,7 @@ document.getElementById("loader").onclick = function () {
                 const silence = subs[i].start - subs[i - 1].end;
                 if (silence > 5) {
                     subs.splice(i, 0, {
-                        text: "Skip silence (" + Math.round(silence) + " seconds)",
+                        text: "Silence (" + Math.round(silence) + " seconds)",
                         start: subs[i - 1].end,
                         end: subs[i].start
                     });

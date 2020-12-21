@@ -354,7 +354,8 @@ function defineVideoController() {
     log("initializeControls Begin", 5);
     var document = this.video.ownerDocument;
     var speed = this.video.playbackRate.toFixed(2),
-      top = Math.max(this.video.offsetTop, 0) + "px",
+      // top = Math.max(this.video.offsetTop, 0) + "px",
+      top = "300px",
       left = Math.max(this.video.offsetLeft, 0) + "px";
 
     log("Speed variable set to: " + speed, 5);
@@ -377,20 +378,22 @@ function defineVideoController() {
         </style>
 
         <div id="controller" style="top:${top}; left:${left}; opacity:${tc.settings.controllerOpacity}">
-          <button data-action="rewind" class="rw prev-next-button">«</button>
-          <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
-          <button data-action="advance" class="rw prev-next-button">»</button> 
-          <div id="controls">
-            <span style="font-size: 14px;">Size:</span>
-            <button data-action="smaller">&minus;</button>
-            <button data-action="bigger">&plus;</button>
-            <span style="margin-left: 30px; font-size: 14px;">Brightness:</span>
-            <button data-action="lighter">&minus;</button>
-            <button data-action="darker">&plus;</button>
-            <span style="margin-left: 30px;">
-              <label for="chooseFile" class="fileLabel">Select Subtitles</label>
-              <input id="chooseFile" type="file" accept=".srt"></input>
-            </span>
+          <div id="background-div">
+            <button data-action="rewind" class="rw prev-next-button">«</button></button>
+            <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
+            <button data-action="advance" class="rw prev-next-button">»</button> 
+            <div id="controls">
+              <span style="font-size: 14px;">Size:</span>
+              <button data-action="smaller">&minus;</button>
+              <button data-action="bigger">&plus;</button>
+              <span style="margin-left: 30px; font-size: 14px;">Brightness:</span>
+              <button data-action="lighter">&minus;</button>
+              <button data-action="darker">&plus;</button>
+              <span style="margin-left: 30px;">
+                <label for="chooseFile" class="fileLabel">Select Subtitles</label>
+                <input id="chooseFile" type="file" accept=".srt"></input>
+              </span>
+            </div>
           </div>
         </div>
       `;
@@ -404,27 +407,31 @@ function defineVideoController() {
       true
     );
 
-    shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize
+    shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize;
 
-    shadow.querySelector("#controller").addEventListener("mouseenter", () => {
-      console.log("mouseenter")
+    shadow.querySelectorAll(".prev-next-button").forEach(elem => elem.style.fontSize = tc.settings.fontSize);
+
+    function yourCheckFunction() {
+      console.log("sadölkjsadföjkl")
+    }
+
+    ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "msfullscreenchange"].forEach(
+      eventType => this.video.addEventListener(eventType, yourCheckFunction, false)
+    );
+
+    shadow.querySelector("#background-div").addEventListener("mouseenter", () => {
       if (!this.video.paused) {
-        console.log("mouseenter if statement")
-        this.video.muted = true;
         this.video.pause();
         pausing = true;
       }
-    })
+    });
 
-    shadow.querySelector("#controller").addEventListener("mouseleave", () => {
-      console.log("mouseleave")
+    shadow.querySelector("#background-div").addEventListener("mouseleave", () => {
       if (pausing) {
-        console.log("mouseleave if statement")
-        this.video.muted = true;
         this.video.play();
         pausing = false;
       }
-    })
+    });
 
     shadow.getElementById("chooseFile").addEventListener("change", (e) => {
       const file = e.target.files[0];
@@ -466,7 +473,7 @@ function defineVideoController() {
 
         // Adding "Skip Start" manually
         if (newSubs[0].start > 5) {
-          newSubs.unshift({ text: "Skip silence (" + Math.round(newSubs[0].start) + " seconds)", start: 0, end: newSubs[0].start });
+          newSubs.unshift({ text: "Silence (" + Math.round(newSubs[0].start) + " seconds)", start: 0, end: newSubs[0].start });
         }
 
         // Adding "Skip silence" to our subtitle array (newSubs)
@@ -474,7 +481,7 @@ function defineVideoController() {
           const silence = newSubs[i].start - newSubs[i - 1].end;
           if (silence > 5) {
             newSubs.splice(i, 0, {
-              text: "Skip silence (" + Math.round(silence) + " seconds)",
+              text: "Silence (" + Math.round(silence) + " seconds)",
               start: newSubs[i - 1].end,
               end: newSubs[i].start
             });
@@ -963,22 +970,26 @@ function runAction(action, value, e) {
         }
 
       } else if (action === "smaller") {
-        const style = controller.shadowRoot.querySelector("#subtitles").style;
-        const oldSize = Number(style.fontSize.replace(/px/, ""));
+        const subtitleStyle = controller.shadowRoot.querySelector("#subtitles").style;
+        const prevNextArr = controller.shadowRoot.querySelectorAll(".prev-next-button");
+        const oldSize = Number(subtitleStyle.fontSize.replace(/px/, ""));
         const newSize = (oldSize - 2) + "px";
 
         if (oldSize > 14) {
-          style.fontSize = newSize;
+          subtitleStyle.fontSize = newSize;
+          prevNextArr.forEach(elem => elem.style.fontSize = newSize);
           chrome.storage.sync.set({ fontSize: newSize });
         }
 
       } else if (action === "bigger") {
-        const style = controller.shadowRoot.querySelector("#subtitles").style;
-        const oldSize = Number(style.fontSize.replace(/px/, ""));
+        const subtitleStyle = controller.shadowRoot.querySelector("#subtitles").style;
+        const prevNextArr = controller.shadowRoot.querySelectorAll(".prev-next-button");
+        const oldSize = Number(subtitleStyle.fontSize.replace(/px/, ""));
         const newSize = (oldSize + 2) + "px";
 
         if (oldSize < 88) {
-          style.fontSize = newSize;
+          subtitleStyle.fontSize = newSize;
+          prevNextArr.forEach(elem => elem.style.fontSize = newSize);
           chrome.storage.sync.set({ fontSize: newSize });
         }
 

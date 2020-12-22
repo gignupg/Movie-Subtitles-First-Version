@@ -415,9 +415,7 @@ function defineVideoController() {
     resizer.observe(this.video);
 
     function handleResize() {
-      console.log("something changed");
-
-      shadow.querySelector("#controller").style.top = "50px";
+      shadow.querySelector("#controller").style.top = "300px";
     }
 
     shadow.querySelector("#background-div").addEventListener("mouseenter", () => {
@@ -901,7 +899,7 @@ function monitorPlaybackTime() {
   tc.mediaElements.forEach(v => {
     v.ontimeupdate = () => {
       if (subs && subs.length > 1) {
-        const time = v.currentTime;
+        const time = v.currentTime.toFixed(3);
         const newPos = subs.findIndex(el => el.start <= time && el.end > time);
 
         // If a match was found update "pos"

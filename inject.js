@@ -377,7 +377,7 @@ function defineVideoController() {
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
 
-        <div id="controller" style="top:${top}; left:${left}; opacity:${tc.settings.controllerOpacity}">
+        <div id="controller" style="opacity:${tc.settings.controllerOpacity}">
           <div id="background-div">
             <button data-action="rewind" class="rw prev-next-button">«</button></button>
             <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>

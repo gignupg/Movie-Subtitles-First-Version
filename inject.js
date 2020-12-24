@@ -32,19 +32,6 @@ function buttonClicked(e) {
   }
 }
 
-// Retrieving subtitles from backend
-chrome.runtime.onMessage.addListener(messageReceived);
-
-function messageReceived(action) {
-  if (action.subtitles) {
-    subs = action.subtitles;
-  }
-
-  if (action.calibration) {
-    subtitleCalibrator(action.calibration);
-  }
-}
-
 function subtitleCalibrator(calibration) {
   let offset = 0;
 
@@ -406,6 +393,20 @@ function defineVideoController() {
       },
       true
     );
+
+    chrome.runtime.onMessage.addListener(messageReceived);
+
+    function messageReceived(msg) {
+      if (msg.subtitles) {
+        subs = msg.subtitles;
+
+      } else if (msg.calibration) {
+        subtitleCalibrator(msg.calibration);
+
+      } else if (msg.import) {
+        shadow.getElementById("chooseFile").click();
+      }
+    }
 
     shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize;
 

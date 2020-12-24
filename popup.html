@@ -3,13 +3,12 @@
   <head>
     <title>Video Speed Controller: Popup</title>
     <link rel="stylesheet" href="popup.css" />
-    <script src="popup.js"></script>
   </head>
   <body>
     <h1>Movie Subtitles</h1>
+    <h3>On/Off</h3>
     <div>
-      <label for="chooseFile" class="fileLabel">Select Subtitles</label>
-      <input id="chooseFile" type="file" accept=".srt"></input>
+    <button id="subtitle-import">Import Subtitles</button>
     <h3>Subtitles out of sync?</h3>
     <p>Show subtitles</p>
       <input id="calibration-offset" type="number"></input>
@@ -22,16 +21,8 @@
       <button id="calibration-reset">reset</button>
     </div>
     <hr />
-    <hr />
-    <script src="subtitleLoader.js"></script>
+    <button id="config">Shortcuts</button>
     <script src="subtitleCalibration.js"></script>
-    <button id="enable" class="hide">Enable</button>
-    <button id="disable">Disable</button>
-    <span id="status" class="hide"></span>
-    <hr />
-    <button id="config">Settings</button>
-    <hr />
-    <button id="feedback" class="secondary">Send feedback</button>
-    <button id="about" class="secondary">About</button>
+    <script src="popup.js"></script>
   </body>
 </html>

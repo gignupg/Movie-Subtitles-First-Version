@@ -70,7 +70,6 @@ var tc = {
     lastSpeed: 1.0, // default 1x
     enabled: true, // default enabled
     speeds: {}, // empty object to hold speed for each source
-
     displayKeyCode: 86, // default: V
     rememberSpeed: false, // default: false
     forceLastSavedSpeed: false, //default: false

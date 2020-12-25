@@ -1,5 +1,5 @@
 body {
-  min-width: 8em;
+  width: 300px;
 }
 
 hr {
@@ -48,4 +48,29 @@ button {
   color: black;
   padding: 2px 5px;
   font-weight: 900;
+}
+
+.heading {
+  margin: 20px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.logo {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  cursor: pointer;
+}
+
+.power-button-container {
+    display: flex;
+    justify-content: center;
+}
+
+.power-button {
+  text-align: center;
+  margin: 20px;
+  cursor: pointer;
 }

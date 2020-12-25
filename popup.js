@@ -1,3 +1,6 @@
+let extensionOn = null;
+const settingsNode = document.querySelector("#settings");
+
 document.querySelector("#subtitle-import").addEventListener("click", function () {
   chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
     const message = { import: "file" };
@@ -5,46 +8,26 @@ document.querySelector("#subtitle-import").addEventListener("click", function ()
   });
 });
 
+document.querySelector(".power-button").addEventListener("click", toggleEnabled);
+
 document.querySelector("#config").addEventListener("click", function () {
   window.open(chrome.runtime.getURL("options.html"));
 });
 
-document.querySelector("#about").addEventListener("click", function () {
-  window.open("https://github.com/igrigorik/videospeed");
+chrome.storage.sync.get({ enabled: true }, storage => {
+  extensionOn = storage.enabled;
+  toggleEnabledUI(extensionOn);
 });
 
-document.querySelector("#feedback").addEventListener("click", function () {
-  window.open("https://github.com/igrigorik/videospeed/issues");
-});
-
-document.querySelector("#enable").addEventListener("click", function () {
-  toggleEnabled(true, settingsSavedReloadMessage);
-});
-
-document.querySelector("#disable").addEventListener("click", function () {
-  toggleEnabled(false, settingsSavedReloadMessage);
-});
-
-chrome.storage.sync.get({ enabled: true }, function (storage) {
-  toggleEnabledUI(storage.enabled);
-});
-
-function toggleEnabled(enabled, callback) {
-  chrome.storage.sync.set(
-    {
-      enabled: enabled
-    },
-    function () {
-      toggleEnabledUI(enabled);
-      if (callback) callback(enabled);
-    }
+function toggleEnabled() {
+  extensionOn = !extensionOn;
+  chrome.storage.sync.set({ enabled: extensionOn }, () => {
+    toggleEnabledUI(extensionOn);
+  }
   );
 }
 
 function toggleEnabledUI(enabled) {
-  document.querySelector("#enable").classList.toggle("hide", enabled);
-  document.querySelector("#disable").classList.toggle("hide", !enabled);
-
   const suffix = `${enabled ? "" : "_disabled"}.png`;
   chrome.browserAction.setIcon({
     path: {
@@ -53,20 +36,19 @@ function toggleEnabledUI(enabled) {
       "48": "icons/movie-subtitles-48" + suffix
     }
   });
-}
+  document.querySelector(".logo").src = "icons/movie-subtitles-48" + suffix;
+  if (enabled) {
+    const newItem = document.createElement("LI");
+    newItem.innerHTML = "something";
 
-function settingsSavedReloadMessage(enabled) {
-  setStatusMessage(
-    `${enabled ? "Enabled" : "Disabled"}. Reload page to see changes`
-  );
-}
+    const scriptNode = document.getElementsByTagName("script")[0];
 
-function setStatusMessage(str) {
-  const status_element = document.querySelector("#status");
-  status_element.classList.toggle("hide", false);
-  status_element.innerText = str;
-}
+    document.getElementsByTagName("body")[0].insertBefore(settingsNode, scriptNode)
 
+  } else {
+    settingsNode.remove();
+  }
+}
 
 function timeInSeconds(time) {
   const split = time.split(/:|,/);

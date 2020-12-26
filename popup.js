@@ -1,6 +1,15 @@
 let extensionOn = null;
 const settingsNode = document.querySelector("#settings");
 
+console.log(settingsNode);
+
+chrome.storage.sync.get({ enabled: true }, storage => {
+  extensionOn = storage.enabled;
+  toggleEnabledUI(extensionOn);
+});
+
+document.querySelector(".power-button").addEventListener("click", toggleEnabled);
+
 document.querySelector("#subtitle-import").addEventListener("click", function () {
   chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
     const message = { import: "file" };
@@ -8,23 +17,15 @@ document.querySelector("#subtitle-import").addEventListener("click", function ()
   });
 });
 
-document.querySelector(".power-button").addEventListener("click", toggleEnabled);
-
 document.querySelector("#config").addEventListener("click", function () {
   window.open(chrome.runtime.getURL("options.html"));
-});
-
-chrome.storage.sync.get({ enabled: true }, storage => {
-  extensionOn = storage.enabled;
-  toggleEnabledUI(extensionOn);
 });
 
 function toggleEnabled() {
   extensionOn = !extensionOn;
   chrome.storage.sync.set({ enabled: extensionOn }, () => {
     toggleEnabledUI(extensionOn);
-  }
-  );
+  });
 }
 
 function toggleEnabledUI(enabled) {
@@ -37,16 +38,26 @@ function toggleEnabledUI(enabled) {
     }
   });
   document.querySelector(".logo").src = "icons/movie-subtitles-48" + suffix;
+
   if (enabled) {
-    const newItem = document.createElement("LI");
-    newItem.innerHTML = "something";
+    settingsNode.classList.remove("hide");
 
-    const scriptNode = document.getElementsByTagName("script")[0];
-
-    document.getElementsByTagName("body")[0].insertBefore(settingsNode, scriptNode)
+    // Reloading the shadow dom!
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+      const message = { show: true };
+      // const message = { reload: true };
+      chrome.tabs.sendMessage(tab[0].id, message);
+    });
 
   } else {
-    settingsNode.remove();
+    settingsNode.classList.add("hide");
+
+    // Unloading the shadow dom!
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+      const message = { hide: true };
+      // const message = { unload: true };
+      chrome.tabs.sendMessage(tab[0].id, message);
+    });
   }
 }
 

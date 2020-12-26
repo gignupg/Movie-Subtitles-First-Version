@@ -404,6 +404,12 @@ function defineVideoController() {
 
       } else if (msg.import) {
         shadow.getElementById("chooseFile").click();
+
+      } else if (msg.hide) {
+        wrapper.classList.add("vsc-nosource");
+
+      } else if (msg.show && tc.settings.enabled) {
+        wrapper.classList.remove("vsc-nosource");
       }
     }
 
@@ -1138,4 +1144,13 @@ function showController(controller) {
     timer = false;
     log("Hiding controller", 5);
   }, 2000);
+}
+
+chrome.runtime.onMessage.addListener(reactivateShadowDom);
+
+function reactivateShadowDom(msg) {
+  if (msg.show && !tc.settings.enabled) {
+    tc.settings.enabled = true;
+    initializeNow(window.document)
+  } 
 }

@@ -20,16 +20,17 @@ hr {
 }
 
 .heading {
-  margin: 20px;
+  margin-top: 20px;
   text-align: center;
   font-size: 24px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .logo {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 30px;
   cursor: pointer;
 }
 
@@ -40,6 +41,19 @@ hr {
 
 .power-button {
   text-align: center;
-  margin: 20px;
+  margin-top: 30px;
+  margin-bottom: 20px;
   cursor: pointer;
+}
+
+.menu {
+  font-size: 14px;
+}
+
+.menu-heading {
+  font-size: 16px;
+  margin-left: 20px;
+  font-weight: 500;
+  margin-top: 10px;
+  margin-bottom: 0;
 }

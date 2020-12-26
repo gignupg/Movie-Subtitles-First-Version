@@ -424,14 +424,14 @@ function defineVideoController() {
       shadow.querySelector("#controller").style.top = "300px";
     }
 
-    shadow.querySelector("#background-div").addEventListener("mouseenter", () => {
+    shadow.querySelector("#controller").addEventListener("mouseenter", () => {
       if (!this.video.paused) {
         this.video.pause();
         pausing = true;
       }
     });
 
-    shadow.querySelector("#background-div").addEventListener("mouseleave", () => {
+    shadow.querySelector("#controller").addEventListener("mouseleave", () => {
       if (pausing) {
         this.video.play();
         pausing = false;

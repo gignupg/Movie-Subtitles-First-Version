@@ -1,9 +1,9 @@
 {
-  "name": "Subtitle Controller Fork",
-  "short_name": "videospeed",
-  "version": "0.6.3",
+  "name": "Movie Subtitles",
+  "short_name": "moviesubs",
+  "version": "0.1.4",
   "manifest_version": 2,
-  "description": "Speed up, slow down, advance and rewind HTML5 audio/video with shortcuts",
+  "description": "Watch your favorite movies with subtitles, repeat sentences, skip silences, synchronize",
   "homepage_url": "https://github.com/igrigorik/videospeed",
   "icons": {
     "16": "icons/movie-subtitles-16.png",

@@ -31,7 +31,6 @@ hr {
   margin-left: auto;
   margin-right: auto;
   margin-top: 30px;
-  cursor: pointer;
 }
 
 .power-button-container {
@@ -56,4 +55,12 @@ hr {
   font-weight: 500;
   margin-top: 10px;
   margin-bottom: 0;
+}
+
+.default-cursor {
+  cursor: default;
+}
+
+.pointer-cursor {
+  cursor: pointer;
 }

@@ -18,8 +18,49 @@ document.querySelector("#subtitle-import").addEventListener("click", function ()
 });
 
 document.querySelector("#config").addEventListener("click", function () {
-  window.open(chrome.runtime.getURL("options.html"));
+  chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+    const message = { import: "file" };
+    chrome.tabs.sendMessage(tab[0].id, message);
+  });
 });
+
+document.querySelector("#size-minus").addEventListener("click", function () {
+  chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+    const message = { size: "minus" };
+    chrome.tabs.sendMessage(tab[0].id, message);
+  });
+});
+
+document.querySelector("#size-plus").addEventListener("click", function () {
+  chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+    const message = { size: "plus" };
+    chrome.tabs.sendMessage(tab[0].id, message);
+  });
+});
+
+document.querySelector("#opacity-minus").addEventListener("click", function () {
+  chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+    const message = { opacity: "minus" };
+    chrome.tabs.sendMessage(tab[0].id, message);
+  });
+});
+
+document.querySelector("#opacity-plus").addEventListener("click", function () {
+  chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+    const message = { opacity: "plus" };
+    chrome.tabs.sendMessage(tab[0].id, message);
+  });
+});
+
+document.querySelector("#sync").addEventListener("click", function () {
+  // Hide main section
+  document.querySelector("#main-section").classList.add("hide");
+
+  // Show sync section
+  document.querySelector("#sync-section").classList.remove("hide");
+});
+
+
 
 function toggleEnabled() {
   extensionOn = !extensionOn;

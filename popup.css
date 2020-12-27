@@ -64,3 +64,16 @@ hr {
 .pointer-cursor {
   cursor: pointer;
 }
+
+.hide {
+  display: none;
+}
+
+.sync-input {
+  width: 50px;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-around;
+}

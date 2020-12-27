@@ -370,11 +370,11 @@ function defineVideoController() {
             <button data-action="advance" class="rw prev-next-button">»</button> 
             <div id="controls">
               <span style="font-size: 14px;">Size:</span>
-              <button data-action="smaller">&minus;</button>
-              <button data-action="bigger">&plus;</button>
-              <span style="margin-left: 30px; font-size: 14px;">Brightness:</span>
-              <button data-action="lighter">&minus;</button>
-              <button data-action="darker">&plus;</button>
+              <button data-action="smaller" id="size-minus">&minus;</button>
+              <button data-action="bigger" id="size-plus">&plus;</button>
+              <span style="margin-left: 30px; font-size: 14px;">Background:</span>
+              <button data-action="lighter" id="opacity-minus">&minus;</button>
+              <button data-action="darker" id="opacity-plus">&plus;</button>
               <span style="margin-left: 30px;">
                 <label for="chooseFile" class="fileLabel">Select Subtitles</label>
                 <input id="chooseFile" type="file" accept=".srt"></input>
@@ -410,6 +410,21 @@ function defineVideoController() {
 
       } else if (msg.show && tc.settings.enabled) {
         wrapper.classList.remove("vsc-nosource");
+
+      } else if (msg.size) {
+        if (msg.size === "minus") {
+          shadow.querySelector("#size-minus").click();
+
+        } else {
+          shadow.querySelector("#size-plus").click();
+        }
+      } else if (msg.opacity) {
+        if (msg.opacity === "minus") {
+          shadow.querySelector("#opacity-minus").click();
+
+        } else {
+          shadow.querySelector("#opacity-plus").click();
+        }
       }
     }
 

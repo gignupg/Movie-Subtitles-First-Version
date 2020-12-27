@@ -6,7 +6,6 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   </head>
   <body>
     <h1 class="heading">Movie Subtitles</h1>
@@ -17,25 +16,51 @@
     <div id="settings">
       <h3 class="menu-heading red-text text-darken-3">General:</h3>
       <div class="collection">
-        <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">search</i></span>Search Subtitles Online</a>
+        <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">search</i></span>Subtitle Search</a>
         <a id="subtitle-import" href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">file_upload</i></span>Load Subtitles from PC</a>
-        <a id="config" href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">keyboard</i></span>Shortcut Settings</a>
       </div>
       <h3 class="menu-heading red-text text-darken-3" style="margin-top: 30px">Display:</h3>
       <div class="collection">
-        <a href="#!" class="collection-item menu black-text default-cursor"><span class="badge"><i class="material-icons pointer-cursor">remove_circle</i><i class="material-icons pointer-cursor">add_circle</i></span>Subtitle Size</a>
-        <a href="#!" class="collection-item menu black-text default-cursor"><span class="badge"><i class="material-icons pointer-cursor">remove_circle</i><i class="material-icons pointer-cursor">add_circle</i></span>Brightness</a>
-        <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">sync</i></span>Synchronize Subtitles</a>
+        <a href="#!" class="collection-item menu black-text default-cursor"><span class="badge"><i class="material-icons pointer-cursor" id="size-minus">remove_circle</i><i class="material-icons pointer-cursor" id="size-plus">add_circle</i></span>Subtitle Size</a>
+        <a href="#!" class="collection-item menu black-text default-cursor"><span class="badge"><i class="material-icons pointer-cursor" id="opacity-minus">remove_circle</i><i class="material-icons pointer-cursor" id="opacity-plus">add_circle</i></span>Background</a>
+      </div>
+      <h3 class="menu-heading red-text text-darken-3" style="margin-top: 30px">Synchronization:</h3>
+      <div class="collection">
+        <a href="#!" class="collection-item menu black-text default-cursor"><span class="badge"><input type="text" class="browser-default sync-input" placeholder="0 secs"></span>Show Subtitles Earlier</a>
+        <a href="#!" class="collection-item menu black-text default-cursor"><span class="badge"><input type="text" class="browser-default sync-input" placeholder="0 secs"></span>Show Subtitles Later</a>
+        <a href="#!" class="collection-item menu black-text default-cursor">
+          <div class="flex-container">
+            <button class="browser-default deep-orange accent-2 btn btn-small waves-effect waves-light">Sync Now</button>
+            <button class="browser-default grey darken-1 btn btn-small waves-effect waves-light">Reset Sync</button>
+          </div>
+        </a>
+      </div>
+      <h3 class="menu-heading red-text text-darken-3" style="margin-top: 30px">More Options:</h3>
+      <div class="collection">
+        <a id="config" href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">keyboard</i></span>Shortcut Settings</a>
+        <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">list</i></span>Blacklist</a>
+        <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">feedback</i></span>Feedback</a>
+        <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">group</i></span>About</a>
+      </div>
+    </div>
+  </div>
+    <div id="sync-section" class="hide">
+      <h1 class="heading">Synchronization</h1>
+      <div class="col s12">
+        <div class="input-field inline">
+          <input id="email_inline" type="email" class="validate">
+          <label for="email_inline">Email</label>
+        </div>
       </div>
       <p>Show subtitles</p>
-        <input id="calibration-offset" type="number"></input>
-      <p>seconds</p>
-      <select id="calibration-direction">
-        <option>earlier</option>
-        <option>later</option>
-      </select>
-      <button id="calibration-confirmation">save</button>
-      <button id="calibration-reset">reset</button>
+          <input id="calibration-offset" type="number"></input>
+        <p>seconds</p>
+        <select id="calibration-direction">
+          <option>earlier</option>
+          <option>later</option>
+        </select>
+        <button id="calibration-confirmation">save</button>
+        <button id="calibration-reset">reset</button>
     </div>
     <script src="subtitleCalibration.js"></script>
     <script src="popup.js"></script>

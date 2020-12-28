@@ -1,11 +1,14 @@
 let extensionOn = null;
 const settingsNode = document.querySelector("#settings");
 
-console.log(settingsNode);
-
 chrome.storage.sync.get({ enabled: true }, storage => {
   extensionOn = storage.enabled;
   toggleEnabledUI(extensionOn);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  var elems = document.querySelectorAll('.tooltipped');
+  M.Tooltip.init(elems, { enterDelay: 1000});
 });
 
 document.querySelector(".power-button").addEventListener("click", toggleEnabled);
@@ -17,11 +20,8 @@ document.querySelector("#subtitle-import").addEventListener("click", function ()
   });
 });
 
-document.querySelector("#config").addEventListener("click", function () {
-  chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-    const message = { import: "file" };
-    chrome.tabs.sendMessage(tab[0].id, message);
-  });
+document.querySelector("#shortcuts").addEventListener("click", function () {
+  window.open(chrome.runtime.getURL("options.html"));
 });
 
 document.querySelector("#size-minus").addEventListener("click", function () {
@@ -52,12 +52,23 @@ document.querySelector("#opacity-plus").addEventListener("click", function () {
   });
 });
 
-document.querySelector("#sync").addEventListener("click", function () {
-  // Hide main section
-  document.querySelector("#main-section").classList.add("hide");
+document.querySelector("#sync-now").addEventListener("click", function () {
+  console.log("syncing now...");
+  const earlier = document.querySelector("#sync-earlier").value;
+  const later = document.querySelector("#sync-later").value;
 
-  // Show sync section
-  document.querySelector("#sync-section").classList.remove("hide");
+  if (earlier && later) {
+    // Display an error message!
+    console.log("Subtitles can only be displayed earlier or later not both at the same time!");
+  } 
+  // else if () {
+
+  // }
+
+});
+
+document.querySelector("#reset-sync").addEventListener("click", function () {
+  console.log("Resetting is not yet supported ;(");
 });
 
 
@@ -78,10 +89,16 @@ function toggleEnabledUI(enabled) {
       "48": "icons/movie-subtitles-48" + suffix
     }
   });
+
   document.querySelector(".logo").src = "icons/movie-subtitles-48" + suffix;
 
   if (enabled) {
+    // Showing the menu with all its options and settings
     settingsNode.classList.remove("hide");
+
+    // Changing the hover color of the power button
+    document.querySelector(".power-button").classList.remove("turn-on");
+    document.querySelector(".power-button").classList.add("turn-off");
 
     // Reloading the shadow dom!
     chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
@@ -91,7 +108,12 @@ function toggleEnabledUI(enabled) {
     });
 
   } else {
+    // Hiding the menu with all its options and settings
     settingsNode.classList.add("hide");
+
+    // Changing the hover color of the power button
+    document.querySelector(".power-button").classList.remove("turn-off");
+    document.querySelector(".power-button").classList.add("turn-on");
 
     // Unloading the shadow dom!
     chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {

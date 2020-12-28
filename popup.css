@@ -45,6 +45,14 @@ hr {
   cursor: pointer;
 }
 
+.turn-off:hover {
+  color: rgb(194, 5, 5);
+}
+
+.turn-on:hover {
+  color: rgb(0, 162, 255);
+}
+
 .menu {
   font-size: 14px;
 }

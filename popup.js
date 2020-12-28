@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.querySelector(".power-button").addEventListener("click", toggleEnabled);
 
-document.querySelector("#refresh-popup-icon").addEventListener("click", checkForVideo);
+document.querySelector("#refresh-popup-icon").addEventListener("click", refreshPopup);
 
 document.querySelector("#subtitle-import").addEventListener("click", function() {
     chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
@@ -127,6 +127,8 @@ function toggleEnabledUI(enabled) {
             chrome.tabs.sendMessage(tab[0].id, message);
         });
 
+        checkForVideo();
+
     } else {
         // Hiding the menu with all its options and settings
         document.querySelector("#settings").classList.add("hide");
@@ -158,6 +160,9 @@ function timeInSeconds(time) {
 }
 
 function checkForVideo() {
+    // Display the general-section no matter what
+    document.querySelector("#general-section").classList.remove("hide");
+
     // Video detected?
     // If so, display all subtitle related options
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
@@ -182,4 +187,18 @@ function calibrationHandler(offset, direction) {
         };
         chrome.tabs.sendMessage(tab[0].id, message);
     });
+}
+
+function refreshPopup() {
+    // Make the refresh icon spin for half a second
+    document.querySelector("#refresh-popup-icon").classList.add("fa-spin");
+
+    // Hide the general section while refreshing
+    document.querySelector("#general-section").classList.add("hide");
+
+    setTimeout(() => {
+        document.querySelector("#refresh-popup-icon").classList.remove("fa-spin");
+        checkForVideo();
+    }, 1000);
+
 }

@@ -1,87 +1,91 @@
 body {
-  width: 300px;
+    width: 300px;
 }
 
 hr {
-  width: 100%;
-  border: 0;
-  height: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.3);
-  margin: 0.6em 0;
+    width: 100%;
+    border: 0;
+    height: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.3);
+    margin: 0.6em 0;
 }
 
 .secondary {
-  font-size: 0.95em;
-  margin: 0.15em 0;
+    font-size: 0.95em;
+    margin: 0.15em 0;
 }
 
 .hide {
-  display: none;
+    display: none;
 }
 
 .heading {
-  margin-top: 20px;
-  text-align: center;
-  font-size: 24px;
-  font-weight: 400;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 400;
 }
 
 .logo {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 30px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
 }
 
-.power-button-container {
+.centered-container {
     display: flex;
     justify-content: center;
 }
 
 .power-button {
-  text-align: center;
-  margin-top: 30px;
-  margin-bottom: 20px;
-  cursor: pointer;
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    cursor: pointer;
 }
 
 .turn-off:hover {
-  color: rgb(194, 5, 5);
+    color: rgb(194, 5, 5);
 }
 
 .turn-on:hover {
-  color: rgb(0, 162, 255);
+    color: rgb(8, 140, 216);
 }
 
 .menu {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 .menu-heading {
-  font-size: 16px;
-  margin-left: 20px;
-  font-weight: 500;
-  margin-top: 10px;
-  margin-bottom: 0;
+    font-size: 16px;
+    margin-left: 20px;
+    font-weight: 500;
+    margin-top: 10px;
+    margin-bottom: 0;
 }
 
 .default-cursor {
-  cursor: default;
+    cursor: default;
 }
 
 .pointer-cursor {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .hide {
-  display: none;
+    display: none;
 }
 
 .sync-input {
-  width: 50px;
+    width: 50px;
 }
 
 .flex-container {
-  display: flex;
-  justify-content: space-around;
+    display: flex;
+    justify-content: space-around;
+}
+
+#refresh-popup-icon:hover {
+    cursor: pointer;
 }

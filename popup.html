@@ -1,50 +1,147 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <title>Video Speed Controller: Popup</title>
     <link rel="stylesheet" href="popup.css" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link type="text/css" rel="stylesheet" href="materialize/css/materialize.min.css"  media="screen,projection"/>
-  </head>
-  <body>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link type="text/css" rel="stylesheet" href="materialize/css/materialize.min.css" media="screen,projection" />
+</head>
+
+<body>
     <h1 class="heading">Movie Subtitles</h1>
-    <img src="icons/movie-subtitles-38.png" alt="Logo" class="logo">
-    <div class="power-button-container">
-        <i style="font-size:22px" class="power-button fa">&#xf011;</i>
+    <img src="icons/movie-subtitles-38.png" alt="Logo" class="logo" />
+    <div class="centered-container">
+        <i style="font-size: 22px" class="power-button fa tooltipped" data-position="top" data-tooltip="Turn Extension On/Off">&#xf011;</i
+      >
+    </div>
+    <div id="video-detected">
+      <h5 class="center-align red-text text-darken-3">No video detected :(</h5>
+      <div class="centered-container">
+        <i
+          id="refresh-popup-icon"
+          style="font-size: 22px; margin-top: 20px"
+          class="fa fa-refresh light-blue-text text-darken-1 tooltipped"
+          data-position="top"
+          data-tooltip="Refresh if video has loaded"
+          aria-hidden="true"
+        ></i>
+    </div>
     </div>
     <div id="settings">
-      <h3 class="menu-heading red-text text-darken-3">General:</h3>
-      <div class="collection">
-        <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">search</i></span>Subtitle Search</a>
-        <a id="subtitle-import" href="#!" class="collection-item menu black-text tooltipped" data-position="top" data-tooltip="Make sure the file format is .srt"><span class="badge"><i class="material-icons">file_upload</i></span>Load Subtitles from PC</a>
-      </div>
-      <h3 class="menu-heading red-text text-darken-3" style="margin-top: 30px">Display:</h3>
-      <div class="collection">
-        <a href="#!" class="collection-item menu black-text default-cursor"><span class="badge"><i class="material-icons pointer-cursor" id="size-minus">remove_circle</i><i class="material-icons pointer-cursor" id="size-plus">add_circle</i></span>Subtitle Size</a>
-        <a href="#!" class="collection-item menu black-text default-cursor"><span class="badge"><i class="material-icons pointer-cursor" id="opacity-minus">remove_circle</i><i class="material-icons pointer-cursor" id="opacity-plus">add_circle</i></span>Background</a>
-      </div>
-      <h3 class="menu-heading red-text text-darken-3" style="margin-top: 30px">Synchronization:</h3>
-      <div class="collection">
-        <a href="#!" class="collection-item menu black-text default-cursor"><span class="badge"><input type="text" class="browser-default sync-input" id="sync-earlier" placeholder="0 secs"></span>Display Subtitles earlier</a>
-        <a href="#!" class="collection-item menu black-text default-cursor"><span class="badge"><input type="text" class="browser-default sync-input" id="sync-later" placeholder="0 secs"></span>Display Subtitles later</a>
-        <a href="#!" class="collection-item menu black-text default-cursor">
-          <div class="flex-container">
-            <button id="sync-now" class="browser-default deep-orange accent-2 btn btn-small waves-effect waves-light">Sync Now</button>
-            <button id="reset-sync" class="browser-default grey darken-1 btn btn-small waves-effect waves-light">Reset Sync</button>
-          </div>
-        </a>
-      </div>
-      <h3 class="menu-heading red-text text-darken-3" style="margin-top: 30px">More:</h3>
-      <div class="collection">
-        <a href="#!" class="collection-item menu black-text" id="shortcuts"><span class="badge"><i class="material-icons">keyboard</i></span>Shortcuts</a>
-        <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">list</i></span>Blacklist</a>
-        <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">feedback</i></span>Feedback</a>
-        <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">group</i></span>About</a>
+        <div id="subtitle-section" class="hide">
+            <h3 class="menu-heading red-text text-darken-3">Subtitles:</h3>
+            <div class="collection">
+                <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">search</i></span
+            >Subtitle Search</a
+          >
+          <a
+            id="subtitle-import"
+            href="#!"
+            class="collection-item menu black-text tooltipped"
+            data-position="top"
+            data-tooltip="Make sure the file format is .srt"
+            ><span class="badge"><i class="material-icons">file_upload</i></span
+            >Load Subtitles from PC</a
+          >
+        </div>
+        <h3
+          class="menu-heading red-text text-darken-3"
+          style="margin-top: 30px"
+        >
+          Display:
+        </h3>
+        <div class="collection">
+          <a href="#!" class="collection-item menu black-text default-cursor"
+            ><span class="badge"
+              ><i class="material-icons pointer-cursor" id="size-minus"
+                >remove_circle</i
+              ><i class="material-icons pointer-cursor" id="size-plus"
+                >add_circle</i
+              ></span
+            >Subtitle Size</a
+          >
+          <a href="#!" class="collection-item menu black-text default-cursor"
+            ><span class="badge"
+              ><i class="material-icons pointer-cursor" id="opacity-minus"
+                >remove_circle</i
+              ><i class="material-icons pointer-cursor" id="opacity-plus"
+                >add_circle</i
+              ></span
+            >Background</a
+          >
+        </div>
+        <h3
+          class="menu-heading red-text text-darken-3"
+          style="margin-top: 30px"
+        >
+          Synchronization:
+        </h3>
+        <div class="collection">
+          <a href="#!" class="collection-item menu black-text default-cursor"
+            ><span class="badge"
+              ><input
+                type="text"
+                class="browser-default sync-input"
+                id="sync-earlier"
+                placeholder="0 secs" /></span
+            >Display Subtitles earlier</a
+          >
+          <a href="#!" class="collection-item menu black-text default-cursor"
+            ><span class="badge"
+              ><input
+                type="text"
+                class="browser-default sync-input"
+                id="sync-later"
+                placeholder="0 secs" /></span
+            >Display Subtitles later</a
+          >
+          <a href="#!" class="collection-item menu black-text default-cursor">
+            <div class="flex-container">
+              <button
+                id="sync-now"
+                class="browser-default deep-orange accent-2 btn btn-small waves-effect waves-light"
+              >
+                Sync Now
+              </button>
+              <button
+                id="reset-sync"
+                class="browser-default grey darken-1 btn btn-small waves-effect waves-light"
+              >
+                Reset Sync
+              </button>
+            </div>
+          </a>
+            </div>
+        </div>
+        <div id="general-section">
+            <h3 class="menu-heading red-text text-darken-3" style="margin-top: 30px">
+                General:
+            </h3>
+            <div class="collection">
+                <a href="#!" class="collection-item menu black-text" id="shortcuts"><span class="badge"><i class="material-icons">keyboard</i></span
+            >Shortcuts</a
+          >
+          <a href="#!" class="collection-item menu black-text"
+            ><span class="badge"><i class="material-icons">list</i></span
+            >Blacklist</a
+          >
+          <a href="#!" class="collection-item menu black-text"
+            ><span class="badge"><i class="material-icons">feedback</i></span
+            >Feedback</a
+          >
+          <a href="#!" class="collection-item menu black-text"
+            ><span class="badge"><i class="material-icons">group</i></span
+            >About</a
+          >
+        </div>
       </div>
     </div>
-  </div>
-    <script type="text/javascript" src="materialize/js/materialize.min.js"></script>
+    <script
+      type="text/javascript"
+      src="materialize/js/materialize.min.js"
+    ></script>
     <script src="popup.js"></script>
   </body>
 </html>

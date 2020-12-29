@@ -1,12 +1,18 @@
 let extensionOn = false;
 let videoDetected = false;
 
+// Connecting the popup so the background script can get notified when the popup closes 
+chrome.runtime.connect({ name: "subtitle popup" });
+
 chrome.storage.sync.get({ enabled: true }, storage => {
     extensionOn = storage.enabled;
     toggleEnabledUI(extensionOn);
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Push subtitles to the left
+    messageContentScript({ pushSubtitles: true });
+
     // Initializing tooltips for Materialize
     var elems = document.querySelectorAll('.tooltipped');
     M.Tooltip.init(elems, { enterDelay: 500 });
@@ -14,15 +20,24 @@ document.addEventListener('DOMContentLoaded', function() {
     checkForVideo();
 });
 
+window.addEventListener("unload", function() {
+    messageContentScript({ popupClosing: true });
+}, true);
+
+document.getElementsByTagName("html")[0].addEventListener("mouseenter", function() {
+    messageContentScript({ pushSubtitles: true });
+});
+
+document.getElementsByTagName("html")[0].addEventListener("mouseleave", function() {
+    messageContentScript({ popupClosing: true });
+});
+
 document.querySelector(".power-button").addEventListener("click", toggleEnabled);
 
 document.querySelector("#refresh-popup-icon").addEventListener("click", refreshPopup);
 
 document.querySelector("#subtitle-import").addEventListener("click", function() {
-    chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
-        const message = { import: "file" };
-        chrome.tabs.sendMessage(tab[0].id, message);
-    });
+    messageContentScript({ import: "file" });
 });
 
 document.querySelector("#shortcuts").addEventListener("click", function() {
@@ -30,60 +45,55 @@ document.querySelector("#shortcuts").addEventListener("click", function() {
 });
 
 document.querySelector("#size-minus").addEventListener("click", function() {
-    chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
-        const message = { size: "minus" };
-        chrome.tabs.sendMessage(tab[0].id, message);
-    });
+    messageContentScript({ size: "minus" });
 });
 
 document.querySelector("#size-plus").addEventListener("click", function() {
-    chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
-        const message = { size: "plus" };
-        chrome.tabs.sendMessage(tab[0].id, message);
-    });
+    messageContentScript({ size: "plus" });
 });
 
 document.querySelector("#opacity-minus").addEventListener("click", function() {
-    chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
-        const message = { opacity: "minus" };
-        chrome.tabs.sendMessage(tab[0].id, message);
-    });
+    messageContentScript({ opacity: "minus" });
 });
 
 document.querySelector("#opacity-plus").addEventListener("click", function() {
-    chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
-        const message = { opacity: "plus" };
-        chrome.tabs.sendMessage(tab[0].id, message);
-    });
+    messageContentScript({ opacity: "plus" });
 });
 
+// Syncing the subtitles if the input is valid
 document.querySelector("#sync-now").addEventListener("click", function() {
-    console.log("syncing now...");
     const earlier = document.querySelector("#sync-earlier").value.trim();
     const later = document.querySelector("#sync-later").value.trim();
 
-    if (!earlier && !later) {
-        // Show a temporary message, that 
-        console.log("No input provided. Please specify how many seconds earlier or later you want to display your subtitles!");
-
-    } else if (earlier && later) {
+    if (earlier && later) {
         // Display an error message!
         console.log("Subtitles can only be displayed earlier or later not both at the same time!");
 
-    } else if (earlier) {
-        calibrationHandler(earlier, "earlier");
+    } else if (!earlier && !later) {
+        // Show a temporary message, that 
+        console.log("No input provided. Please specify how many seconds earlier or later you want to display your subtitles!");
 
-    } else if (later) {
-        calibrationHandler(later, "later");
+    } else {
+        const input = earlier || later;
+
+        if (isNaN(input)) {
+            // error message
+            console.log("Only numbers!");
+
+        } else if (input <= 0) {
+            // error message
+            console.log("Number must be greater than 0!");
+
+        } else {
+            // Passing in the input value and the name of the input variable. In other words the offset and the direction
+            calibrationHandler(input, earlier ? "earlier" : "later");
+        }
     }
-
 });
 
 document.querySelector("#reset-sync").addEventListener("click", function() {
     console.log("Resetting is not yet supported ;(");
 });
-
-
 
 function toggleEnabled() {
     extensionOn = !extensionOn;
@@ -121,11 +131,7 @@ function toggleEnabledUI(enabled) {
         document.querySelector(".power-button").classList.add("turn-off");
 
         // Reloading the shadow dom!
-        chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
-            const message = { show: true };
-            // const message = { reload: true };
-            chrome.tabs.sendMessage(tab[0].id, message);
-        });
+        messageContentScript({ show: true });
 
         checkForVideo();
 
@@ -139,11 +145,7 @@ function toggleEnabledUI(enabled) {
         document.querySelector(".power-button").classList.add("turn-on");
 
         // Unloading the shadow dom!
-        chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
-            const message = { hide: true };
-            // const message = { unload: true };
-            chrome.tabs.sendMessage(tab[0].id, message);
-        });
+        messageContentScript({ hide: true });
     }
 }
 
@@ -201,4 +203,10 @@ function refreshPopup() {
         checkForVideo();
     }, 1000);
 
+}
+
+function messageContentScript(message) {
+    chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
+        chrome.tabs.sendMessage(tab[0].id, message);
+    });
 }

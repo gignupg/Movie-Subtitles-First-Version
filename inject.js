@@ -363,7 +363,7 @@ function defineVideoController() {
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
 
-        <div id="controller" style="opacity:${tc.settings.controllerOpacity}">
+        <div id="controller" class="subtitles-centered" style="opacity:${tc.settings.controllerOpacity}">
           <div id="background-div">
             <button data-action="rewind" class="rw prev-next-button">«</button></button>
             <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
@@ -396,7 +396,13 @@ function defineVideoController() {
         chrome.runtime.onMessage.addListener(messageReceived);
 
         function messageReceived(msg) {
-            if (msg.subtitles) {
+            if (msg.pushSubtitles) {
+                shadow.getElementById("controller").classList.remove("subtitles-centered");
+
+            } else if (msg.popupClosing) {
+                shadow.getElementById("controller").classList.add("subtitles-centered");
+
+            } else if (msg.subtitles) {
                 subs = msg.subtitles;
 
             } else if (msg.calibration) {
@@ -510,6 +516,12 @@ function defineVideoController() {
 
                 // Updating our active subtitle array (subs)
                 subs = newSubs;
+
+                // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
+                if (this.video.paused) {
+                    this.video.play();
+                    this.video.pause();
+                }
             };
 
             reader.readAsText(file, 'ISO-8859-1');

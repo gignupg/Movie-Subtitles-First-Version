@@ -27,6 +27,7 @@ window.addEventListener("unload", function() {
     messageContentScript({ popupClosing: true });
 }, true);
 
+// Updating the input value when the range slider is moved
 document.querySelector("#input-range").addEventListener("change", function() {
     const newValue = document.querySelector("#input-range").value;
     document.querySelector("#sync-input").value = newValue;
@@ -68,23 +69,11 @@ document.querySelector("#opacity-plus").addEventListener("click", function() {
     messageContentScript({ opacity: "plus" });
 });
 
-// Disable one of the input fields as soon as a value is entered in the other
-document.querySelector("#sync-earlier").addEventListener("change", () => {
-    const input = document.querySelector("#sync-earlier").value;
-    disableInputField(input, "#sync-later");
-});
-
-document.querySelector("#sync-later").addEventListener("change", () => {
-    const input = document.querySelector("#sync-later").value;
-    disableInputField(input, "#sync-earlier");
-});
 
 // Syncing the subtitles if the input is valid
 document.querySelector("#sync-now").addEventListener("click", function() {
-    const earlier = document.querySelector("#sync-earlier").value.trim();
-    const later = document.querySelector("#sync-later").value.trim();
-
-    const input = earlier || later;
+    const direction = document.querySelector("#sync-direction").value;
+    const input = document.querySelector("#sync-input").value.trim();
 
     if (!input) {
         displayErrorMessage("Input empty. To display the subtitles earlier/later, please enter a value!");
@@ -96,8 +85,7 @@ document.querySelector("#sync-now").addEventListener("click", function() {
         displayErrorMessage("Input invalid. Please, only use positive numbers!");
 
     } else {
-        // Passing in the input value and the name of the input variable. In other words the offset and the direction
-        calibrationHandler(input, earlier ? "earlier" : "later");
+        calibrationHandler(input, direction);
     }
 });
 
@@ -226,13 +214,4 @@ function displayErrorMessage(msg) {
 
     errorElem.innerHTML = msg;
     errorElem.classList.remove("hide");
-}
-
-function disableInputField(input, id) {
-    if (input) {
-        document.querySelector(id).disabled = true;
-
-    } else {
-        document.querySelector(id).disabled = false;
-    }
 }

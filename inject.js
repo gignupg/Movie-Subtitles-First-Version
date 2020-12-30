@@ -32,7 +32,7 @@ function buttonClicked(e) {
     }
 }
 
-function subtitleCalibrator(calibration) {
+function subtitleCalibrator(calibration, video) {
     let offset = 0;
 
     if (calibration.direction === "earlier") {
@@ -49,6 +49,12 @@ function subtitleCalibrator(calibration) {
     });
 
     subs = calibratedSubs;
+
+    // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
+    if (video.paused) {
+        video.play();
+        video.pause();
+    }
 }
 
 function timeInSeconds(time) {
@@ -406,7 +412,7 @@ function defineVideoController() {
                 subs = msg.subtitles;
 
             } else if (msg.calibration) {
-                subtitleCalibrator(msg.calibration);
+                subtitleCalibrator(msg.calibration, this.video);
 
             } else if (msg.import) {
                 shadow.getElementById("chooseFile").click();

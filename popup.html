@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="popup.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-    <link type="text/css" rel="stylesheet" href="materialize/css/materialize.min.css" media="screen,projection" />
+    <link type="text/css" rel="stylesheet" href="materialize/css/materialize.css" media="screen,projection" />
 </head>
 
 <body>
@@ -79,32 +79,38 @@
           Synchronization:
         </h3>
         <div class="collection">
-          <a
-            href="#!"
-            class="collection-item menu black-text default-cursor tooltipped"
-            data-position="top"
-            data-tooltip="1 = one second, 0.5 = half a second"
-            ><span class="badge"
-              ><input
-                type="text"
-                class="browser-default sync-input"
-                id="sync-earlier"
-                placeholder="0" /></span
-            >Display Subtitles Earlier</a
-          >
-          <a
-            href="#!"
-            class="collection-item menu black-text default-cursor tooltipped"
-            data-position="top"
-            data-tooltip="1 = one second, 0.5 = half a second"
-            ><span class="badge"
-              ><input
-                type="text"
-                class="browser-default sync-input"
-                id="sync-later"
-                placeholder="0" /></span
-            >Display Subtitles Later</a
-          >
+          <div class="input-field col s6">
+            <select>
+              <option value="earlier">Display Subtitles Earlier</option>
+              <option value="later">Display Subtitles Later</option>
+            </select>
+          </div>
+          <hr />
+          <form action="#">
+            <p class="range-field">
+              <input
+                type="range"
+                id="input-range"
+                step="0.1"
+                min="0"
+                max="10"
+                value="0"
+              />
+            </p>
+            <input
+              type="number"
+              class="browser-default sync-input center-align"
+              id="sync-input"
+              min="0"
+              step="0.1"
+              value="0"
+            />
+            <p style="display: inline-block; font-size: 16px">sec</p>
+          </form>
+          <hr />
+          <p id="error-message" class="red-text hide">
+            Something went wrong. Please make sure your input is valid!
+          </p>
           <a href="#!" class="collection-item menu black-text default-cursor">
             <div class="flex-container">
               <button

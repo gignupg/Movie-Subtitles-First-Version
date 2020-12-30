@@ -14,8 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
     messageContentScript({ pushSubtitles: true });
 
     // Initializing tooltips for Materialize
-    var elems = document.querySelectorAll('.tooltipped');
-    M.Tooltip.init(elems, { enterDelay: 500 });
+    const toolElem = document.querySelectorAll('.tooltipped');
+    const selectElem = document.querySelectorAll('select');
+
+    M.Tooltip.init(toolElem, { enterDelay: 500 });
+    M.FormSelect.init(selectElem, {});
 
     checkForVideo();
 });
@@ -23,6 +26,11 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener("unload", function() {
     messageContentScript({ popupClosing: true });
 }, true);
+
+document.querySelector("#input-range").addEventListener("change", function() {
+    const newValue = document.querySelector("#input-range").value;
+    document.querySelector("#sync-input").value = newValue;
+});
 
 document.getElementsByTagName("html")[0].addEventListener("mouseenter", function() {
     messageContentScript({ pushSubtitles: true });
@@ -60,34 +68,36 @@ document.querySelector("#opacity-plus").addEventListener("click", function() {
     messageContentScript({ opacity: "plus" });
 });
 
+// Disable one of the input fields as soon as a value is entered in the other
+document.querySelector("#sync-earlier").addEventListener("change", () => {
+    const input = document.querySelector("#sync-earlier").value;
+    disableInputField(input, "#sync-later");
+});
+
+document.querySelector("#sync-later").addEventListener("change", () => {
+    const input = document.querySelector("#sync-later").value;
+    disableInputField(input, "#sync-earlier");
+});
+
 // Syncing the subtitles if the input is valid
 document.querySelector("#sync-now").addEventListener("click", function() {
     const earlier = document.querySelector("#sync-earlier").value.trim();
     const later = document.querySelector("#sync-later").value.trim();
 
-    if (earlier && later) {
-        // Display an error message!
-        console.log("Subtitles can only be displayed earlier or later not both at the same time!");
+    const input = earlier || later;
 
-    } else if (!earlier && !later) {
-        // Show a temporary message, that 
-        console.log("No input provided. Please specify how many seconds earlier or later you want to display your subtitles!");
+    if (!input) {
+        displayErrorMessage("Input empty. To display the subtitles earlier/later, please enter a value!");
+
+    } else if (isNaN(input)) {
+        displayErrorMessage("Input invalid. Please, only use numbers!");
+
+    } else if (input < 0) {
+        displayErrorMessage("Input invalid. Please, only use positive numbers!");
 
     } else {
-        const input = earlier || later;
-
-        if (isNaN(input)) {
-            // error message
-            console.log("Only numbers!");
-
-        } else if (input <= 0) {
-            // error message
-            console.log("Number must be greater than 0!");
-
-        } else {
-            // Passing in the input value and the name of the input variable. In other words the offset and the direction
-            calibrationHandler(input, earlier ? "earlier" : "later");
-        }
+        // Passing in the input value and the name of the input variable. In other words the offset and the direction
+        calibrationHandler(input, earlier ? "earlier" : "later");
     }
 });
 
@@ -209,4 +219,20 @@ function messageContentScript(message) {
     chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
         chrome.tabs.sendMessage(tab[0].id, message);
     });
+}
+
+function displayErrorMessage(msg) {
+    const errorElem = document.querySelector("#error-message");
+
+    errorElem.innerHTML = msg;
+    errorElem.classList.remove("hide");
+}
+
+function disableInputField(input, id) {
+    if (input) {
+        document.querySelector(id).disabled = true;
+
+    } else {
+        document.querySelector(id).disabled = false;
+    }
 }

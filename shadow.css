@@ -2,10 +2,6 @@
     font-family: sans-serif;
 }
 
-:host(:hover) #controls {
-    display: block;
-}
-
 :host(:hover) .prev-next-button {
     display: inline;
     margin: 5px 5px;
@@ -49,10 +45,6 @@
 #controller.dragging {
     cursor: -webkit-grabbing;
     opacity: 0.7;
-}
-
-#controller.dragging #controls {
-    display: block;
 }
 
 #controller.dragging .prev-next-button {

@@ -69,23 +69,32 @@ document.querySelector("#opacity-plus").addEventListener("click", function() {
     messageContentScript({ opacity: "plus" });
 });
 
+// Hide any error messages!
+document.querySelector("#earlier-later-block").addEventListener("click", function() {
+    document.querySelector("#error-message").classList.add("hide");
+});
+document.querySelector("#range-block").addEventListener("click", function() {
+    document.querySelector("#error-message").classList.add("hide");
+});
 
 // Syncing the subtitles if the input is valid
 document.querySelector("#sync-now").addEventListener("click", function() {
     const direction = document.querySelector("#sync-direction").value;
-    const input = document.querySelector("#sync-input").value.trim();
+    const input = Number(document.querySelector("#sync-input").value.trim());
 
     if (!input) {
-        displayErrorMessage("Input empty. To display the subtitles earlier/later, please enter a value!");
+        displayErrorMessage("Input invalid. To sync the subtitles, please enter a value bigger than 0!");
 
     } else if (isNaN(input)) {
-        displayErrorMessage("Input invalid. Please, only use numbers!");
+        displayErrorMessage("Input invalid. Only numbers allowed!");
 
     } else if (input < 0) {
-        displayErrorMessage("Input invalid. Please, only use positive numbers!");
+        displayErrorMessage("Input invalid. Only positive numbers allowed!");
 
     } else {
+        // Sync the subtitles
         calibrationHandler(input, direction);
+        window.close();
     }
 });
 

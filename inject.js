@@ -451,6 +451,14 @@ function defineVideoController() {
             }
         }
 
+        this.video.addEventListener("play", function() {
+            shadow.getElementById("controller").classList.add("subtitles-centered");
+        });
+
+        this.video.addEventListener("pause", function() {
+            shadow.getElementById("controller").classList.add("subtitles-centered");
+        });
+
         shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize;
 
         shadow.querySelectorAll(".prev-next-button").forEach(elem => elem.style.fontSize = tc.settings.fontSize);

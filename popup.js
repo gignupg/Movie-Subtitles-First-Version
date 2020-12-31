@@ -90,7 +90,7 @@ document.querySelector("#sync-now").addEventListener("click", function() {
 });
 
 document.querySelector("#reset-sync").addEventListener("click", function() {
-    console.log("Resetting is not yet supported ;(");
+    console.log("Resetting is not supported yet ;(");
 });
 
 function toggleEnabled() {

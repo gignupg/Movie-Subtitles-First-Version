@@ -399,6 +399,16 @@ function defineVideoController() {
             true
         );
 
+        // Hiding the subtitle controller on youtube when loading another video without refreshing the page.
+        // This is definitely not a perfect solution but it's the best I could come up with today. 
+        document.body.addEventListener("click", function() {
+            if (!tc.settings.enabled) {
+                setTimeout(() => {
+                    wrapper.classList.add("vsc-nosource");
+                }, 1000);
+            }
+        });
+
         chrome.runtime.onMessage.addListener(messageReceived);
 
         function messageReceived(msg) {
@@ -418,6 +428,7 @@ function defineVideoController() {
                 shadow.getElementById("chooseFile").click();
 
             } else if (msg.hide) {
+                tc.settings.enabled = false;
                 wrapper.classList.add("vsc-nosource");
 
             } else if (msg.show && tc.settings.enabled) {

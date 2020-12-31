@@ -97,7 +97,7 @@ hr {
     cursor: pointer;
 }
 
-#error-message {
+.message {
     margin: 10px 30px;
     font-size: 16px;
 }

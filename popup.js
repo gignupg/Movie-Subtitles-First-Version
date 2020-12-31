@@ -79,23 +79,35 @@ document.querySelector("#range-block").addEventListener("click", function() {
 
 // Syncing the subtitles if the input is valid
 document.querySelector("#sync-now").addEventListener("click", function() {
-    const direction = document.querySelector("#sync-direction").value;
-    const input = Number(document.querySelector("#sync-input").value.trim());
+    // First check if subtitles are loaded!
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, { subsRequest: true }, function(response) {
+            if (response && response.subsDetected) {
+                const direction = document.querySelector("#sync-direction").value;
+                const input = Number(document.querySelector("#sync-input").value.trim());
 
-    if (!input) {
-        displayErrorMessage("Input invalid. To sync the subtitles, please enter a value bigger than 0!");
+                if (!input) {
+                    displayErrorMessage("Input invalid. To sync the subtitles, please enter a value bigger than 0!");
 
-    } else if (isNaN(input)) {
-        displayErrorMessage("Input invalid. Only numbers allowed!");
+                } else if (isNaN(input)) {
+                    displayErrorMessage("Input invalid. Only numbers allowed!");
 
-    } else if (input < 0) {
-        displayErrorMessage("Input invalid. Only positive numbers allowed!");
+                } else if (input < 0) {
+                    displayErrorMessage("Input invalid. Only positive numbers allowed!");
 
-    } else {
-        // Sync the subtitles
-        calibrationHandler(input, direction);
-        window.close();
-    }
+                } else {
+                    // Sync the subtitles
+                    calibrationHandler(input, direction);
+
+                    // Closing the popup
+                    window.close();
+                }
+
+            } else {
+                displayErrorMessage("No subtitles selected. Please select subtitles before trying to synchronize them!");
+            }
+        });
+    });
 });
 
 document.querySelector("#reset-sync").addEventListener("click", function() {

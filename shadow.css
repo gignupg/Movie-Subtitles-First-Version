@@ -125,3 +125,12 @@ button.hideButton {
     padding: 2px 5px;
     font-weight: 900;
 }
+
+#synced {
+    color: rgb(0, 255, 0);
+    font-size: 14px;
+}
+
+.hide {
+    display: none;
+}

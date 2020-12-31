@@ -32,7 +32,10 @@ function buttonClicked(e) {
     }
 }
 
-function subtitleCalibrator(calibration, video) {
+function subtitleCalibrator(calibration, video, shadow) {
+    console.log("from subtitleCalibrator");
+    console.log("video", video);
+
     let offset = 0;
 
     if (calibration.direction === "earlier") {
@@ -55,6 +58,17 @@ function subtitleCalibrator(calibration, video) {
         video.play();
         video.pause();
     }
+
+    console.log("after video.paused");
+
+    // Display success message
+    shadow.querySelector("#synced").classList.remove("hide");
+
+    // Hide success message after 2 seconds
+    setTimeout(() => {
+        shadow.querySelector("#synced").classList.add("hide");
+    }, 2000);
+
 }
 
 function timeInSeconds(time) {
@@ -374,6 +388,7 @@ function defineVideoController() {
             <button data-action="rewind" class="rw prev-next-button">«</button></button>
             <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
             <button data-action="advance" class="rw prev-next-button">»</button> 
+            <div id="synced" class="hide">Successfully synced!</div>
             <div id="controls">
               <span style="font-size: 14px;">Size:</span>
               <button data-action="smaller" id="size-minus">&minus;</button>
@@ -411,6 +426,8 @@ function defineVideoController() {
 
         chrome.runtime.onMessage.addListener(messageReceived);
 
+        const thisVideo = this.video;
+
         function messageReceived(msg) {
             if (msg.pushSubtitles) {
                 shadow.getElementById("controller").classList.remove("subtitles-centered");
@@ -422,7 +439,7 @@ function defineVideoController() {
                 subs = msg.subtitles;
 
             } else if (msg.calibration) {
-                subtitleCalibrator(msg.calibration, this.video);
+                subtitleCalibrator(msg.calibration, thisVideo, shadow);
 
             } else if (msg.import) {
                 shadow.getElementById("chooseFile").click();
@@ -1199,9 +1216,9 @@ function showController(controller) {
     }, 2000);
 }
 
-chrome.runtime.onMessage.addListener(reactivateShadowDom);
+chrome.runtime.onMessage.addListener(processMessage);
 
-function reactivateShadowDom(msg, sender, sendResponse) {
+function processMessage(msg, sender, sendResponse) {
     if (msg.show && !tc.settings.enabled) {
         tc.settings.enabled = true;
         initializeNow(window.document);
@@ -1209,6 +1226,14 @@ function reactivateShadowDom(msg, sender, sendResponse) {
     } else if (msg.videoRequest) {
         if (monitoring) {
             sendResponse({ videoDetected: true });
+        } else {
+            sendResponse({ videoDetected: false });
         }
+
+    } else if (msg.subsRequest) {
+        console.log("subs", subs);
+        console.log("subs.length > 1", subs.length > 1);
+        console.log("-----------");
+        sendResponse({ subsDetected: subs.length > 1 });
     }
 }

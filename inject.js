@@ -5,7 +5,7 @@ let pausing = false;
 let pos = 0;
 
 // The subtitle array before putting our subtitles in there
-let subs = [{ text: "No subtitles selected." }];
+let subs = [{ text: "No subtitles selected" }];
 
 // Subtitle calibration/Synchronization
 let offset = 0;
@@ -15,7 +15,7 @@ function buttonClicked(e) {
     const action = e.currentTarget.myParam;
 
     // Enables us to jump between sentences. Either to the next or to the previous sentence
-    if (subs) {
+    if (subs.length > 1) {
         const time = video.currentTime;
         const firstPos = pos === 0;
         const lastPos = pos === subs.length - 1;
@@ -33,42 +33,47 @@ function buttonClicked(e) {
 }
 
 function subtitleCalibrator(calibration, video, shadow) {
-    console.log("from subtitleCalibrator");
-    console.log("video", video);
+    if (subs.length > 1) {
+        let offset = 0;
 
-    let offset = 0;
+        if (calibration.direction === "earlier") {
+            offset = calibration.offset * -1;
+        } else {
+            offset = calibration.offset;
+        }
 
-    if (calibration.direction === "earlier") {
-        offset = calibration.offset * -1;
+        // Calculate the new start and end times for the whole subtitle array
+        calibratedSubs = [];
+
+        subs.forEach(elem => {
+            calibratedSubs.push({ start: elem.start + offset, end: elem.end + offset, text: elem.text });
+        });
+
+        subs = calibratedSubs;
+
+        // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
+        if (video.paused) {
+            video.play();
+            video.pause();
+        }
+
+        // Display success message
+        shadow.querySelector("#synced").classList.remove("hide");
+
+        // Hide success message after 2 seconds
+        setTimeout(() => {
+            shadow.querySelector("#synced").classList.add("hide");
+        }, 3000);
+
     } else {
-        offset = calibration.offset;
+        // Display error message
+        shadow.querySelector("#not-synced").classList.remove("hide");
+
+        // Hide error message after 2 seconds
+        setTimeout(() => {
+            shadow.querySelector("#not-synced").classList.add("hide");
+        }, 6000);
     }
-
-    // Calculate the new start and end times for the whole subtitle array
-    calibratedSubs = [];
-
-    subs.forEach(elem => {
-        calibratedSubs.push({ start: elem.start + offset, end: elem.end + offset, text: elem.text });
-    });
-
-    subs = calibratedSubs;
-
-    // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
-    if (video.paused) {
-        video.play();
-        video.pause();
-    }
-
-    console.log("after video.paused");
-
-    // Display success message
-    shadow.querySelector("#synced").classList.remove("hide");
-
-    // Hide success message after 2 seconds
-    setTimeout(() => {
-        shadow.querySelector("#synced").classList.add("hide");
-    }, 2000);
-
 }
 
 function timeInSeconds(time) {
@@ -383,25 +388,28 @@ function defineVideoController() {
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
 
-        <div id="controller" class="subtitles-centered" style="opacity:${tc.settings.controllerOpacity}">
-          <div id="background-div">
-            <button data-action="rewind" class="rw prev-next-button">«</button></button>
-            <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
-            <button data-action="advance" class="rw prev-next-button">»</button> 
-            <div id="synced" class="hide">Successfully synced!</div>
+        <div id="movie-settings" class="hide"></div>
+        <div id="controller" class="subtitles-centered">
+            <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
+                <button data-action="rewind" class="subtitle-button">«</button></button>
+                <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
+                <button data-action="advance" class="subtitle-button">»</button> 
+                <button id="settings-icon" class="subtitle-button">&#9881;</button>
+                <div id="synced" class="hide sync-msg">Successfully synced!</div>
+                <div id="not-synced" class="hide sync-msg">Syncing error! No subtitles selected</div>
+            </div>
             <div id="controls">
-              <span style="font-size: 14px;">Size:</span>
-              <button data-action="smaller" id="size-minus">&minus;</button>
-              <button data-action="bigger" id="size-plus">&plus;</button>
-              <span style="margin-left: 30px; font-size: 14px;">Background:</span>
-              <button data-action="lighter" id="opacity-minus">&minus;</button>
-              <button data-action="darker" id="opacity-plus">&plus;</button>
-              <span style="margin-left: 30px;">
+                <span style="font-size: 14px;">Size:</span>
+                <button data-action="smaller" id="size-minus">&minus;</button>
+                <button data-action="bigger" id="size-plus">&plus;</button>
+                <span style="margin-left: 30px; font-size: 14px;">Background:</span>
+                <button data-action="lighter" id="opacity-minus">&minus;</button>
+                <button data-action="darker" id="opacity-plus">&plus;</button>
+                <span style="margin-left: 30px;">
                 <label for="chooseFile" class="fileLabel">Select Subtitles</label>
                 <input id="chooseFile" type="file" accept=".srt"></input>
-              </span>
+                </span>
             </div>
-          </div>
         </div>
       `;
         shadow.innerHTML = shadowTemplate;
@@ -476,9 +484,19 @@ function defineVideoController() {
             shadow.getElementById("controller").classList.add("subtitles-centered");
         });
 
-        shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize;
+        // Hide / Show Settings Icon;
+        // shadow.querySelector("#controller").addEventListener("mouseenter", () => {
+        //     shadow.querySelector("#settings-icon-container").classList.remove("hide");
+        //     shadow.querySelector("#settings-icon").classList.remove("hide");
+        // });
+        // shadow.querySelector("#controller").addEventListener("mouseleave", () => {
+        //     shadow.querySelector("#settings-icon-container").classList.add("hide");
+        //     shadow.querySelector("#settings-icon").classList.add("hide");
+        // });
 
-        shadow.querySelectorAll(".prev-next-button").forEach(elem => elem.style.fontSize = tc.settings.fontSize);
+        // Settings the fontSize
+        shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize;
+        shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = tc.settings.fontSize);
 
         const resizer = new ResizeObserver(handleResize);
         resizer.observe(this.video);
@@ -1026,44 +1044,55 @@ function runAction(action, value, e) {
                 }
 
             } else if (action === "lighter") {
-                const style = controller.shadowRoot.querySelector("#controller").style;
-                const newOpacity = (Number(style.opacity) - 0.1).toFixed(1);
+                const subtitleDiv = controller.shadowRoot.querySelector("#subtitle-div").style;
+                const settingsIcon = controller.shadowRoot.querySelector("#settings-icon-container").style;
+                const newOpacity = Number((tc.settings.controllerOpacity - 0.1).toFixed(1));
 
                 if (newOpacity >= 0.1) {
-                    style.opacity = newOpacity;
+                    subtitleDiv.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
+                    settingsIcon.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
                     chrome.storage.sync.set({ controllerOpacity: newOpacity });
+                    tc.settings.controllerOpacity = newOpacity;
                 }
 
             } else if (action === "darker") {
-                const style = controller.shadowRoot.querySelector("#controller").style;
-                const newOpacity = (Number(style.opacity) + 0.1).toFixed(1);
+                const subtitleDiv = controller.shadowRoot.querySelector("#subtitle-div").style;
+                const settingsIcon = controller.shadowRoot.querySelector("#settings-icon-container").style;
+                const newOpacity = Number((tc.settings.controllerOpacity + 0.1).toFixed(1));
 
                 if (newOpacity <= 1) {
-                    style.opacity = newOpacity;
+                    subtitleDiv.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
+                    settingsIcon.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
                     chrome.storage.sync.set({ controllerOpacity: newOpacity });
+                    tc.settings.controllerOpacity = newOpacity;
                 }
 
             } else if (action === "smaller") {
                 const subtitleStyle = controller.shadowRoot.querySelector("#subtitles").style;
-                const prevNextArr = controller.shadowRoot.querySelectorAll(".prev-next-button");
+                const prevNextArr = controller.shadowRoot.querySelectorAll(".subtitle-button");
+
+
                 const oldSize = Number(subtitleStyle.fontSize.replace(/px/, ""));
                 const newSize = (oldSize - 2) + "px";
 
                 if (oldSize > 14) {
                     subtitleStyle.fontSize = newSize;
                     prevNextArr.forEach(elem => elem.style.fontSize = newSize);
+
                     chrome.storage.sync.set({ fontSize: newSize });
                 }
 
             } else if (action === "bigger") {
                 const subtitleStyle = controller.shadowRoot.querySelector("#subtitles").style;
-                const prevNextArr = controller.shadowRoot.querySelectorAll(".prev-next-button");
+                const prevNextArr = controller.shadowRoot.querySelectorAll(".subtitle-button");
+
                 const oldSize = Number(subtitleStyle.fontSize.replace(/px/, ""));
                 const newSize = (oldSize + 2) + "px";
 
                 if (oldSize < 88) {
                     subtitleStyle.fontSize = newSize;
                     prevNextArr.forEach(elem => elem.style.fontSize = newSize);
+
                     chrome.storage.sync.set({ fontSize: newSize });
                 }
 
@@ -1230,10 +1259,5 @@ function processMessage(msg, sender, sendResponse) {
             sendResponse({ videoDetected: false });
         }
 
-    } else if (msg.subsRequest) {
-        console.log("subs", subs);
-        console.log("subs.length > 1", subs.length > 1);
-        console.log("-----------");
-        sendResponse({ subsDetected: subs.length > 1 });
     }
 }

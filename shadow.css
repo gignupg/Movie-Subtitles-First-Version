@@ -2,18 +2,17 @@
     font-family: sans-serif;
 }
 
-:host(:hover) .prev-next-button {
-    display: inline;
-    margin: 5px 5px;
-}
-
-.prev-next-button {
+.subtitle-button {
     display: none;
     text-decoration: none;
     font-weight: 900;
     background-color: transparent;
     color: white;
     border: none;
+}
+
+.sync-msg {
+    margin: 5px 40px;
 }
 
 #controller {
@@ -24,17 +23,22 @@
     background: transparent;
     color: white;
     border-radius: 30px;
-    padding: 6px 12px 6px 12px;
     cursor: default;
+    z-index: 9999998;
+}
+
+#movie-settings {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 300px;
+    background-color: blueviolet;
     z-index: 9999999;
 }
 
 .subtitles-centered {
     right: 0;
-}
-
-#controller:hover {
-    opacity: 0.7;
 }
 
 #controls {
@@ -44,27 +48,41 @@
 
 #controller.dragging {
     cursor: -webkit-grabbing;
-    opacity: 0.7;
 }
 
-#controller.dragging .prev-next-button {
-    display: inline;
+#controller.dragging .subtitle-button {
+    display: inline-block;
 }
 
 .draggable {
     cursor: -webkit-grab;
-    display: inline;
+    display: inline-block;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 .draggable:active {
     cursor: -webkit-grabbing;
 }
 
-#background-div {
-    background-color: black;
+#subtitle-div {
+    background-color: rgba(0, 0, 0, 0);
     display: inline-block;
     border-radius: 40px;
-    padding: 5px 20px;
+    padding: 5px 10px;
+}
+
+#subtitle-div:hover .subtitle-button {
+    display: inline-block;
+}
+
+#subtitle-div:hover #subtitles {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#settings-icon {
+    margin-left: -5px;
 }
 
 #controls>button {
@@ -88,20 +106,7 @@ button:focus {
 }
 
 button:hover {
-    opacity: 1;
-    background: #2196f3;
-    color: #ffffff;
     cursor: pointer;
-}
-
-button:active {
-    background: #2196f3;
-    color: #ffffff;
-    font-weight: bold;
-}
-
-button.rw {
-    opacity: 1;
 }
 
 button.hideButton {
@@ -128,6 +133,11 @@ button.hideButton {
 
 #synced {
     color: rgb(0, 255, 0);
+    font-size: 14px;
+}
+
+#not-synced {
+    color: rgb(255, 0, 0);
     font-size: 14px;
 }
 

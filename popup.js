@@ -10,9 +10,6 @@ chrome.storage.sync.get({ enabled: true }, storage => {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Push subtitles to the left
-    messageContentScript({ pushSubtitles: true });
-
     // Initializing tooltips for Materialize
     const toolElem = document.querySelectorAll('.tooltipped');
     const selectElem = document.querySelectorAll('select');
@@ -23,22 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
     checkForVideo();
 });
 
-window.addEventListener("unload", function() {
-    messageContentScript({ popupClosing: true });
-}, true);
-
 // Updating the input value when the range slider is moved
 document.querySelector("#input-range").addEventListener("change", function() {
     const newValue = document.querySelector("#input-range").value;
     document.querySelector("#sync-input").value = newValue;
-});
-
-document.getElementsByTagName("html")[0].addEventListener("mouseenter", function() {
-    messageContentScript({ pushSubtitles: true });
-});
-
-document.getElementsByTagName("html")[0].addEventListener("mouseleave", function() {
-    messageContentScript({ popupClosing: true });
 });
 
 document.querySelector(".power-button").addEventListener("click", toggleEnabled);

@@ -388,7 +388,11 @@ function defineVideoController() {
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
 
-        <div id="movie-settings" class="hide"></div>
+        <div id="subtitle-settings" class="">
+            <div id="settings-wrapper">
+                
+            </div>
+        </div>
         <div id="controller" class="subtitles-centered">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
                 <button data-action="rewind" class="subtitle-button">«</button></button>
@@ -437,13 +441,7 @@ function defineVideoController() {
         const thisVideo = this.video;
 
         function messageReceived(msg) {
-            if (msg.pushSubtitles) {
-                shadow.getElementById("controller").classList.remove("subtitles-centered");
-
-            } else if (msg.popupClosing) {
-                shadow.getElementById("controller").classList.add("subtitles-centered");
-
-            } else if (msg.subtitles) {
+            if (msg.subtitles) {
                 subs = msg.subtitles;
 
             } else if (msg.calibration) {
@@ -484,15 +482,9 @@ function defineVideoController() {
             shadow.getElementById("controller").classList.add("subtitles-centered");
         });
 
-        // Hide / Show Settings Icon;
-        // shadow.querySelector("#controller").addEventListener("mouseenter", () => {
-        //     shadow.querySelector("#settings-icon-container").classList.remove("hide");
-        //     shadow.querySelector("#settings-icon").classList.remove("hide");
-        // });
-        // shadow.querySelector("#controller").addEventListener("mouseleave", () => {
-        //     shadow.querySelector("#settings-icon-container").classList.add("hide");
-        //     shadow.querySelector("#settings-icon").classList.add("hide");
-        // });
+        shadow.querySelector("#settings-icon").addEventListener("click", () => {
+            shadow.querySelector("#subtitle-settings").classList.remove("hide");
+        });
 
         // Settings the fontSize
         shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize;

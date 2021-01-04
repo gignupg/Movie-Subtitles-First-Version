@@ -388,14 +388,23 @@ function defineVideoController() {
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
 
-        <div id="subtitle-settings" class="">
-            <div id="settings-wrapper">
-                
+        <div id="settings-wrapper">
+            <div id="settings-header">
+                <div id="settings-close" class="settings-item">X</div>
+                <div id="settings-title" class="settings-item">Subtitle Settings</div>
+                <div id="settings-icon" class="settings-item">
+                    <img src="${chrome.runtime.getURL("icons/movie-subtitles-38.png")}" alt="Logo" class="logo" />
+                </div>
             </div>
+            <div id="settings-body">
+
+            </div>
+        </div>
+
         </div>
         <div id="controller" class="subtitles-centered">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
-                <button data-action="rewind" class="subtitle-button">«</button></button>
+                <button data-action="rewind" class="subtitle-button">«</button>
                 <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
                 <button data-action="advance" class="subtitle-button">»</button> 
                 <button id="settings-icon" class="subtitle-button">&#9881;</button>
@@ -473,6 +482,8 @@ function defineVideoController() {
                 }
             }
         }
+
+        this.video.style.filter = "blur(8px)";
 
         this.video.addEventListener("play", function() {
             shadow.getElementById("controller").classList.add("subtitles-centered");

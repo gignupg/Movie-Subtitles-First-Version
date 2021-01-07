@@ -387,7 +387,7 @@ function defineVideoController() {
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
         
-        <div id="video-icon" class="hide">
+        <div id="video-icon">
             <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="video-img"/>
         </div>
         <div id="settings-wrapper" class="hide">
@@ -436,7 +436,7 @@ function defineVideoController() {
         </div>
 
         </div>
-        <div id="controller">
+        <div id="controller" style="top: ${this.video.clientHeight * 0.7}px;">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
                 <button data-action="rewind" class="subtitle-button">«</button>
                 <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
@@ -525,11 +525,19 @@ function defineVideoController() {
 
         function resizeHandler() {
             setTimeout(() => {
-                if (thisVideo.clientWidth >= 1000) {
+                if (thisVideo.clientWidth >= 1200) {
+                    // fullscreen, show big icon
                     shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-38.png");
 
+                    shadow.getElementById("controller").style.top = (thisVideo.clientHeight * 0.7) + "px";
+                    console.log("fullscreen height", thisVideo.clientHeight);
+
                 } else {
+                    // small screen, show small icon
                     shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
+
+                    shadow.getElementById("controller").style.top = (thisVideo.clientHeight * 0.7) + "px";
+                    console.log("small screen height", thisVideo.clientHeight);
                 }
             }, 100);
         }
@@ -567,13 +575,6 @@ function defineVideoController() {
         // Settings the fontSize
         shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize;
         shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = tc.settings.fontSize);
-
-        const resizer = new ResizeObserver(handleResize);
-        resizer.observe(this.video);
-
-        function handleResize() {
-            shadow.querySelector("#controller").style.top = "320px";
-        }
 
         shadow.querySelector("#controller").addEventListener("mouseenter", () => {
             if (!this.video.paused) {
@@ -1335,8 +1336,9 @@ function processMessage(msg, sender, sendResponse) {
 function hideVideoIcon(shadow, video) {
     // On youtube the progress bar and play buttons disappear after 2.9 seconds
     // This way, at least on youtube, the video icon will disappear at the same time
+
     const timePassed = video.currentTime - lastMouseMove;
-    if (!video.paused && timePassed >= 2.9 && timePassed <= 3) {
+    if (!video.paused && timePassed >= 2.7 && timePassed <= 3.1) {
         shadow.querySelector("#video-icon").classList.add("hide");
     }
 }

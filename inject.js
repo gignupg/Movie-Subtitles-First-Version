@@ -1,5 +1,6 @@
 let monitoring = false;
 let pausing = false;
+let lastMouseMove = null;
 
 // This is the position of the subtitle array that is currently being displayed
 let pos = 0;
@@ -386,7 +387,7 @@ function defineVideoController() {
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
         
-        <div id="video-icon" class="">
+        <div id="video-icon" class="hide">
             <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="video-img"/>
         </div>
         <div id="settings-wrapper" class="hide">
@@ -435,7 +436,7 @@ function defineVideoController() {
         </div>
 
         </div>
-        <div id="controller" class="subtitles-centered">
+        <div id="controller">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
                 <button data-action="rewind" class="subtitle-button">«</button>
                 <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
@@ -533,12 +534,30 @@ function defineVideoController() {
             }, 100);
         }
 
+        // Hide video icon if necessary!
         this.video.addEventListener("play", function() {
-            shadow.getElementById("controller").classList.add("subtitles-centered");
+            lastMouseMove = thisVideo.currentTime;
+
+            setTimeout(() => {
+                hideVideoIcon(shadow, thisVideo);
+            }, 2900);
         });
 
+        // Show video icon
         this.video.addEventListener("pause", function() {
-            shadow.getElementById("controller").classList.add("subtitles-centered");
+            shadow.querySelector("#video-icon").classList.remove("hide");
+        });
+
+        // Show video icon
+        this.video.addEventListener("mousemove", function() {
+            if (!thisVideo.paused) {
+                shadow.querySelector("#video-icon").classList.remove("hide");
+                lastMouseMove = thisVideo.currentTime;
+
+                setTimeout(() => {
+                    hideVideoIcon(shadow, thisVideo);
+                }, 2900);
+            }
         });
 
         shadow.querySelector("#settings-icon").addEventListener("click", () => {
@@ -1310,5 +1329,14 @@ function processMessage(msg, sender, sendResponse) {
             sendResponse({ videoDetected: false });
         }
 
+    }
+}
+
+function hideVideoIcon(shadow, video) {
+    // On youtube the progress bar and play buttons disappear after 2.9 seconds
+    // This way, at least on youtube, the video icon will disappear at the same time
+    const timePassed = video.currentTime - lastMouseMove;
+    if (!video.paused && timePassed >= 2.9 && timePassed <= 3) {
+        shadow.querySelector("#video-icon").classList.add("hide");
     }
 }

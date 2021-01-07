@@ -2,8 +2,20 @@
     font-family: sans-serif;
 }
 
+hr {
+    width: 100%;
+    border: 0;
+    height: 0;
+    border-top: 1px solid rgba(122, 122, 122, 0.3);
+    margin: 0.6em 0;
+}
+
+p {
+    font-size: 15px;
+    margin: 5px 5px;
+}
+
 .subtitle-button {
-    display: none;
     text-decoration: none;
     font-weight: 900;
     background-color: transparent;
@@ -20,7 +32,6 @@
     top: 0;
     left: 0;
     text-align: center;
-    background: transparent;
     color: white;
     border-radius: 30px;
     cursor: default;
@@ -29,12 +40,15 @@
 
 #settings-wrapper {
     position: relative;
-    background-color: white;
+    background-color: rgba(255, 255, 255);
     color: black;
-    width: 600px;
-    max-width: 100%;
+    width: 90%;
+    max-width: 900px;
     height: 300px;
     margin: auto;
+    margin-top: 5%;
+    border: 1px solid rgb(218, 218, 218);
+    box-shadow: 3px 3px 10px rgb(160, 160, 160);
     z-index: 9999999;
 }
 
@@ -43,16 +57,36 @@
     justify-content: space-between;
 }
 
+#settings-body {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
 .settings-item {
     margin: 10px;
 }
 
 #settings-title {
-    font-size: 28px;
+    font-size: 24px;
+    color: white;
 }
 
 #settings-close {
+    font-size: 30px;
+    margin-top: 0px;
+}
+
+.body-section {
+    width: 230px;
+    height: 200px;
+}
+
+.section-heading {
+    text-align: center;
     font-size: 16px;
+    color: #C62828;
+    margin: 0;
 }
 
 .subtitles-centered {
@@ -90,46 +124,12 @@
     padding: 5px 10px;
 }
 
-#subtitle-div:hover .subtitle-button {
-    display: inline-block;
-}
-
-#subtitle-div:hover #subtitles {
-    margin-left: 0;
-    margin-right: 0;
-}
-
-#settings-icon {
-    margin-left: -5px;
-}
-
-#controls>button {
-    opacity: 1;
-    cursor: pointer;
-    color: black;
-    background: white;
-    font-weight: normal;
-    border-radius: 20px;
-    padding: 1px 5px 3px 5px;
-    font-size: 14px;
-    line-height: 14px;
-    border: 0px solid white;
-    font-family: "Lucida Console", Monaco, monospace;
-    margin: 0px 2px 2px 2px;
-    transition: background 0.2s, color 0.2s;
-}
-
 button:focus {
     outline: 0;
 }
 
 button:hover {
     cursor: pointer;
-}
-
-button.hideButton {
-    opacity: 0.65;
-    margin-right: 2px;
 }
 
 #chooseFile {
@@ -161,4 +161,27 @@ button.hideButton {
 
 .hide {
     display: none;
+}
+
+.badge {
+    display: flex;
+    justify-content: space-between;
+}
+
+#video-icon {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    cursor: pointer;
+    z-index: 9999999;
+}
+
+#subtitles {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#video-img {
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.849);
 }

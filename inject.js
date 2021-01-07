@@ -363,15 +363,12 @@ function defineVideoController() {
 
     tc.videoController.prototype.initializeControls = function() {
         log("initializeControls Begin", 5);
-        var document = this.video.ownerDocument;
-        var speed = this.video.playbackRate.toFixed(2),
-            // top = Math.max(this.video.offsetTop, 0) + "px",
-            top = "300px",
-            left = Math.max(this.video.offsetLeft, 0) + "px";
+        const document = this.video.ownerDocument;
+        const speed = this.video.playbackRate.toFixed(2);
 
         log("Speed variable set to: " + speed, 5);
 
-        var wrapper = document.createElement("div");
+        const wrapper = document.createElement("div");
         wrapper.classList.add("vsc-controller");
 
         if (!this.video.currentSrc) {
@@ -382,22 +379,58 @@ function defineVideoController() {
             wrapper.classList.add("vsc-hidden");
         }
 
-        var shadow = wrapper.attachShadow({ mode: "open" });
-        var shadowTemplate = `
+        const shadow = wrapper.attachShadow({ mode: "open" });
+
+        const shadowTemplate = `
         <style>
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
-
-        <div id="settings-wrapper">
+        
+        <div id="video-icon" class="">
+            <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="video-img"/>
+        </div>
+        <div id="settings-wrapper" class="hide">
             <div id="settings-header">
-                <div id="settings-close" class="settings-item">X</div>
-                <div id="settings-title" class="settings-item">Subtitle Settings</div>
+                <div id="settings-close" class="settings-item">&times;</div>
+                <div id="settings-title" class="settings-item"></div>
                 <div id="settings-icon" class="settings-item">
-                    <img src="${chrome.runtime.getURL("icons/movie-subtitles-38.png")}" alt="Logo" class="logo" />
+                    <img src="${chrome.runtime.getURL("icons/movie-subtitles-38.png")}" alt="Logo" class="logo"/>
                 </div>
             </div>
             <div id="settings-body">
-
+                <div id="subtitle-section" class="body-section">
+                    <hr/>
+                    <div class="badge">
+                        <p>Subtitle Search</p>
+                    </div>
+                    <hr/>
+                    <div class="badge">
+                        <p>Load Subtitles from PC</p>
+                    </div>
+                    <hr/>
+                </div>
+                <div id="display-section" class="body-section">
+                    <hr/>
+                    <div class="badge">
+                        <p>Subtitle Size</p>
+                    </div>
+                    <hr/>
+                    <div class="badge">
+                        <p>Transparency</p>
+                    </div>
+                    <hr/>
+                </div>
+                <div id="sync-section" class="body-section">
+                    <hr/>
+                    <div class="badge">
+                        <p></p>
+                    </div>
+                    <hr/>
+                    <div class="badge">
+                        <p></p>
+                    </div>
+                    <hr/>
+                </div>
             </div>
         </div>
 
@@ -407,7 +440,6 @@ function defineVideoController() {
                 <button data-action="rewind" class="subtitle-button">«</button>
                 <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
                 <button data-action="advance" class="subtitle-button">»</button> 
-                <button id="settings-icon" class="subtitle-button">&#9881;</button>
                 <div id="synced" class="hide sync-msg">Successfully synced!</div>
                 <div id="not-synced" class="hide sync-msg">Syncing error! No subtitles selected</div>
             </div>
@@ -483,7 +515,23 @@ function defineVideoController() {
             }
         }
 
-        this.video.style.filter = "blur(8px)";
+        // Only do this when the settings are displayed!
+        // this.video.style.filter = "blur(10px)";
+
+
+
+        window.addEventListener("resize", resizeHandler);
+
+        function resizeHandler() {
+            setTimeout(() => {
+                if (thisVideo.clientWidth >= 1000) {
+                    shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-38.png");
+
+                } else {
+                    shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
+                }
+            }, 100);
+        }
 
         this.video.addEventListener("play", function() {
             shadow.getElementById("controller").classList.add("subtitles-centered");
@@ -505,7 +553,7 @@ function defineVideoController() {
         resizer.observe(this.video);
 
         function handleResize() {
-            shadow.querySelector("#controller").style.top = "300px";
+            shadow.querySelector("#controller").style.top = "320px";
         }
 
         shadow.querySelector("#controller").addEventListener("mouseenter", () => {

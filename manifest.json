@@ -38,6 +38,7 @@
     "web_accessible_resources": [
         "inject.css",
         "shadow.css",
+        "icons/movie-subtitles-28.png",
         "icons/movie-subtitles-38.png"
     ]
 }

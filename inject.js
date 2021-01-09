@@ -148,7 +148,7 @@ function log(message, level) {
     }
 }
 
-chrome.storage.sync.get(tc.settings, function(storage) {
+chrome.storage.sync.get(tc.settings, function (storage) {
     tc.settings.keyBindings = storage.keyBindings; // Array
     if (storage.keyBindings.length == 0) {
         // if first initialization of 0.5.3
@@ -265,7 +265,7 @@ function defineVideoController() {
 
     // added to AUDIO / VIDEO DOM elements
     //    vsc = reference to the videoController
-    tc.videoController = function(target, parent) {
+    tc.videoController = function (target, parent) {
         if (target.vsc) {
             return target.vsc;
         }
@@ -294,7 +294,7 @@ function defineVideoController() {
 
         this.div = this.initializeControls();
 
-        var mediaEventAction = function(event) {
+        var mediaEventAction = function (event) {
             storedSpeed = tc.settings.speeds[event.target.currentSrc];
             if (!tc.settings.rememberSpeed) {
                 if (!storedSpeed) {
@@ -351,7 +351,7 @@ function defineVideoController() {
         });
     };
 
-    tc.videoController.prototype.remove = function() {
+    tc.videoController.prototype.remove = function () {
         this.div.remove();
         this.video.removeEventListener("play", this.handlePlay);
         this.video.removeEventListener("seek", this.handleSeek);
@@ -362,7 +362,7 @@ function defineVideoController() {
         }
     };
 
-    tc.videoController.prototype.initializeControls = function() {
+    tc.videoController.prototype.initializeControls = function () {
         log("initializeControls Begin", 5);
         const document = this.video.ownerDocument;
         const speed = this.video.playbackRate.toFixed(2);
@@ -390,51 +390,38 @@ function defineVideoController() {
         <div id="video-icon">
             <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="video-img"/>
         </div>
-        <div id="settings-wrapper" class="hide">
+        <div id="settings-wrapper">
             <div id="settings-header">
                 <div id="settings-close" class="settings-item">&times;</div>
-                <div id="settings-title" class="settings-item"></div>
-                <div id="settings-icon" class="settings-item">
-                    <img src="${chrome.runtime.getURL("icons/movie-subtitles-38.png")}" alt="Logo" class="logo"/>
+                <div id="settings-title" class="settings-item">Subtitle Settings</div>
+                <div class="settings-item">
+                    <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="settings-icon"/>
                 </div>
             </div>
             <div id="settings-body">
-                <div id="subtitle-section" class="body-section">
-                    <hr/>
-                    <div class="badge">
-                        <p>Subtitle Search</p>
-                    </div>
-                    <hr/>
-                    <div class="badge">
-                        <p>Load Subtitles from PC</p>
-                    </div>
-                    <hr/>
+                <div id="settings-menu">
+                    <div class="menu-item">Subtitles</div>
+                    <div class="menu-item">Display</div>
+                    <div class="menu-item">Synchronization</div>
+                    <div id="bottom-space"></div>
                 </div>
-                <div id="display-section" class="body-section">
-                    <hr/>
-                    <div class="badge">
-                        <p>Subtitle Size</p>
+                <div id="subtitle-content" class="hide">
+                    <div id="centered-box">
+                        <div class="settings-button">Subtitle Search</div>
+                        <div class="settings-button">Load Subtitles from PC</div>
                     </div>
-                    <hr/>
-                    <div class="badge">
-                        <p>Transparency</p>
-                    </div>
-                    <hr/>
                 </div>
-                <div id="sync-section" class="body-section">
-                    <hr/>
-                    <div class="badge">
-                        <p></p>
+                <div id="display-content" class="hide">
+                    <div class="display-box">
+                        <label class="display-label" for="display-range-1">Subtitle Size</label>
+                        <input class="slider" id="display-range-1" type="range" min="10" max="48">
                     </div>
-                    <hr/>
-                    <div class="badge">
-                        <p></p>
+                    <div class="display-box" style="margin-top: -10px">
+                        <label class="display-label" for="display-range-2">Background</label>
+                        <input class="slider" id="display-range-2" type="range" min="10" max="48">
                     </div>
-                    <hr/>
                 </div>
             </div>
-        </div>
-
         </div>
         <div id="controller" style="top: ${this.video.clientHeight * 0.7}px;">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
@@ -470,7 +457,7 @@ function defineVideoController() {
 
         // Hiding the subtitle controller on youtube when loading another video without refreshing the page.
         // This is definitely not a perfect solution but it's the best I could come up with today. 
-        document.body.addEventListener("click", function() {
+        document.body.addEventListener("click", function () {
             if (!tc.settings.enabled) {
                 setTimeout(() => {
                     wrapper.classList.add("vsc-nosource");
@@ -517,9 +504,7 @@ function defineVideoController() {
         }
 
         // Only do this when the settings are displayed!
-        // this.video.style.filter = "blur(10px)";
-
-
+        this.video.style.filter = "blur(10px)";
 
         window.addEventListener("resize", resizeHandler);
 
@@ -543,7 +528,7 @@ function defineVideoController() {
         }
 
         // Hide video icon if necessary!
-        this.video.addEventListener("play", function() {
+        this.video.addEventListener("play", function () {
             lastMouseMove = thisVideo.currentTime;
 
             setTimeout(() => {
@@ -552,12 +537,12 @@ function defineVideoController() {
         });
 
         // Show video icon
-        this.video.addEventListener("pause", function() {
+        this.video.addEventListener("pause", function () {
             shadow.querySelector("#video-icon").classList.remove("hide");
         });
 
         // Show video icon
-        this.video.addEventListener("mousemove", function() {
+        this.video.addEventListener("mousemove", function () {
             if (!thisVideo.paused) {
                 shadow.querySelector("#video-icon").classList.remove("hide");
                 lastMouseMove = thisVideo.currentTime;
@@ -658,7 +643,7 @@ function defineVideoController() {
             reader.readAsText(file, 'ISO-8859-1');
         });
 
-        shadow.querySelectorAll("button").forEach(function(button) {
+        shadow.querySelectorAll("button").forEach(function (button) {
             button.addEventListener(
                 "click",
                 (e) => {
@@ -750,7 +735,7 @@ function refreshCoolDown() {
     if (coolDown) {
         clearTimeout(coolDown);
     }
-    coolDown = setTimeout(function() {
+    coolDown = setTimeout(function () {
         coolDown = false;
     }, 1000);
     log("End refreshCoolDown", 5);
@@ -781,7 +766,7 @@ function setupListener() {
         log("Storing lastSpeed in settings for the rememberSpeed feature", 5);
         tc.settings.lastSpeed = speed;
         log("Syncing chrome settings for lastSpeed", 5);
-        chrome.storage.sync.set({ lastSpeed: speed }, function() {
+        chrome.storage.sync.set({ lastSpeed: speed }, function () {
             log("Speed setting saved: " + speed, 5);
         });
         // show the controller for 1000ms if it's hidden.
@@ -790,7 +775,7 @@ function setupListener() {
 
     document.addEventListener(
         "ratechange",
-        function(event) {
+        function (event) {
             if (coolDown) {
                 log("Speed event propagation blocked", 4);
                 event.stopImmediatePropagation();
@@ -893,12 +878,12 @@ function initializeNow(document) {
     var docs = Array(document);
     try {
         if (inIframe()) docs.push(window.top.document);
-    } catch (e) {}
+    } catch (e) { }
 
-    docs.forEach(function(doc) {
+    docs.forEach(function (doc) {
         doc.addEventListener(
             "keydown",
-            function(event) {
+            function (event) {
                 var keyCode = event.keyCode;
                 log("Processing keydown event: " + keyCode, 6);
 
@@ -969,18 +954,18 @@ function initializeNow(document) {
         }
     }
 
-    var observer = new MutationObserver(function(mutations) {
+    var observer = new MutationObserver(function (mutations) {
         // Process the DOM nodes lazily
         requestIdleCallback(
             (_) => {
-                mutations.forEach(function(mutation) {
+                mutations.forEach(function (mutation) {
                     switch (mutation.type) {
                         case "childList":
-                            mutation.addedNodes.forEach(function(node) {
+                            mutation.addedNodes.forEach(function (node) {
                                 if (typeof node === "function") return;
                                 checkForVideo(node, node.parentNode || mutation.target, true);
                             });
-                            mutation.removedNodes.forEach(function(node) {
+                            mutation.removedNodes.forEach(function (node) {
                                 if (typeof node === "function") return;
                                 checkForVideo(node, node.parentNode || mutation.target, false);
                             });
@@ -1018,12 +1003,12 @@ function initializeNow(document) {
         var mediaTags = document.querySelectorAll("video");
     }
 
-    mediaTags.forEach(function(video) {
+    mediaTags.forEach(function (video) {
         video.vsc = new tc.videoController(video);
     });
 
     var frameTags = document.getElementsByTagName("iframe");
-    Array.prototype.forEach.call(frameTags, function(frame) {
+    Array.prototype.forEach.call(frameTags, function (frame) {
         // Ignore frames we don't have permission to access (different origin).
         try {
             var childDocument = frame.contentDocument;
@@ -1086,7 +1071,7 @@ function runAction(action, value, e) {
         var targetController = e.target.getRootNode().host;
     }
 
-    mediaTags.forEach(function(v) {
+    mediaTags.forEach(function (v) {
         var controller = v.vsc.div;
 
         // Don't change video speed if the video has a different controller
@@ -1309,7 +1294,7 @@ function showController(controller) {
 
     if (timer) clearTimeout(timer);
 
-    timer = setTimeout(function() {
+    timer = setTimeout(function () {
         controller.classList.remove("vcs-show");
         timer = false;
         log("Hiding controller", 5);

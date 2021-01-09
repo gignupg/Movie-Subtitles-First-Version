@@ -78,6 +78,7 @@ p {
 #settings-close {
     font-size: 30px;
     margin-top: 0px;
+    cursor: pointer;
 }
 
 .section-heading {
@@ -175,6 +176,7 @@ button:hover {
 
 #video-img {
     padding: 5px;
+    border-radius: 3px;
     background-color: rgba(255, 255, 255, 0.849);
 }
 
@@ -182,7 +184,7 @@ button:hover {
     text-align: start;
     font-size: 16px;
     font-weight: 600;
-    color: #C62828;
+    color: black;
     cursor: pointer;
 }
 
@@ -197,18 +199,25 @@ button:hover {
 
 .settings-button {
     text-align: center;
-    color: #ff815a;
-    background-color: rgba(255, 255, 255, 0.856);
+    color: rgb(240, 240, 240);
+    background-color: #f8663ade;
     padding: 8px 16px;
     margin: 10px;
     font-size: 16px;
     font-weight: 600;
-    border: 1px solid rgb(192, 192, 192);
+    border-radius: 5px;
+    box-shadow: 3px 3px 10px rgb(136, 136, 136);
     cursor: pointer;
 }
 
 .settings-button:hover {
     background-color: rgba(245, 245, 245, 0.829);
+}
+
+#centered-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
 }
 
 #bottom-space {

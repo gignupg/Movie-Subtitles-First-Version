@@ -402,13 +402,13 @@ function defineVideoController() {
                 <div id="settings-menu">
                     <div class="menu-item">Subtitles</div>
                     <div class="menu-item">Display</div>
-                    <div class="menu-item">Synchronization</div>
+                    <div class="menu-item" style="color: #C62828; background-color: rgb(0, 0, 0, 0.2);">Synchronization</div>
                     <div id="bottom-space"></div>
                 </div>
-                <div id="subtitle-content" class="hide">
+                <div id="subtitle-content" style="margin-top: -10px">
                     <div id="centered-box">
                         <div class="settings-button">Subtitle Search</div>
-                        <div class="settings-button">Load Subtitles from PC</div>
+                        <div class="settings-button" style="color: rgb(30,30,30); background-color: rgb(200,200,200);">Load Subtitles from PC</div>
                     </div>
                 </div>
                 <div id="display-content" class="hide">
@@ -420,6 +420,9 @@ function defineVideoController() {
                         <label class="display-label" for="display-range-2">Background</label>
                         <input class="slider" id="display-range-2" type="range" min="10" max="48">
                     </div>
+                </div>
+                <div>
+
                 </div>
             </div>
         </div>

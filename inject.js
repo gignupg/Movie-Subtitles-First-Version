@@ -398,33 +398,56 @@ function defineVideoController() {
                     <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="settings-icon"/>
                 </div>
             </div>
+            <div id="settings-spacer"></div>
             <div id="settings-body">
                 <div id="settings-menu">
                     <div class="menu-item">Subtitles</div>
                     <div class="menu-item">Display</div>
                     <div class="menu-item" style="color: #C62828; background-color: rgb(0, 0, 0, 0.2);">Synchronization</div>
-                    <div id="bottom-space"></div>
                 </div>
-                <div id="subtitle-content" style="margin-top: -10px">
+                <div id="subtitle-content">
                     <div id="centered-box">
-                        <div class="settings-button">Subtitle Search</div>
-                        <div class="settings-button" style="color: rgb(30,30,30); background-color: rgb(200,200,200);">Load Subtitles from PC</div>
+                        <div class="settings-button subtitle-search-button">Subtitle Search</div>
+                        <div class="settings-button subtitle-upload-button tooltip">
+                            Load Subtitles from PC
+                            <span class="tooltiptext">Make sure the file format is .srt</span>
+                        </div>
                     </div>
                 </div>
                 <div id="display-content" class="hide">
                     <div class="display-box">
-                        <label class="display-label" for="display-range-1">Subtitle Size</label>
+                        <label class="display-label" for="display-range-1">Subtitle Size:</label>
                         <input class="slider" id="display-range-1" type="range" min="10" max="48">
                     </div>
                     <div class="display-box" style="margin-top: -10px">
-                        <label class="display-label" for="display-range-2">Background</label>
+                        <label class="display-label" for="display-range-2">Background:</label>
                         <input class="slider" id="display-range-2" type="range" min="10" max="48">
                     </div>
                 </div>
-                <div>
-
+                <div id="sync-content" class="hide">
+                    <div id="sync-box">
+                        <div style="font-size: 17px;">
+                            Display subtitles 
+                            <input
+                                type="number"
+                                class="sync-input"
+                                id="sync-seconds"
+                                min="0"
+                                step="0.1"
+                                value="0"
+                            />
+                            seconds 
+                            <select name="direction" id="offset-direction">
+                                <option id="option-earlier" value="earlier">earlier</option>
+                                <option id="option-later" value="later">later</option>
+                            </select>
+                        </div>
+                        <input class="slider" id="display-range-3" type="range" min="10" max="48">
+                        <div class="settings-button subtitle-sync-button">Sync Now</div>
+                    </div>
                 </div>
             </div>
+            <div id="bottom-space"></div>
         </div>
         <div id="controller" style="top: ${this.video.clientHeight * 0.7}px;">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">

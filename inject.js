@@ -102,7 +102,7 @@ var tc = {
         audioBoolean: false, // default: false
         startHidden: false, // default: false
         controllerOpacity: 0.5, // default: 0.5
-        fontSize: "28px",
+        fontSize: 28,
         keyBindings: [],
         blacklist: `\
       www.instagram.com
@@ -219,7 +219,7 @@ chrome.storage.sync.get(tc.settings, function (storage) {
     tc.settings.enabled = Boolean(storage.enabled);
     tc.settings.startHidden = Boolean(storage.startHidden);
     tc.settings.controllerOpacity = Number(storage.controllerOpacity);
-    tc.settings.fontSize = String(storage.fontSize);
+    tc.settings.fontSize = Number(storage.fontSize);
     tc.settings.blacklist = String(storage.blacklist);
 
     // ensure that there is a "display" binding (for upgrades from versions that had it as a separate binding)
@@ -401,27 +401,28 @@ function defineVideoController() {
             <div id="settings-spacer"></div>
             <div id="settings-body">
                 <div id="settings-menu">
-                    <div class="menu-item">Subtitles</div>
+                    <div class="menu-item" style="background-color: rgb(0, 0, 0, 0.2);">Subtitles</div>
                     <div class="menu-item">Display</div>
-                    <div class="menu-item" style="color: #C62828; background-color: rgb(0, 0, 0, 0.2);">Synchronization</div>
+                    <div class="menu-item">Synchronization</div>
                 </div>
-                <div id="subtitle-content">
+                <div id="subtitle-content" class="hide">
                     <div id="centered-box">
                         <div class="settings-button subtitle-search-button">Subtitle Search</div>
-                        <div class="settings-button subtitle-upload-button tooltip">
+                        <label for="chooseFile" class="fileLabel settings-button subtitle-upload-button tooltip">
                             Load Subtitles from PC
                             <span class="tooltiptext">Make sure the file format is .srt</span>
-                        </div>
+                        </label>
+                        <input id="chooseFile" type="file" accept=".srt"></input>
                     </div>
                 </div>
-                <div id="display-content" class="hide">
+                <div id="display-content">
                     <div class="display-box">
                         <label class="display-label" for="display-range-1">Subtitle Size:</label>
-                        <input class="slider" id="display-range-1" type="range" min="10" max="48">
+                        <input class="slider" id="display-range-1" type="range" min="2" max="54" value="${tc.settings.fontSize}">
                     </div>
                     <div class="display-box" style="margin-top: -10px">
                         <label class="display-label" for="display-range-2">Background:</label>
-                        <input class="slider" id="display-range-2" type="range" min="10" max="48">
+                        <input class="slider" id="display-range-2" type="range" min="0" max="1" step="0.05" value="${tc.settings.controllerOpacity}">
                     </div>
                 </div>
                 <div id="sync-content" class="hide">
@@ -464,10 +465,6 @@ function defineVideoController() {
                 <span style="margin-left: 30px; font-size: 14px;">Background:</span>
                 <button data-action="lighter" id="opacity-minus">&minus;</button>
                 <button data-action="darker" id="opacity-plus">&plus;</button>
-                <span style="margin-left: 30px;">
-                <label for="chooseFile" class="fileLabel">Select Subtitles</label>
-                <input id="chooseFile" type="file" accept=".srt"></input>
-                </span>
             </div>
         </div>
       `;
@@ -579,13 +576,31 @@ function defineVideoController() {
             }
         });
 
+        shadow.querySelector("#display-range-1").addEventListener("input", (e) => {
+            const newSize = e.target.value;
+            shadow.querySelector("#display-range-1").value = newSize;
+            shadow.querySelector("#subtitles").style.fontSize = newSize + "px";
+            shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = newSize + "px");
+            tc.settings.fontSize = newSize;
+            chrome.storage.sync.set({ fontSize: newSize });
+        });
+
+        shadow.querySelector("#display-range-2").addEventListener("input", (e) => {
+            const newOpacity = e.target.value;
+            shadow.querySelector("#display-range-2").value = newOpacity;
+            shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
+            tc.settings.controllerOpacity = newOpacity;
+            chrome.storage.sync.set({ controllerOpacity: newOpacity });
+        });
+
         shadow.querySelector("#settings-icon").addEventListener("click", () => {
             shadow.querySelector("#subtitle-settings").classList.remove("hide");
         });
 
-        // Settings the fontSize
-        shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize;
-        shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = tc.settings.fontSize);
+        // Settings the fontSize and opacity
+        shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize + "px";
+        shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = tc.settings.fontSize + "px");
+        shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${tc.settings.controllerOpacity})`;
 
         shadow.querySelector("#controller").addEventListener("mouseenter", () => {
             if (!this.video.paused) {
@@ -1153,14 +1168,13 @@ function runAction(action, value, e) {
                 const subtitleStyle = controller.shadowRoot.querySelector("#subtitles").style;
                 const prevNextArr = controller.shadowRoot.querySelectorAll(".subtitle-button");
 
-
-                const oldSize = Number(subtitleStyle.fontSize.replace(/px/, ""));
-                const newSize = (oldSize - 2) + "px";
+                const oldSize = Number(subtitleStyle.fontSize);
+                const newSize = oldSize - 1;
 
                 if (oldSize > 14) {
                     subtitleStyle.fontSize = newSize;
                     prevNextArr.forEach(elem => elem.style.fontSize = newSize);
-
+                    tc.settings.fontSize = newSize;
                     chrome.storage.sync.set({ fontSize: newSize });
                 }
 
@@ -1174,7 +1188,7 @@ function runAction(action, value, e) {
                 if (oldSize < 88) {
                     subtitleStyle.fontSize = newSize;
                     prevNextArr.forEach(elem => elem.style.fontSize = newSize);
-
+                    tc.settings.fontSize = newSize;
                     chrome.storage.sync.set({ fontSize: newSize });
                 }
 

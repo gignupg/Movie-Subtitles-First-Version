@@ -1,9 +1,6 @@
 let extensionOn = false;
 let videoDetected = false;
 
-// Connecting the popup so the background script can get notified when the popup closes 
-chrome.runtime.connect({ name: "subtitle popup" });
-
 chrome.storage.sync.get({ enabled: true }, storage => {
     extensionOn = storage.enabled;
     toggleEnabledUI(extensionOn);
@@ -12,16 +9,25 @@ chrome.storage.sync.get({ enabled: true }, storage => {
 document.addEventListener('DOMContentLoaded', function () {
     // Initializing tooltips for Materialize
     const toolElem = document.querySelectorAll('.tooltipped');
-    const selectElem = document.querySelectorAll('select');
 
     M.Tooltip.init(toolElem, { enterDelay: 500 });
-    M.FormSelect.init(selectElem, {});
 
     checkForVideo();
 });
 
 document.querySelector("#subtitle-settings").addEventListener("click", () => {
-    messageContentScript({ subtitles: true });
+    messageContentScript({ settings: "subtitles" });
+    window.close();
+});
+
+document.querySelector("#display-settings").addEventListener("click", () => {
+    messageContentScript({ settings: "display" });
+    window.close();
+});
+
+document.querySelector("#sync-settings").addEventListener("click", () => {
+    messageContentScript({ settings: "sync" });
+    window.close();
 });
 
 document.querySelector(".power-button").addEventListener("click", toggleEnabled);

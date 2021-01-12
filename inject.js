@@ -493,11 +493,19 @@ function defineVideoController() {
         const thisVideo = this.video;
 
         function messageReceived(msg) {
-            if (msg.subtitles) {
-                subtitleCalibrator(msg.calibration, thisVideo, shadow);
+            if (msg.settings) {
+                shadow.getElementById("video-icon").click();
+                const menuItem = shadow.querySelectorAll(".menu-item");
 
-            } else if (msg.display) {
-                shadow.getElementById("chooseFile").click();
+                if (msg.settings === "subtitles") {
+                    menuItem[0].click();
+
+                } else if (msg.settings === "display") {
+                    menuItem[1].click();
+
+                } else {
+                    menuItem[2].click();
+                }
 
             } else if (msg.hide) {
                 tc.settings.enabled = false;

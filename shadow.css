@@ -137,6 +137,7 @@ button:hover {
 .sync-msg {
     font-size: 16px;
     font-weight: 600;
+    margin-top: 5px;
     padding: 5px 10px;
     border-radius: 20px;
     background-color: rgba(0, 0, 0, 0.8);

@@ -1,6 +1,9 @@
 let monitoring = false;
 let pausing = false;
 let lastMouseMove = null;
+let menuOpen = false;
+const red = "#C62828";
+const orange = "#f0653b";
 
 // This is the position of the subtitle array that is currently being displayed
 let pos = 0;
@@ -390,10 +393,10 @@ function defineVideoController() {
         <div id="video-icon">
             <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="video-img"/>
         </div>
-        <div id="settings-wrapper">
+        <div id="settings-wrapper" class="hide">
             <div id="settings-header">
                 <div id="settings-close" class="settings-item">&times;</div>
-                <div id="settings-title" class="settings-item">Subtitle Settings</div>
+                <div id="settings-title" class="settings-item">Subtitle Options</div>
                 <div class="settings-item">
                     <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="settings-icon"/>
                 </div>
@@ -401,11 +404,11 @@ function defineVideoController() {
             <div id="settings-spacer"></div>
             <div id="settings-body">
                 <div id="settings-menu">
-                    <div class="menu-item" style="background-color: rgb(0, 0, 0, 0.2);">Subtitles</div>
+                    <div class="menu-item selected-menu-item">Subtitles</div>
                     <div class="menu-item">Display</div>
                     <div class="menu-item">Synchronization</div>
                 </div>
-                <div id="subtitle-content" class="hide">
+                <div id="subtitle-content" class="section">
                     <div id="centered-box">
                         <div class="settings-button subtitle-search-button">Subtitle Search</div>
                         <label for="chooseFile" class="fileLabel settings-button subtitle-upload-button tooltip">
@@ -415,7 +418,7 @@ function defineVideoController() {
                         <input id="chooseFile" type="file" accept=".srt"></input>
                     </div>
                 </div>
-                <div id="display-content">
+                <div id="display-content" class="section hide">
                     <div class="display-box">
                         <label class="display-label" for="display-range-1">Subtitle Size:</label>
                         <input class="slider" id="display-range-1" type="range" min="2" max="54" value="${tc.settings.fontSize}">
@@ -425,26 +428,26 @@ function defineVideoController() {
                         <input class="slider" id="display-range-2" type="range" min="0" max="1" step="0.05" value="${tc.settings.controllerOpacity}">
                     </div>
                 </div>
-                <div id="sync-content" class="hide">
+                <div id="sync-content" class="section hide">
                     <div id="sync-box">
                         <div style="font-size: 17px;">
                             Display subtitles 
                             <input
-                                type="number"
-                                class="sync-input"
-                                id="sync-seconds"
-                                min="0"
-                                step="0.1"
-                                value="0"
+                            type="number"
+                            class="sync-input"
+                            id="sync-seconds"
+                            min="0"
+                            step="0.1"
+                            value="0"
                             />
                             seconds 
-                            <select name="direction" id="offset-direction">
-                                <option id="option-earlier" value="earlier">earlier</option>
-                                <option id="option-later" value="later">later</option>
+                            <select id="offset-direction">
+                                <option class="option-earlier" value="earlier" selected="selected">earlier</option>
+                                <option class="option-later" value="later">later</option>
                             </select>
                         </div>
-                        <input class="slider" id="display-range-3" type="range" min="10" max="48">
-                        <div class="settings-button subtitle-sync-button">Sync Now</div>
+                        <input class="slider" id="sync-range" type="range" min="-10" max="10" step="0.1">
+                        <div id="subtitle-sync-button" class="settings-button">Sync Now</div>
                     </div>
                 </div>
             </div>
@@ -457,14 +460,6 @@ function defineVideoController() {
                 <button data-action="advance" class="subtitle-button">»</button> 
                 <div id="synced" class="hide sync-msg">Successfully synced!</div>
                 <div id="not-synced" class="hide sync-msg">Syncing error! No subtitles selected</div>
-            </div>
-            <div id="controls">
-                <span style="font-size: 14px;">Size:</span>
-                <button data-action="smaller" id="size-minus">&minus;</button>
-                <button data-action="bigger" id="size-plus">&plus;</button>
-                <span style="margin-left: 30px; font-size: 14px;">Background:</span>
-                <button data-action="lighter" id="opacity-minus">&minus;</button>
-                <button data-action="darker" id="opacity-plus">&plus;</button>
             </div>
         </div>
       `;
@@ -526,8 +521,46 @@ function defineVideoController() {
             }
         }
 
-        // Only do this when the settings are displayed!
-        this.video.style.filter = "blur(10px)";
+        shadow.getElementById("video-icon").addEventListener("click", () => {
+            menuOpen = true;
+            // Blur the background when the settings are opened
+            this.video.style.filter = "blur(10px)";
+            // Hide video icon!
+            shadow.getElementById("video-icon").classList.add("hide");
+            // Show the menu
+            shadow.getElementById("settings-wrapper").classList.remove("hide");
+        });
+
+        shadow.querySelectorAll(".menu-item").forEach((elem, ix) => {
+            elem.addEventListener("click", () => {
+                // Change the background color of the clicked menu item
+                elem.classList.add("selected-menu-item");
+                // Reset the background color for the other ones
+                shadow.querySelectorAll(".menu-item").forEach((innerElem, innerIx) => {
+                    if (innerIx !== ix) {
+                        innerElem.classList.remove("selected-menu-item");
+                    }
+                });
+
+                // Enabling/disabling menu sections
+                shadow.querySelectorAll(".section").forEach((sectionElem, sectionIx) => {
+                    if (sectionIx === ix) {
+                        // Show the menu section that was clicked
+                        sectionElem.classList.remove("hide");
+
+                    } else {
+                        // Hide the sections
+                        sectionElem.classList.add("hide");
+                    }
+                });
+
+            });
+        });
+
+        // Prevent all youtube shortcuts while interacting with the extension.
+        shadow.addEventListener("keydown", (e) => {
+            e.stopPropagation();
+        });
 
         window.addEventListener("resize", resizeHandler);
 
@@ -538,14 +571,12 @@ function defineVideoController() {
                     shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-38.png");
 
                     shadow.getElementById("controller").style.top = (thisVideo.clientHeight * 0.7) + "px";
-                    console.log("fullscreen height", thisVideo.clientHeight);
 
                 } else {
                     // small screen, show small icon
                     shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
 
                     shadow.getElementById("controller").style.top = (thisVideo.clientHeight * 0.7) + "px";
-                    console.log("small screen height", thisVideo.clientHeight);
                 }
             }, 100);
         }
@@ -561,13 +592,18 @@ function defineVideoController() {
 
         // Show video icon
         this.video.addEventListener("pause", function () {
-            shadow.querySelector("#video-icon").classList.remove("hide");
+            if (!menuOpen) {
+                shadow.querySelector("#video-icon").classList.remove("hide");
+            }
         });
 
         // Show video icon
         this.video.addEventListener("mousemove", function () {
             if (!thisVideo.paused) {
-                shadow.querySelector("#video-icon").classList.remove("hide");
+                if (!menuOpen) {
+                    shadow.querySelector("#video-icon").classList.remove("hide");
+                }
+
                 lastMouseMove = thisVideo.currentTime;
 
                 setTimeout(() => {
@@ -591,6 +627,70 @@ function defineVideoController() {
             shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
             tc.settings.controllerOpacity = newOpacity;
             chrome.storage.sync.set({ controllerOpacity: newOpacity });
+        });
+
+        shadow.querySelector("#sync-range").addEventListener("input", (e) => {
+            // update #sync-seconds
+            const newVal = Math.abs(e.target.value);
+            shadow.getElementById("sync-seconds").value = newVal;
+
+            const direction = e.target.value <= 0 ? "earlier" : "later";
+            const mySelect = shadow.getElementById('offset-direction');
+
+            for (let i, j = 0; i = mySelect.options[j]; j++) {
+                if (i.value === direction) {
+                    mySelect.selectedIndex = j;
+                    const color = direction === "earlier" ? orange : red;
+                    const syncVal = Number(shadow.getElementById("sync-seconds").value);
+
+                    shadow.getElementById("offset-direction").style.color = color;
+
+                    // Setting the color of the submit button
+                    if (syncVal) {
+                        shadow.getElementById("subtitle-sync-button").style.backgroundColor = color;
+
+                    } else {
+                        shadow.getElementById("subtitle-sync-button").style.backgroundColor = "rgba(0, 0, 0, 0.2)";
+                    }
+
+                    break;
+                }
+            }
+        });
+
+        shadow.getElementById("sync-seconds").addEventListener("input", (e) => {
+            const newVal = Math.abs(e.target.value);
+            const direction = shadow.getElementById("offset-direction").value;
+            const earlier = direction === "earlier" ? true : false;
+            const buttonStyle = shadow.getElementById("subtitle-sync-button").style;
+
+            shadow.getElementById("sync-seconds").value = newVal;
+
+            if (earlier) {
+                shadow.querySelector("#sync-range").value = -newVal;
+
+                if (newVal) {
+                    buttonStyle.backgroundColor = orange;
+                } else {
+                    buttonStyle.backgroundColor = "rgba(0,0,0,0.2)";
+                }
+
+            } else {
+                shadow.querySelector("#sync-range").value = newVal;
+
+                if (newVal) {
+                    buttonStyle.backgroundColor = red;
+                } else {
+                    buttonStyle.backgroundColor = "rgba(0,0,0,0.2)";
+                }
+            }
+        });
+
+        shadow.querySelector("#offset-direction").addEventListener("change", (e) => {
+            const direction = e.target.value;
+            shadow.getElementById("sync-range").value = -shadow.getElementById("sync-range").value;
+            shadow.getElementById("offset-direction").style.color = direction === "earlier" ? orange : red;
+            shadow.getElementById("subtitle-sync-button").style.backgroundColor = direction === "earlier" ? orange : red;
         });
 
         shadow.querySelector("#settings-icon").addEventListener("click", () => {

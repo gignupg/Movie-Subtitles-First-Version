@@ -1,19 +1,34 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title>Video Speed Controller: Popup</title>
     <link rel="stylesheet" href="popup.css" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-    <link type="text/css" rel="stylesheet" href="materialize/css/materialize.css" media="screen,projection" />
-</head>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="materialize/css/materialize.css"
+      media="screen,projection"
+    />
+  </head>
 
-<body>
+  <body>
     <h1 class="heading">Movie Subtitles</h1>
     <img src="icons/movie-subtitles-38.png" alt="Logo" class="logo" />
     <div class="centered-container">
-        <i style="font-size: 22px" class="power-button fa tooltipped" data-position="top" data-tooltip="Turn Extension On/Off">&#xf011;</i
+      <i
+        style="font-size: 22px"
+        class="power-button fa tooltipped"
+        data-position="top"
+        data-tooltip="Turn Extension On/Off"
+        >&#xf011;</i
       >
     </div>
     <div id="video-detected">
@@ -27,127 +42,50 @@
           data-tooltip="Refresh if video has loaded"
           aria-hidden="true"
         ></i>
-    </div>
+      </div>
     </div>
     <div id="settings">
-        <div id="subtitle-section" class="hide">
-            <h3 class="menu-heading red-text text-darken-3">Subtitles:</h3>
-            <div class="collection">
-                <a href="#!" class="collection-item menu black-text"><span class="badge"><i class="material-icons">search</i></span
-            >Subtitle Search</a
+      <div id="subtitle-section" class="hide">
+        <h3 class="menu-heading red-text text-darken-3">Subtitle Options:</h3>
+        <div class="collection">
+          <a
+          id="subtitle-settings"
+          href="#!"
+          class="collection-item menu black-text tooltipped"
+          data-position="top"
+          data-tooltip="You can also open the subtitle settings from inside the video"
+          ><span class="badge"><i class="material-icons">subtitles</i></span
+          >Subtitles</a
           >
           <a
-            id="subtitle-import"
+            id="display-settings"
             href="#!"
             class="collection-item menu black-text tooltipped"
             data-position="top"
-            data-tooltip="Make sure the file format is .srt"
-            ><span class="badge"><i class="material-icons">file_upload</i></span
-            >Load Subtitles from PC</a
+            data-tooltip="You can also open the subtitle settings from inside the video"
+            ><span class="badge"><i class="material-icons">computer</i></span
+            >Display</a
+          >
+          <a
+            id="sync-settings"
+            href="#!"
+            class="collection-item menu black-text tooltipped"
+            data-position="top"
+            data-tooltip="You can also open the subtitle settings from inside the video"
+            ><span class="badge"><i class="material-icons">sync</i></span
+            >Synchronization</a
           >
         </div>
+      <div id="general-section">
         <h3
           class="menu-heading red-text text-darken-3"
           style="margin-top: 30px"
         >
-          Display:
+          General:
         </h3>
         <div class="collection">
-          <a href="#!" class="collection-item menu black-text default-cursor"
-            ><span class="badge"
-              ><i class="material-icons pointer-cursor" id="size-minus"
-                >remove_circle</i
-              ><i class="material-icons pointer-cursor" id="size-plus"
-                >add_circle</i
-              ></span
-            >Subtitle Size</a
-          >
-          <a href="#!" class="collection-item menu black-text default-cursor"
-            ><span class="badge"
-              ><i class="material-icons pointer-cursor" id="opacity-minus"
-                >remove_circle</i
-              ><i class="material-icons pointer-cursor" id="opacity-plus"
-                >add_circle</i
-              ></span
-            >Transparency</a
-          >
-        </div>
-        <h3
-          class="menu-heading red-text text-darken-3"
-          style="margin-top: 30px"
-        >
-          Synchronization:
-        </h3>
-        <div class="collection">
-          <div id="earlier-later-block" class="input-field col s6">
-            <select id="sync-direction">
-              <option value="earlier">Display Subtitles Earlier</option>
-              <option value="later">Display Subtitles Later</option>
-            </select>
-          </div>
-          <hr />
-          <form id="range-block" action="#">
-            <p class="range-field">
-              <input
-                type="range"
-                id="input-range"
-                step="0.1"
-                min="0"
-                max="10"
-                value="0"
-              />
-            </p>
-            <input
-              type="number"
-              class="browser-default sync-input center-align"
-              id="sync-input"
-              min="0"
-              step="0.1"
-              value="0"
-            />
-            <p style="display: inline-block; font-size: 16px">sec</p>
-          </form>
-          <hr />
-          <p
-            id="success-message"
-            class="light-green-text text-accent-4 message center-align hide"
-          >
-            Successful!
-          </p>
-          <div class="centered-container">
-            <i
-              id="sync-progress-indicator"
-              style="font-size: 22px; margin: 20px"
-              class="fa fa-refresh fa-spin grey-text hide"
-            ></i>
-          </div>
-          <p id="error-message" class="red-text message hide">
-            Something went wrong. Please make sure your input is valid!
-          </p>
-          <a href="#!" class="collection-item menu black-text default-cursor">
-            <div class="flex-container">
-              <button
-                id="sync-now"
-                class="browser-default deep-orange accent-2 btn btn-small waves-effect waves-light"
-              >
-                Sync Now
-              </button>
-              <button
-                id="reset-sync"
-                class="browser-default grey darken-1 btn btn-small waves-effect waves-light"
-              >
-                Reset Sync
-              </button>
-            </div>
-          </a>
-            </div>
-        </div>
-        <div id="general-section">
-            <h3 class="menu-heading red-text text-darken-3" style="margin-top: 30px">
-                General:
-            </h3>
-            <div class="collection">
-                <a href="#!" class="collection-item menu black-text" id="shortcuts"><span class="badge"><i class="material-icons">keyboard</i></span
+          <a href="#!" class="collection-item menu black-text" id="shortcuts"
+            ><span class="badge"><i class="material-icons">keyboard</i></span
             >Shortcuts</a
           >
           <a href="#!" class="collection-item menu black-text"

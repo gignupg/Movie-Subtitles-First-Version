@@ -1,5 +1,7 @@
 * {
     font-family: sans-serif;
+    --red: #C62828;
+    --orange: #f0653b;
 }
 
 hr {
@@ -188,6 +190,14 @@ button:hover {
     background-color: rgba(0, 0, 0, 0.103);
 }
 
+.selected-menu-item {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.selected-menu-item:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
 .settings-button {
     text-align: center;
     padding: 8px 16px;
@@ -201,7 +211,7 @@ button:hover {
 
 .subtitle-search-button {
     color: rgb(235, 235, 235);
-    background-color: #f36236;
+    background-color: #f0653b;
 }
 
 .subtitle-upload-button {
@@ -276,7 +286,7 @@ button:hover {
     width: var(--range-size);
     height: var(--range-size);
     border-radius: 50%;
-    background: #f36236;
+    background: var(--orange);
     cursor: pointer;
 }
   
@@ -284,14 +294,21 @@ button:hover {
     width: var(--range-size);
     height: var(--range-size);
     border-radius: 50%;
-    background: #f36236;
+    background: var(--orange);
     cursor: pointer;
+}
+
+#sync-range::-webkit-slider-thumb {
+    background: grey;
+}
+
+#sync-range::-moz-range-thumb {
+    background: grey;
 }
 
 .tooltip {
     position: relative;
     display: inline-block;
-    border-bottom: 1px dotted black;
 }
   
 .tooltip .tooltiptext {
@@ -335,15 +352,15 @@ button:hover {
     align-items: center;
 }
 
-.subtitle-sync-button {
+#subtitle-sync-button {
     width: 100%;
     padding-left: 0;
     padding-right: 0;
-    color: rgb(235, 235, 235);
-    background-color: #f36236;
+    color: rgba(255, 255, 255, 0.849);
+    background-color: rgba(0,0,0,0.2);
 }
 
-#display-range-3 {
+#sync-range {
     width: 100%;
     margin-top: 10px;
     margin-bottom: 0px;
@@ -390,10 +407,10 @@ option {
     font-weight: 600;
 }
 
-#option-earlier {
-    color: #ee5122;
+.option-earlier {
+    color: #f0653b;
 }
 
-#option-later {
+.option-later {
     color: #C62828;
 }

@@ -2,6 +2,8 @@
     font-family: sans-serif;
     --red: #C62828;
     --orange: #f0653b;
+    --active-orange: #ff754b;
+    --active-grey: rgb(211, 210, 210);
 }
 
 hr {
@@ -224,11 +226,11 @@ button:hover {
 }
 
 .subtitle-search-button:hover {
-    background-color: #e25b31;
+    background-color: var(--active-orange);
 }
 
 .subtitle-upload-button:hover {
-    background-color: rgb(184, 184, 184);
+    background-color: var(--active-grey);
 }
 
 #centered-box {

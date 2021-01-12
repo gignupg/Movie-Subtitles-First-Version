@@ -78,6 +78,8 @@ function subtitleCalibrator(calibration, video, shadow) {
             shadow.querySelector("#not-synced").classList.add("hide");
         }, 6000);
     }
+
+    handleMenuClose(video, shadow);
 }
 
 function timeInSeconds(time) {
@@ -458,6 +460,9 @@ function defineVideoController() {
                 <button data-action="rewind" class="subtitle-button">«</button>
                 <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
                 <button data-action="advance" class="subtitle-button">»</button> 
+            </div>
+            <div></div>
+            <div style="display: inline-block;">
                 <div id="synced" class="hide sync-msg">Successfully synced!</div>
                 <div id="not-synced" class="hide sync-msg">Syncing error! No subtitles selected</div>
             </div>
@@ -489,12 +494,9 @@ function defineVideoController() {
 
         function messageReceived(msg) {
             if (msg.subtitles) {
-                subs = msg.subtitles;
-
-            } else if (msg.calibration) {
                 subtitleCalibrator(msg.calibration, thisVideo, shadow);
 
-            } else if (msg.import) {
+            } else if (msg.display) {
                 shadow.getElementById("chooseFile").click();
 
             } else if (msg.hide) {
@@ -503,28 +505,27 @@ function defineVideoController() {
 
             } else if (msg.show && tc.settings.enabled) {
                 wrapper.classList.remove("vsc-nosource");
-
-            } else if (msg.size) {
-                if (msg.size === "minus") {
-                    shadow.querySelector("#size-minus").click();
-
-                } else {
-                    shadow.querySelector("#size-plus").click();
-                }
-            } else if (msg.opacity) {
-                if (msg.opacity === "minus") {
-                    shadow.querySelector("#opacity-minus").click();
-
-                } else {
-                    shadow.querySelector("#opacity-plus").click();
-                }
             }
         }
+
+        shadow.getElementById("subtitle-sync-button").addEventListener("click", () => {
+            const calibration = {};
+            calibration.offset = Number(shadow.getElementById("sync-seconds").value);
+            calibration.direction = shadow.getElementById("offset-direction").value;
+
+            if (calibration.offset) {
+                subtitleCalibrator(calibration, thisVideo, shadow);
+            }
+        });
+
+        shadow.getElementById("settings-close").addEventListener("click", () => {
+            handleMenuClose(thisVideo, shadow);
+        });
 
         shadow.getElementById("video-icon").addEventListener("click", () => {
             menuOpen = true;
             // Blur the background when the settings are opened
-            this.video.style.filter = "blur(10px)";
+            thisVideo.style.filter = "blur(10px)";
             // Hide video icon!
             shadow.getElementById("video-icon").classList.add("hide");
             // Show the menu
@@ -642,15 +643,18 @@ function defineVideoController() {
                     mySelect.selectedIndex = j;
                     const color = direction === "earlier" ? orange : red;
                     const syncVal = Number(shadow.getElementById("sync-seconds").value);
+                    const buttonStyle = shadow.getElementById("subtitle-sync-button").style;
 
                     shadow.getElementById("offset-direction").style.color = color;
 
                     // Setting the color of the submit button
                     if (syncVal) {
-                        shadow.getElementById("subtitle-sync-button").style.backgroundColor = color;
+                        buttonStyle.backgroundColor = color;
+                        buttonStyle.cursor = "pointer";
 
                     } else {
-                        shadow.getElementById("subtitle-sync-button").style.backgroundColor = "rgba(0, 0, 0, 0.2)";
+                        buttonStyle.backgroundColor = "rgba(0, 0, 0, 0.2)";
+                        buttonStyle.cursor = "default";
                     }
 
                     break;
@@ -671,8 +675,10 @@ function defineVideoController() {
 
                 if (newVal) {
                     buttonStyle.backgroundColor = orange;
+                    buttonStyle.cursor = "pointer";
                 } else {
                     buttonStyle.backgroundColor = "rgba(0,0,0,0.2)";
+                    buttonStyle.cursor = "default";
                 }
 
             } else {
@@ -680,8 +686,10 @@ function defineVideoController() {
 
                 if (newVal) {
                     buttonStyle.backgroundColor = red;
+                    buttonStyle.cursor = "pointer";
                 } else {
                     buttonStyle.backgroundColor = "rgba(0,0,0,0.2)";
+                    buttonStyle.cursor = "default";
                 }
             }
         });
@@ -714,6 +722,10 @@ function defineVideoController() {
                 this.video.play();
                 pausing = false;
             }
+        });
+
+        shadow.getElementById("chooseFile").addEventListener("click", () => {
+            handleMenuClose(thisVideo, shadow);
         });
 
         shadow.getElementById("chooseFile").addEventListener("change", (e) => {
@@ -1466,4 +1478,11 @@ function hideVideoIcon(shadow, video) {
     if (!video.paused && timePassed >= 2.7 && timePassed <= 3.1) {
         shadow.querySelector("#video-icon").classList.add("hide");
     }
+}
+
+function handleMenuClose(video, shadow) {
+    shadow.getElementById("settings-wrapper").classList.add("hide");
+    menuOpen = false;
+    video.style.filter = null;
+    shadow.getElementById("video-icon").classList.remove("hide");
 }

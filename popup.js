@@ -9,7 +9,7 @@ chrome.storage.sync.get({ enabled: true }, storage => {
     toggleEnabledUI(extensionOn);
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initializing tooltips for Materialize
     const toolElem = document.querySelectorAll('.tooltipped');
     const selectElem = document.querySelectorAll('select');
@@ -20,76 +20,20 @@ document.addEventListener('DOMContentLoaded', function() {
     checkForVideo();
 });
 
-// Updating the input value when the range slider is moved
-document.querySelector("#input-range").addEventListener("change", function() {
-    const newValue = document.querySelector("#input-range").value;
-    document.querySelector("#sync-input").value = newValue;
+document.querySelector("#subtitle-settings").addEventListener("click", () => {
+    messageContentScript({ subtitles: true });
 });
 
 document.querySelector(".power-button").addEventListener("click", toggleEnabled);
 
 document.querySelector("#refresh-popup-icon").addEventListener("click", refreshPopup);
 
-document.querySelector("#subtitle-import").addEventListener("click", function() {
-    messageContentScript({ import: "file" });
-});
-
-document.querySelector("#shortcuts").addEventListener("click", function() {
+document.querySelector("#shortcuts").addEventListener("click", function () {
     window.open(chrome.runtime.getURL("options.html"));
 });
 
-document.querySelector("#size-minus").addEventListener("click", function() {
-    messageContentScript({ size: "minus" });
-});
-
-document.querySelector("#size-plus").addEventListener("click", function() {
-    messageContentScript({ size: "plus" });
-});
-
-document.querySelector("#opacity-minus").addEventListener("click", function() {
-    messageContentScript({ opacity: "minus" });
-});
-
-document.querySelector("#opacity-plus").addEventListener("click", function() {
-    messageContentScript({ opacity: "plus" });
-});
-
-// Hide any error messages!
-document.querySelector("#earlier-later-block").addEventListener("click", function() {
-    document.querySelector("#error-message").classList.add("hide");
-});
-document.querySelector("#range-block").addEventListener("click", function() {
-    document.querySelector("#error-message").classList.add("hide");
-});
-
-// Syncing the subtitles if the input is valid
-document.querySelector("#sync-now").addEventListener("click", function() {
-    const direction = document.querySelector("#sync-direction").value;
-    const input = Number(document.querySelector("#sync-input").value.trim());
-
-    if (!input) {
-        displayErrorMessage("Input invalid. To sync the subtitles, please enter a value bigger than 0!");
-
-    } else if (isNaN(input)) {
-        displayErrorMessage("Input invalid. Only numbers allowed!");
-
-    } else if (input < 0) {
-        displayErrorMessage("Input invalid. Only positive numbers allowed!");
-
-    } else {
-        // Sync the subtitles
-        calibrationHandler(input, direction);
-
-        // Closing the popup
-        window.close();
-    }
-});
-
-document.querySelector("#reset-sync").addEventListener("click", function() {
-    console.log("Resetting is not supported yet ;(");
-});
-
 function toggleEnabled() {
+    console.log("toggleEnabled function called");
     extensionOn = !extensionOn;
     chrome.storage.sync.set({ enabled: extensionOn }, () => {
         toggleEnabledUI(extensionOn);
@@ -161,8 +105,8 @@ function checkForVideo() {
 
     // Video detected?
     // If so, display all subtitle related options
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, { videoRequest: true }, function(response) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, { videoRequest: true }, function (response) {
             if (response && response.videoDetected) {
                 videoDetected = true;
                 document.querySelector("#subtitle-section").classList.remove("hide");
@@ -174,7 +118,7 @@ function checkForVideo() {
 
 function calibrationHandler(offset, direction) {
     // Sending our subtitle array to the content script
-    chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
         const message = {
             calibration: {
                 offset: Number(offset) || 0,
@@ -200,7 +144,7 @@ function refreshPopup() {
 }
 
 function messageContentScript(message) {
-    chrome.tabs.query({ currentWindow: true, active: true }, function(tab) {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
         chrome.tabs.sendMessage(tab[0].id, message);
     });
 }

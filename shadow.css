@@ -25,10 +25,6 @@ p {
     border: none;
 }
 
-.sync-msg {
-    margin: 5px 40px;
-}
-
 #controller {
     position: absolute;
     top: 0;
@@ -53,6 +49,7 @@ p {
     left: 50%;
     transform: translateX(-50%);
     border: 1px solid rgb(218, 218, 218);
+    border-radius: 10px;
     box-shadow: 3px 3px 10px rgb(160, 160, 160);
     z-index: 9999999;
 }
@@ -137,14 +134,20 @@ button:hover {
     background-color: yellowgreen;
 }
 
+.sync-msg {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
 #synced {
     color: rgb(0, 255, 0);
-    font-size: 14px;
 }
 
 #not-synced {
     color: rgb(255, 0, 0);
-    font-size: 14px;
 }
 
 .hide {
@@ -357,6 +360,7 @@ button:hover {
     padding-left: 0;
     padding-right: 0;
     color: rgba(255, 255, 255, 0.849);
+    cursor: default;
     background-color: rgba(0,0,0,0.2);
 }
 

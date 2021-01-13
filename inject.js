@@ -568,7 +568,34 @@ function defineVideoController() {
 
         // Prevent all youtube shortcuts while interacting with the extension.
         shadow.addEventListener("keydown", (e) => {
-            e.stopPropagation();
+            const zero = e.keyCode === 48;
+            const one = e.keyCode === 49;
+            const two = e.keyCode === 50;
+            const three = e.keyCode === 51;
+            const four = e.keyCode === 52;
+            const five = e.keyCode === 53;
+            const six = e.keyCode === 54;
+            const seven = e.keyCode === 55;
+            const eight = e.keyCode === 56;
+            const nine = e.keyCode === 57;
+
+            // If a number was pressed stop it from skipping to 10%, 20%, 30% and so on...
+            if (zero || one || two || three || four || five || six || seven || eight || nine) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // If space was pressed play/stop the video!
+            if (e.keyCode == 32) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (thisVideo.paused) {
+                    thisVideo.play();
+                } else {
+                    thisVideo.pause();
+                }
+            }
         });
 
         window.addEventListener("resize", resizeHandler);

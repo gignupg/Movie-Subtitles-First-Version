@@ -217,7 +217,7 @@ button:hover {
 
 .subtitle-search-button {
     color: rgb(235, 235, 235);
-    background-color: #f0653b;
+    background-color: var(--orange);
 }
 
 .subtitle-upload-button {

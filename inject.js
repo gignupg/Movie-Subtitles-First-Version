@@ -1,5 +1,6 @@
 let monitoring = false;
 let pausing = false;
+let forwardRewind = false;
 let lastMouseMove = null;
 let menuOpen = false;
 const red = "#C62828";
@@ -745,17 +746,28 @@ function defineVideoController() {
         shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = tc.settings.fontSize + "px");
         shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${tc.settings.controllerOpacity})`;
 
-        shadow.querySelector("#controller").addEventListener("mouseenter", () => {
+        // Pausing the video when hovering on the subtitles
+        shadow.querySelector("#subtitle-div").addEventListener("mouseenter", () => {
             if (!this.video.paused) {
                 this.video.pause();
                 pausing = true;
             }
         });
 
-        shadow.querySelector("#controller").addEventListener("mouseleave", () => {
-            if (pausing) {
+        // Resuming the video when leaving the subtitles with the mouse but only if previous or next hasn't been pressed
+        shadow.querySelector("#subtitle-div").addEventListener("mouseleave", () => {
+            if (pausing && !forwardRewind) {
                 this.video.play();
                 pausing = false;
+            }
+        });
+
+        // Resuming the video when leaving the subtitle controller with the mouse but only if previous or next has been pressed
+        shadow.querySelector("#controller").addEventListener("mouseleave", () => {
+            if (pausing && forwardRewind) {
+                this.video.play();
+                pausing = false;
+                forwardRewind = false;
             }
         });
 
@@ -1271,7 +1283,7 @@ function runAction(action, value, e) {
 
         if (!v.classList.contains("vsc-cancelled")) {
             if (action === "rewind") {
-                log("Rewind", 5);
+                forwardRewind = true;
 
                 if (v.currentTime > subs[pos].start + 1) {
                     v.currentTime = subs[pos].start;
@@ -1281,62 +1293,10 @@ function runAction(action, value, e) {
                 }
 
             } else if (action === "advance") {
-                log("Fast forward", 5);
+                forwardRewind = true;
 
                 if (pos !== subs.length - 1) {
                     v.currentTime = subs[pos + 1].start;
-                }
-
-            } else if (action === "lighter") {
-                const subtitleDiv = controller.shadowRoot.querySelector("#subtitle-div").style;
-                const settingsIcon = controller.shadowRoot.querySelector("#settings-icon-container").style;
-                const newOpacity = Number((tc.settings.controllerOpacity - 0.1).toFixed(1));
-
-                if (newOpacity >= 0.1) {
-                    subtitleDiv.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
-                    settingsIcon.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
-                    chrome.storage.sync.set({ controllerOpacity: newOpacity });
-                    tc.settings.controllerOpacity = newOpacity;
-                }
-
-            } else if (action === "darker") {
-                const subtitleDiv = controller.shadowRoot.querySelector("#subtitle-div").style;
-                const settingsIcon = controller.shadowRoot.querySelector("#settings-icon-container").style;
-                const newOpacity = Number((tc.settings.controllerOpacity + 0.1).toFixed(1));
-
-                if (newOpacity <= 1) {
-                    subtitleDiv.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
-                    settingsIcon.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
-                    chrome.storage.sync.set({ controllerOpacity: newOpacity });
-                    tc.settings.controllerOpacity = newOpacity;
-                }
-
-            } else if (action === "smaller") {
-                const subtitleStyle = controller.shadowRoot.querySelector("#subtitles").style;
-                const prevNextArr = controller.shadowRoot.querySelectorAll(".subtitle-button");
-
-                const oldSize = Number(subtitleStyle.fontSize);
-                const newSize = oldSize - 1;
-
-                if (oldSize > 14) {
-                    subtitleStyle.fontSize = newSize;
-                    prevNextArr.forEach(elem => elem.style.fontSize = newSize);
-                    tc.settings.fontSize = newSize;
-                    chrome.storage.sync.set({ fontSize: newSize });
-                }
-
-            } else if (action === "bigger") {
-                const subtitleStyle = controller.shadowRoot.querySelector("#subtitles").style;
-                const prevNextArr = controller.shadowRoot.querySelectorAll(".subtitle-button");
-
-                const oldSize = Number(subtitleStyle.fontSize.replace(/px/, ""));
-                const newSize = (oldSize + 2) + "px";
-
-                if (oldSize < 88) {
-                    subtitleStyle.fontSize = newSize;
-                    prevNextArr.forEach(elem => elem.style.fontSize = newSize);
-                    tc.settings.fontSize = newSize;
-                    chrome.storage.sync.set({ fontSize: newSize });
                 }
 
             } else if (action === "reset") {

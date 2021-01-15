@@ -980,66 +980,6 @@ function refreshCoolDown() {
     log("End refreshCoolDown", 5);
 }
 
-function setupListener() {
-    /**
-     * This function is run whenever a video speed rate change occurs.
-     * It is used to update the speed that shows up in the display as well as save
-     * that latest speed into the local storage.
-     *
-     * @param {*} video The video element to update the speed indicators for.
-     */
-    function updateSpeedFromEvent(video) {
-        // It's possible to get a rate change on a VIDEO/AUDIO that doesn't have
-        // a video controller attached to it.  If we do, ignore it.
-        if (!video.vsc) return;
-
-        var speedIndicator = video.vsc.speedIndicator;
-        var src = video.currentSrc;
-        var speed = Number(video.playbackRate.toFixed(2));
-
-        log("Playback rate changed to " + speed, 4);
-
-        log("Updating controller with new speed", 5);
-        speedIndicator.textContent = speed.toFixed(2);
-        tc.settings.speeds[src] = speed;
-        log("Storing lastSpeed in settings for the rememberSpeed feature", 5);
-        tc.settings.lastSpeed = speed;
-        log("Syncing chrome settings for lastSpeed", 5);
-        chrome.storage.sync.set({ lastSpeed: speed }, function () {
-            log("Speed setting saved: " + speed, 5);
-        });
-        // show the controller for 1000ms if it's hidden.
-        runAction("blink", null, null);
-    }
-
-    document.addEventListener(
-        "ratechange",
-        function (event) {
-            if (coolDown) {
-                log("Speed event propagation blocked", 4);
-                event.stopImmediatePropagation();
-            }
-            var video = event.target;
-
-            /**
-             * If the last speed is forced, only update the speed based on events created by
-             * video speed instead of all video speed change events.
-             */
-            if (tc.settings.forceLastSavedSpeed) {
-                if (event.detail && event.detail.origin === "videoSpeed") {
-                    video.playbackRate = event.detail.speed;
-                    updateSpeedFromEvent(video);
-                } else {
-                    video.playbackRate = tc.settings.lastSpeed;
-                }
-            } else {
-                updateSpeedFromEvent(video);
-            }
-        },
-        true
-    );
-}
-
 function initializeWhenReady(document) {
     log("Begin initializeWhenReady", 5);
     if (isBlacklisted()) {
@@ -1096,11 +1036,6 @@ function initializeNow(document) {
     // enforce init-once due to redundant callers
     if (!document.body || document.body.classList.contains("vsc-initialized")) {
         return;
-    }
-    try {
-        setupListener();
-    } catch {
-        // no operation
     }
     document.body.classList.add("vsc-initialized");
     log("initializeNow: vsc-initialized added to document body", 5);

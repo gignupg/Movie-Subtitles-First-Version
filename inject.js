@@ -317,12 +317,6 @@ function defineVideoController() {
                 );
                 storedSpeed = tc.settings.lastSpeed;
             }
-            // TODO: Check if explicitly setting the playback rate to 1.0 is
-            // necessary when rememberSpeed is disabled (this may accidentally
-            // override a website's intentional initial speed setting interfering
-            // with the site's default behavior)
-            log("Explicitly setting playbackRate to: " + storedSpeed, 4);
-            setSpeed(event.target, storedSpeed);
         };
 
         target.addEventListener(
@@ -1194,25 +1188,6 @@ function initializeNow(document) {
     log("End initializeNow", 5);
 }
 
-function setSpeed(video, speed) {
-    log("setSpeed started: " + speed, 5);
-    var speedvalue = speed.toFixed(2);
-    if (tc.settings.forceLastSavedSpeed) {
-        video.dispatchEvent(
-            new CustomEvent("ratechange", {
-                detail: { origin: "videoSpeed", speed: speedvalue }
-            })
-        );
-    } else {
-        video.playbackRate = Number(speedvalue);
-    }
-    var speedIndicator = video.vsc.speedIndicator;
-    speedIndicator.textContent = subs[pos].text;
-    tc.settings.lastSpeed = speed;
-    refreshCoolDown();
-    log("setSpeed finished: " + speed, 5);
-}
-
 function runAction(action, value, e) {
     log("runAction Begin", 5);
 
@@ -1234,10 +1209,7 @@ function runAction(action, value, e) {
         showController(controller);
 
         if (!v.classList.contains("vsc-cancelled")) {
-            if (action === "reset") {
-                log("Reset speed", 5);
-                resetSpeed(v, 1.0);
-            } else if (action === "display") {
+            if (action === "display") {
                 log("Showing controller", 5);
                 controller.classList.add("vsc-manual");
                 controller.classList.toggle("vsc-hidden");
@@ -1260,8 +1232,6 @@ function runAction(action, value, e) {
                 }
             } else if (action === "drag") {
                 handleDrag(v, e);
-            } else if (action === "fast") {
-                resetSpeed(v, value);
             } else if (action === "pause") {
                 pause(v);
             } else if (action === "muted") {
@@ -1283,27 +1253,6 @@ function pause(v) {
     } else {
         log("Pausing video", 5);
         v.pause();
-    }
-}
-
-function resetSpeed(v, target) {
-    if (v.playbackRate === target) {
-        if (v.playbackRate === getKeyBindings("reset")) {
-            if (target !== 1.0) {
-                log("Resetting playback speed to 1.0", 4);
-                setSpeed(v, 1.0);
-            } else {
-                log('Toggling playback speed to "fast" speed', 4);
-                setSpeed(v, getKeyBindings("fast"));
-            }
-        } else {
-            log('Toggling playback speed to "reset" speed', 4);
-            setSpeed(v, getKeyBindings("reset"));
-        }
-    } else {
-        log('Toggling playback speed to "reset" speed', 4);
-        setKeyBindings("reset", v.playbackRate);
-        setSpeed(v, target);
     }
 }
 

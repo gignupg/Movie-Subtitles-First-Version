@@ -20,7 +20,7 @@ p {
 }
 
 .subtitle-button {
-    text-decoration: none;
+    display: inline-block;
     font-weight: 900;
     background-color: transparent;
     color: white;
@@ -29,12 +29,13 @@ p {
 
 #controller {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    width: 100%;
+    height: 0;
+    overflow:visible;
+    pointer-events:none;
+    background:none !important;
     text-align: center;
     color: white;
-    border-radius: 30px;
     cursor: default;
     z-index: 9999999;
 }
@@ -96,17 +97,6 @@ p {
     cursor: -webkit-grabbing;
 }
 
-#controller.dragging .subtitle-button {
-    display: inline-block;
-}
-
-.draggable {
-    cursor: -webkit-grab;
-    display: inline-block;
-    margin-left: 5px;
-    margin-right: 5px;
-}
-
 .draggable:active {
     cursor: -webkit-grabbing;
 }
@@ -114,6 +104,7 @@ p {
 #subtitle-div {
     background-color: rgba(0, 0, 0, 0);
     display: inline-block;
+    pointer-events: auto;
     border-radius: 40px;
     padding: 5px 10px;
 }
@@ -137,6 +128,7 @@ button:hover {
 .sync-msg {
     font-size: 16px;
     font-weight: 600;
+    text-align: center;
     margin-top: 5px;
     padding: 5px 10px;
     border-radius: 20px;
@@ -164,6 +156,7 @@ button:hover {
 }
 
 #subtitles {
+    display: inline-block;
     margin-left: 0;
     margin-right: 0;
     -webkit-user-select: none;

@@ -462,10 +462,9 @@ function defineVideoController() {
                 <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
                 <button data-action="advance" class="subtitle-button">»</button> 
             </div>
-            <div></div>
-            <div style="display: inline-block;">
+            <div>
                 <div id="synced" class="hide sync-msg">Successfully synced!</div>
-                <div id="not-synced" class="hide sync-msg">Syncing error! No subtitles selected</div>
+                <div id="not-synced" class="hide sync-msg">Error: No subtitles selected!</div>
             </div>
         </div>
       `;

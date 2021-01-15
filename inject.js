@@ -520,7 +520,7 @@ function defineVideoController() {
                     // If a match was found update "pos"
                     if (newPos !== -1) {
                         pos = newPos;
-                        thisVideo.vsc.speedIndicator.textContent = subs[pos].text;
+                        shadow.getElementById("subtitles").innerHTML = subs[pos].text;
                     }
                 }
             };

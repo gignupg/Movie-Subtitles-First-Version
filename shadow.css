@@ -30,9 +30,8 @@ p {
 #controller {
     position: absolute;
     width: 100%;
-    height: 0;
     overflow:visible;
-    pointer-events:none;
+    pointer-events: none;
     background:none !important;
     text-align: center;
     color: white;

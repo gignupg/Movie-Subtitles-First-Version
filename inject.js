@@ -458,9 +458,9 @@ function defineVideoController() {
         </div>
         <div id="controller" style="top: ${this.video.clientHeight * 0.7}px;">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
-                <button data-action="rewind" class="subtitle-button">«</button>
+                <button id="prev-button" class="subtitle-button">«</button>
                 <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
-                <button data-action="advance" class="subtitle-button">»</button> 
+                <button id="next-button" class="subtitle-button">»</button> 
             </div>
             <div>
                 <div id="synced" class="hide sync-msg">Successfully synced!</div>
@@ -515,6 +515,27 @@ function defineVideoController() {
                 wrapper.classList.remove("vsc-nosource");
             }
         }
+
+        shadow.getElementById("prev-button").addEventListener("click", () => {
+            forwardRewind = true;
+            shadow.getElementById("controller").style.pointerEvents = "auto";
+
+            if (thisVideo.currentTime > subs[pos].start + 1) {
+                thisVideo.currentTime = subs[pos].start;
+
+            } else if (pos !== 0) {
+                thisVideo.currentTime = subs[pos - 1].start;
+            }
+        });
+
+        shadow.getElementById("next-button").addEventListener("click", () => {
+            forwardRewind = true;
+            shadow.getElementById("controller").style.pointerEvents = "auto";
+
+            if (pos !== subs.length - 1) {
+                thisVideo.currentTime = subs[pos + 1].start;
+            }
+        });
 
         shadow.getElementById("subtitle-sync-button").addEventListener("click", () => {
             const calibration = {};
@@ -756,6 +777,7 @@ function defineVideoController() {
         // Resuming the video when leaving the subtitles with the mouse but only if previous or next hasn't been pressed
         shadow.querySelector("#subtitle-div").addEventListener("mouseleave", () => {
             if (pausing && !forwardRewind) {
+                console.log("subtitles left");
                 this.video.play();
                 pausing = false;
             }
@@ -764,9 +786,11 @@ function defineVideoController() {
         // Resuming the video when leaving the subtitle controller with the mouse but only if previous or next has been pressed
         shadow.querySelector("#controller").addEventListener("mouseleave", () => {
             if (pausing && forwardRewind) {
+                console.log("controller left");
                 this.video.play();
                 pausing = false;
                 forwardRewind = false;
+                shadow.getElementById("controller").style.pointerEvents = "none";
             }
         });
 
@@ -1281,24 +1305,7 @@ function runAction(action, value, e) {
         showController(controller);
 
         if (!v.classList.contains("vsc-cancelled")) {
-            if (action === "rewind") {
-                forwardRewind = true;
-
-                if (v.currentTime > subs[pos].start + 1) {
-                    v.currentTime = subs[pos].start;
-
-                } else if (pos !== 0) {
-                    v.currentTime = subs[pos - 1].start;
-                }
-
-            } else if (action === "advance") {
-                forwardRewind = true;
-
-                if (pos !== subs.length - 1) {
-                    v.currentTime = subs[pos + 1].start;
-                }
-
-            } else if (action === "reset") {
+            if (action === "reset") {
                 log("Reset speed", 5);
                 resetSpeed(v, 1.0);
             } else if (action === "display") {

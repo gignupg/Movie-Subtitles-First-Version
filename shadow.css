@@ -25,6 +25,9 @@ p {
     background-color: transparent;
     color: white;
     border: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #controller {
@@ -93,10 +96,6 @@ p {
 }
 
 #controller.dragging {
-    cursor: -webkit-grabbing;
-}
-
-.draggable:active {
     cursor: -webkit-grabbing;
 }
 
@@ -410,4 +409,8 @@ option {
 
 .option-later {
     color: #C62828;
+}
+
+.highlighting {
+    cursor: text;
 }

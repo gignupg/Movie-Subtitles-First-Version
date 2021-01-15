@@ -3,6 +3,8 @@ let pausing = false;
 let forwardRewind = false;
 let lastMouseMove = null;
 let menuOpen = false;
+let ctrlAltPressed = false;
+const subtitleHeight = 0.5;
 const red = "#C62828";
 const orange = "#f0653b";
 
@@ -450,7 +452,7 @@ function defineVideoController() {
             </div>
             <div id="bottom-space"></div>
         </div>
-        <div id="controller" style="top: ${this.video.clientHeight * 0.7}px;">
+        <div id="controller" style="top: ${this.video.clientHeight * subtitleHeight}px;">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
                 <button id="prev-button" class="subtitle-button">«</button>
                 <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
@@ -466,8 +468,10 @@ function defineVideoController() {
         shadow.querySelector(".draggable").addEventListener(
             "mousedown",
             (e) => {
-                runAction(e.target.dataset["action"], false, e);
-                e.stopPropagation();
+                if (!ctrlAltPressed) {
+                    runAction(e.target.dataset["action"], false, e);
+                    e.stopPropagation();
+                }
             },
             true
         );
@@ -599,19 +603,8 @@ function defineVideoController() {
 
         // Prevent all youtube shortcuts while interacting with the extension.
         shadow.addEventListener("keydown", (e) => {
-            const zero = e.keyCode === 48;
-            const one = e.keyCode === 49;
-            const two = e.keyCode === 50;
-            const three = e.keyCode === 51;
-            const four = e.keyCode === 52;
-            const five = e.keyCode === 53;
-            const six = e.keyCode === 54;
-            const seven = e.keyCode === 55;
-            const eight = e.keyCode === 56;
-            const nine = e.keyCode === 57;
-
-            // If a number was pressed stop it from skipping to 10%, 20%, 30% and so on...
-            if (zero || one || two || three || four || five || six || seven || eight || nine) {
+            // If a number was pressed while the settings menu is open, stop it from skipping to 10%, 20%, 30% and so on...
+            if (e.keyCode >= 48 && e.keyCode <= 57) {
                 e.preventDefault();
                 e.stopPropagation();
             }
@@ -629,6 +622,43 @@ function defineVideoController() {
             }
         });
 
+        window.addEventListener("keydown", (e) => {
+            // If ctrl was pressed enable text/subtitle highlighting
+            if (e.key === "Control" || e.key === "Alt") {
+                const subtitleStyle = shadow.getElementById("subtitles").style;
+
+                // Lock the subtitle position!
+                ctrlAltPressed = true;
+
+                // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
+                shadow.getElementById("subtitles").classList.add("highlighting");
+
+                // Make the subtitles highlightable
+                // Simply ading a class works with the cursor property, however it does not work with the userSelect property
+                subtitleStyle.webkitUserSelect = "text";
+                subtitleStyle.mozUserSelect = "text";
+                subtitleStyle.msUserSelect = "text";
+            }
+        });
+
+        window.addEventListener("keyup", (e) => {
+            // If ctrl was released disable text/subtitle highlighting
+            if (e.key === "Control" || e.key === "Alt") {
+                const subtitleStyle = shadow.getElementById("subtitles").style;
+
+                // Unlock the position so the subtitles can be dragged again
+                ctrlAltPressed = false;
+
+                // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
+                shadow.getElementById("subtitles").classList.remove("highlighting");
+
+                // Make the subtitles not highlightable
+                subtitleStyle.webkitUserSelect = "none";
+                subtitleStyle.mozUserSelect = "none";
+                subtitleStyle.msUserSelect = "none";
+            }
+        });
+
         window.addEventListener("resize", resizeHandler);
 
         function resizeHandler() {
@@ -637,13 +667,13 @@ function defineVideoController() {
                     // fullscreen, show big icon
                     shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-38.png");
 
-                    shadow.getElementById("controller").style.top = (thisVideo.clientHeight * 0.7) + "px";
+                    shadow.getElementById("controller").style.top = (thisVideo.clientHeight * subtitleHeight) + "px";
 
                 } else {
                     // small screen, show small icon
                     shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
 
-                    shadow.getElementById("controller").style.top = (thisVideo.clientHeight * 0.7) + "px";
+                    shadow.getElementById("controller").style.top = (thisVideo.clientHeight * subtitleHeight) + "px";
                 }
             }, 100);
         }
@@ -787,7 +817,6 @@ function defineVideoController() {
         // Resuming the video when leaving the subtitles with the mouse but only if previous or next hasn't been pressed
         shadow.querySelector("#subtitle-div").addEventListener("mouseleave", () => {
             if (pausing && !forwardRewind) {
-                console.log("subtitles left");
                 this.video.play();
                 pausing = false;
             }
@@ -796,7 +825,6 @@ function defineVideoController() {
         // Resuming the video when leaving the subtitle controller with the mouse but only if previous or next has been pressed
         shadow.querySelector("#controller").addEventListener("mouseleave", () => {
             if (pausing && forwardRewind) {
-                console.log("controller left");
                 this.video.play();
                 pausing = false;
                 forwardRewind = false;
@@ -896,7 +924,9 @@ function defineVideoController() {
             .addEventListener("click", (e) => e.stopPropagation(), false);
         shadow
             .querySelector("#controller")
-            .addEventListener("mousedown", (e) => e.stopPropagation(), false);
+            .addEventListener("mousedown", (e) => {
+                e.stopPropagation();
+            }, false);
 
         this.speedIndicator = shadow.getElementById("subtitles");
         var fragment = document.createDocumentFragment();

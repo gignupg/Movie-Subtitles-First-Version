@@ -3,7 +3,7 @@ let pausing = false;
 let forwardRewind = false;
 let lastMouseMove = null;
 let menuOpen = false;
-let ctrlAltPressed = false;
+let ctrlPressed = false;
 const subtitleHeight = 0.5;
 const red = "#C62828";
 const orange = "#f0653b";
@@ -468,7 +468,7 @@ function defineVideoController() {
         shadow.querySelector(".draggable").addEventListener(
             "mousedown",
             (e) => {
-                if (!ctrlAltPressed) {
+                if (!ctrlPressed) {
                     runAction(e.target.dataset["action"], false, e);
                     e.stopPropagation();
                 }
@@ -624,11 +624,13 @@ function defineVideoController() {
 
         window.addEventListener("keydown", (e) => {
             // If ctrl was pressed enable text/subtitle highlighting
-            if (e.key === "Control" || e.key === "Alt") {
+            // Ctrl works better than alt because switching windows with Alt + Tab enables text highlighting as a side effect
+            // whereas using Ctrl + 1 or Ctrl + 2 for switching tabs doesn't cause any problems
+            if (e.key === "Control") {
                 const subtitleStyle = shadow.getElementById("subtitles").style;
 
                 // Lock the subtitle position!
-                ctrlAltPressed = true;
+                ctrlPressed = true;
 
                 // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
                 shadow.getElementById("subtitles").classList.add("highlighting");
@@ -643,11 +645,13 @@ function defineVideoController() {
 
         window.addEventListener("keyup", (e) => {
             // If ctrl was released disable text/subtitle highlighting
-            if (e.key === "Control" || e.key === "Alt") {
+            // Ctrl works better than alt because switching windows with Alt + Tab enables text highlighting as a side effect
+            // whereas using Ctrl + 1 or Ctrl + 2 for switching tabs doesn't cause any problems
+            if (e.key === "Control") {
                 const subtitleStyle = shadow.getElementById("subtitles").style;
 
                 // Unlock the position so the subtitles can be dragged again
-                ctrlAltPressed = false;
+                ctrlPressed = false;
 
                 // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
                 shadow.getElementById("subtitles").classList.remove("highlighting");

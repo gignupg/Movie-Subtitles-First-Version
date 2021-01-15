@@ -516,6 +516,22 @@ function defineVideoController() {
             }
         }
 
+        if (!monitoring) {
+            monitoring = true;
+            thisVideo.ontimeupdate = () => {
+                if (subs && subs.length > 1) {
+                    const time = thisVideo.currentTime.toFixed(3);
+                    const newPos = subs.findIndex(el => el.start <= time && el.end > time);
+
+                    // If a match was found update "pos"
+                    if (newPos !== -1) {
+                        pos = newPos;
+                        thisVideo.vsc.speedIndicator.textContent = subs[pos].text;
+                    }
+                }
+            };
+        }
+
         shadow.getElementById("prev-button").addEventListener("click", () => {
             forwardRewind = true;
             shadow.getElementById("controller").style.pointerEvents = "auto";
@@ -1241,11 +1257,6 @@ function initializeNow(document) {
         initializeWhenReady(childDocument);
     });
     log("End initializeNow", 5);
-
-    if (!monitoring) {
-        monitoring = true;
-        monitorPlaybackTime();
-    }
 }
 
 function setSpeed(video, speed) {
@@ -1265,23 +1276,6 @@ function setSpeed(video, speed) {
     tc.settings.lastSpeed = speed;
     refreshCoolDown();
     log("setSpeed finished: " + speed, 5);
-}
-
-function monitorPlaybackTime() {
-    tc.mediaElements.forEach(v => {
-        v.ontimeupdate = () => {
-            if (subs && subs.length > 1) {
-                const time = v.currentTime.toFixed(3);
-                const newPos = subs.findIndex(el => el.start <= time && el.end > time);
-
-                // If a match was found update "pos"
-                if (newPos !== -1) {
-                    pos = newPos;
-                    v.vsc.speedIndicator.textContent = subs[pos].text;
-                }
-            }
-        };
-    });
 }
 
 function runAction(action, value, e) {
@@ -1472,7 +1466,7 @@ function processMessage(msg, sender, sendResponse) {
 }
 
 function hideVideoIcon(shadow, video) {
-    // On youtube the progress bar and play buttons disappear after 2.9 seconds
+    // On youtube the progress bar and play buttons disappear after 2.9 seconds it seems
     // This way, at least on youtube, the video icon will disappear at the same time
 
     const timePassed = video.currentTime - lastMouseMove;

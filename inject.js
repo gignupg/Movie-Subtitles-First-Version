@@ -846,6 +846,7 @@ function defineVideoController() {
             reader.onload = () => {
                 const srtFile = reader.result.split("\n");
                 const newSubs = [{ text: "" }];
+                const musicRegEx = new RegExp('♪');
                 let count = 0;
                 let type = null;
 
@@ -867,6 +868,13 @@ function defineVideoController() {
 
                         newSubs[count].text += line + " ";
 
+                        const music = musicRegEx.test(newSubs[count].text);
+
+                        // If it's music
+                        if (music) {
+                            newSubs[count].music = {};
+                        }
+
                     } else if (!line) {
                         count++;
 
@@ -883,8 +891,13 @@ function defineVideoController() {
                     newSubs.unshift({ text: "Silence (" + Math.round(newSubs[0].start) + " seconds)", start: 0, end: newSubs[0].start });
                 }
 
-                // Adding "Skip silence" to our subtitle array (newSubs)
+                // Adding "(end)" manually
+                const lastNode = newSubs[newSubs.length - 1];
+                lastNode.text = lastNode.text + " (end)";
+
+                // Adding "Skip silence" to our subtitle array (newSubs) and updating the music property
                 for (let i = 1; i < newSubs.length; i++) {
+                    // Adding silence
                     const silence = newSubs[i].start - newSubs[i - 1].end;
                     if (silence > 5) {
                         newSubs.splice(i, 0, {
@@ -892,6 +905,22 @@ function defineVideoController() {
                             start: newSubs[i - 1].end,
                             end: newSubs[i].start
                         });
+                    }
+
+                    // Adding music
+                    const music = newSubs[i].music;
+                    if (music) {
+                        music.start = newSubs[i].start;
+
+                        // Find the end
+                        for (let j = i; ; j++) {
+                            if (!newSubs[j].music) {
+                                music.end = newSubs[j].start;
+                                break;
+                            }
+                        }
+
+                        music.text = "Skip music (" + (music.end - music.start) + ")";
                     }
                 }
 

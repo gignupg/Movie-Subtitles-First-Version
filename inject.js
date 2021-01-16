@@ -533,11 +533,11 @@ function defineVideoController() {
             thisVideo.ontimeupdate = () => {
                 if (subs && subs.length > 1) {
                     const time = thisVideo.currentTime.toFixed(3);
-                    const newPos = subs.findIndex(el => el.start <= time && el.end > time);
+                    const newPos = subs.findIndex(el => el.start > time);
 
                     // If a match was found update "pos"
-                    if (newPos !== -1) {
-                        pos = newPos;
+                    if (newPos > 0) {
+                        pos = newPos - 1;
                         shadow.getElementById("subtitles").innerHTML = subs[pos].text;
 
                         // Display "Skip music" button if there is music
@@ -548,6 +548,14 @@ function defineVideoController() {
                         } else {
                             shadow.getElementById("skip-music").classList.add("hide");
                         }
+                    } else {
+                        if (time < 200) {
+                            pos = 0;
+
+                        } else {
+                            pos = subs.length - 1;
+                        }
+                        shadow.getElementById("subtitles").innerHTML = subs[pos].text;
                     }
                 }
             };
@@ -555,7 +563,6 @@ function defineVideoController() {
 
         shadow.getElementById("prev-button").addEventListener("click", () => {
             forwardRewind = true;
-            shadow.getElementById("controller").style.pointerEvents = "auto";
 
             if (thisVideo.currentTime > subs[pos].start + 1) {
                 thisVideo.currentTime = subs[pos].start;
@@ -567,7 +574,6 @@ function defineVideoController() {
 
         shadow.getElementById("next-button").addEventListener("click", () => {
             forwardRewind = true;
-            shadow.getElementById("controller").style.pointerEvents = "auto";
 
             if (pos !== subs.length - 1) {
                 thisVideo.currentTime = subs[pos + 1].start;
@@ -860,7 +866,6 @@ function defineVideoController() {
                 this.video.play();
                 pausing = false;
                 forwardRewind = false;
-                shadow.getElementById("controller").style.pointerEvents = "none";
             }
         });
 
@@ -947,6 +952,12 @@ function defineVideoController() {
                                 break;
                             }
                         }
+
+                        // If no end was found we must be at the end of the subtitle array
+                        if (!music.end) {
+                            music.end = newSubs[newSubs.length - 1].end;
+                        }
+
                         music.text = "Music (" + (music.end - music.start).toFixed() + " seconds)";
                     }
                 }

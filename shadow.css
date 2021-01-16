@@ -33,9 +33,9 @@ p {
 #controller {
     position: absolute;
     width: 100%;
-    overflow:visible;
+    overflow: visible;
     pointer-events: none;
-    background:none !important;
+    background: none !important;
     text-align: center;
     color: white;
     cursor: default;
@@ -107,6 +107,13 @@ p {
     padding: 5px 10px;
 }
 
+#below-subtitles {
+    display: inline-block;
+    pointer-events: auto;
+    border-radius: 40px;
+    padding: 5px 10px;
+}
+
 button:focus {
     outline: 0;
 }
@@ -124,6 +131,7 @@ button:hover {
 }
 
 .sync-msg {
+    display: inline-block;
     font-size: 16px;
     font-weight: 600;
     text-align: center;
@@ -131,6 +139,19 @@ button:hover {
     padding: 5px 10px;
     border-radius: 20px;
     background-color: rgba(0, 0, 0, 0.8);
+}
+
+#skip-music {
+    color: rgb(255, 142, 50);
+    cursor: pointer;
+}
+
+#skip-music:hover {
+    color: var(--orange);
+}
+
+#loaded {
+    color: rgb(0, 255, 0);
 }
 
 #synced {

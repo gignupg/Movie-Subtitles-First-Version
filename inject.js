@@ -470,9 +470,11 @@ function defineVideoController() {
                 <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
                 <button id="next-button" class="subtitle-button">»</button> 
             </div>
-            <div>
-                <div id="synced" class="hide sync-msg">Successfully synced!</div>
-                <div id="not-synced" class="hide sync-msg">Error: No subtitles selected!</div>
+            <div class="line-break"></div>
+            <div id="below-subtitles">
+                <div id="skip-music" class="hide sync-msg">Music (0 seconds)</div>
+                <div id="synced" class="hide sync-msg">Subtitles successfully synced!</div>
+                <div id="not-synced" class="hide sync-msg">Error: no subtitles selected!</div>
             </div>
         </div>
       `;
@@ -537,6 +539,15 @@ function defineVideoController() {
                     if (newPos !== -1) {
                         pos = newPos;
                         shadow.getElementById("subtitles").innerHTML = subs[pos].text;
+
+                        // Display "Skip music" button if there is music
+                        const music = subs[pos].music;
+                        if (music) {
+                            shadow.getElementById("skip-music").innerHTML = music.text;
+                            shadow.getElementById("skip-music").classList.remove("hide");
+                        } else {
+                            shadow.getElementById("skip-music").classList.add("hide");
+                        }
                     }
                 }
             };
@@ -561,6 +572,11 @@ function defineVideoController() {
             if (pos !== subs.length - 1) {
                 thisVideo.currentTime = subs[pos + 1].start;
             }
+        });
+
+        // Skip the music
+        shadow.getElementById("skip-music").addEventListener("click", () => {
+            thisVideo.currentTime = subs[pos].music.end;
         });
 
         shadow.getElementById("subtitle-sync-button").addEventListener("click", () => {
@@ -905,7 +921,7 @@ function defineVideoController() {
 
                 // Adding "(end)" manually
                 const lastNode = newSubs[newSubs.length - 1];
-                lastNode.text = lastNode.text + " (end)";
+                lastNode.text = lastNode.text + "(end)";
 
                 // Adding "Skip silence" to our subtitle array (newSubs) and updating the music property
                 for (let i = 1; i < newSubs.length; i++) {
@@ -920,24 +936,26 @@ function defineVideoController() {
                     }
 
                     // Adding music
-                    const music = newSubs[i].music;
-                    if (music) {
+                    if (newSubs[i].music) {
+                        const music = newSubs[i].music;
                         music.start = newSubs[i].start;
 
                         // Find the end
-                        for (let j = i; ; j++) {
+                        for (let j = i; j < newSubs.length; j++) {
                             if (!newSubs[j].music) {
                                 music.end = newSubs[j].start;
                                 break;
                             }
                         }
-
-                        music.text = "Skip music (" + (music.end - music.start) + ")";
+                        music.text = "Music (" + (music.end - music.start).toFixed() + " seconds)";
                     }
                 }
 
                 // Updating our active subtitle array (subs)
                 subs = newSubs;
+
+                // Display success message
+                shadow.querySelector("#subtitles").innerHTML = "Subtitles successfully loaded!";
 
                 // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
                 if (this.video.paused) {

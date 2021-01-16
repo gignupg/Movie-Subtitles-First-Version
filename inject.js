@@ -4,6 +4,7 @@ let forwardRewind = false;
 let lastMouseMove = null;
 let menuOpen = false;
 let ctrlPressed = false;
+let skipMusicHover = false;
 const subtitleHeight = 0.5;
 const red = "#C62828";
 const orange = "#f0653b";
@@ -528,6 +529,19 @@ function defineVideoController() {
             }
         }
 
+        shadow.getElementById("skip-music").addEventListener("mouseenter", () => {
+            skipMusicHover = true;
+            shadow.getElementById("skip-music").innerHTML = "Skip the music!";
+        });
+
+        shadow.getElementById("skip-music").addEventListener("mouseleave", () => {
+            skipMusicHover = false;
+
+            if (subs[pos].music) {
+                shadow.getElementById("skip-music").innerHTML = subs[pos].music.text;
+            }
+        });
+
         if (!monitoring) {
             monitoring = true;
             thisVideo.ontimeupdate = () => {
@@ -538,22 +552,24 @@ function defineVideoController() {
                     // If a match was found update "pos"
                     if (newPos > 0) {
                         pos = newPos - 1;
-                        shadow.getElementById("subtitles").innerHTML = subs[pos].text;
 
                         // Display "Skip music" button if there is music
-                        const music = subs[pos].music;
-                        if (music) {
-                            shadow.getElementById("skip-music").innerHTML = music.text;
-                            shadow.getElementById("skip-music").classList.remove("hide");
-                        } else {
-                            shadow.getElementById("skip-music").classList.add("hide");
-                        }
+                        isMusic(shadow, subs[pos].music);
+
+                        shadow.getElementById("subtitles").innerHTML = subs[pos].text;
+
                     } else {
                         if (time < 200) {
                             pos = 0;
 
+                            // Display "Skip music" button if there is music
+                            isMusic(shadow, subs[pos].music);
+
                         } else {
                             pos = subs.length - 1;
+
+                            // Display "Skip music" button if there is music
+                            isMusic(shadow, subs[pos].music);
                         }
                         shadow.getElementById("subtitles").innerHTML = subs[pos].text;
                     }
@@ -1468,4 +1484,14 @@ function handleMenuClose(video, shadow) {
     menuOpen = false;
     video.style.filter = null;
     shadow.getElementById("video-icon").classList.remove("hide");
+}
+
+function isMusic(shadow, music) {
+    if (music) {
+        shadow.getElementById("skip-music").innerHTML = skipMusicHover ? "Skip the music!" : music.text;
+        shadow.getElementById("skip-music").classList.remove("hide");
+    } else {
+        shadow.getElementById("skip-music").classList.add("hide");
+        skipMusicHover = false;
+    }
 }

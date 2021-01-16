@@ -50,10 +50,22 @@ function subtitleCalibrator(calibration, video, shadow) {
         }
 
         // Calculate the new start and end times for the whole subtitle array
-        calibratedSubs = [];
-
+        const calibratedSubs = [];
         subs.forEach(elem => {
-            calibratedSubs.push({ start: elem.start + offset, end: elem.end + offset, text: elem.text });
+            if (elem.music) {
+                calibratedSubs.push({
+                    start: elem.start + offset,
+                    end: elem.end + offset,
+                    text: elem.text,
+                    music: {
+                        text: elem.music.text,
+                        start: elem.music.start + offset,
+                        end: elem.music.end + offset
+                    }
+                });
+            } else {
+                calibratedSubs.push({ start: elem.start + offset, end: elem.end + offset, text: elem.text });
+            }
         });
 
         subs = calibratedSubs;

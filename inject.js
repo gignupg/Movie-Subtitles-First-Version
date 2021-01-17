@@ -5,7 +5,6 @@ let lastMouseMove = null;
 let menuOpen = false;
 let ctrlPressed = false;
 let skipMusicHover = false;
-const subtitleHeight = 0.5;
 const red = "#C62828";
 const orange = "#f0653b";
 
@@ -378,11 +377,8 @@ function defineVideoController() {
     };
 
     tc.videoController.prototype.initializeControls = function () {
-        log("initializeControls Begin", 5);
         const document = this.video.ownerDocument;
-        const speed = this.video.playbackRate.toFixed(2);
-
-        log("Speed variable set to: " + speed, 5);
+        const website = location.hostname;
 
         const wrapper = document.createElement("div");
         wrapper.classList.add("vsc-controller");
@@ -465,11 +461,11 @@ function defineVideoController() {
             </div>
             <div id="bottom-space"></div>
         </div>
-        <div id="controller" style="top: ${this.video.clientHeight * subtitleHeight}px;">
+        <div id="controller">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
                 <button id="prev-button" class="subtitle-button">«</button>
                 <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
-                <button id="next-button" class="subtitle-button">»</button> 
+                <button id="next-button" class="subtitle-button">»</button>
             </div>
             <div class="line-break"></div>
             <div id="below-subtitles">
@@ -530,6 +526,9 @@ function defineVideoController() {
                 wrapper.classList.remove("vsc-nosource");
             }
         }
+
+        // Place the subtitles at the correct position in the video
+        subtitlePlacer();
 
         shadow.getElementById("skip-music").addEventListener("mouseenter", () => {
             skipMusicHover = true;
@@ -708,23 +707,23 @@ function defineVideoController() {
             }
         });
 
-        window.addEventListener("resize", resizeHandler);
+        window.addEventListener("resize", subtitlePlacer);
 
-        function resizeHandler() {
+        function subtitlePlacer() {
             setTimeout(() => {
+                // Position the subtitles correctly
+                const subLocation = subtitleLocation(website, thisVideo);
+                shadow.getElementById("controller").style[subLocation.pos] = subLocation.offset;
+
                 if (thisVideo.clientWidth >= 1200) {
                     // fullscreen, show big icon
                     shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-38.png");
 
-                    shadow.getElementById("controller").style.top = (thisVideo.clientHeight * subtitleHeight) + "px";
-
                 } else {
                     // small screen, show small icon
                     shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
-
-                    shadow.getElementById("controller").style.top = (thisVideo.clientHeight * subtitleHeight) + "px";
                 }
-            }, 100);
+            }, 500);
         }
 
         // Hide video icon if necessary!
@@ -1504,4 +1503,13 @@ function disableHighlighting(shadow) {
     subtitleStyle.webkitUserSelect = "none";
     subtitleStyle.mozUserSelect = "none";
     subtitleStyle.msUserSelect = "none";
+}
+
+function subtitleLocation(url, video) {
+    switch (url) {
+        case "www.youtube.com":
+            return { pos: "top", offset: (video.clientHeight * 0.7) + "px" };
+        default:
+            return { pos: "bottom", offset: "100px" };
+    }
 }

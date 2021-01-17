@@ -435,6 +435,6 @@ option {
     color: #C62828;
 }
 
-.highlighting {
+.text-cursor {
     cursor: text;
 }

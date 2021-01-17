@@ -499,6 +499,8 @@ function defineVideoController() {
                     wrapper.classList.add("vsc-nosource");
                 }, 1000);
             }
+
+            disableHighlighting(shadow);
         });
 
         chrome.runtime.onMessage.addListener(messageReceived);
@@ -586,6 +588,8 @@ function defineVideoController() {
             } else if (pos !== 0) {
                 thisVideo.currentTime = subs[pos - 1].start;
             }
+
+            disableHighlighting(shadow);
         });
 
         shadow.getElementById("next-button").addEventListener("click", () => {
@@ -594,6 +598,8 @@ function defineVideoController() {
             if (pos !== subs.length - 1) {
                 thisVideo.currentTime = subs[pos + 1].start;
             }
+
+            disableHighlighting(shadow);
         });
 
         // Skip the music
@@ -683,7 +689,7 @@ function defineVideoController() {
                 ctrlPressed = true;
 
                 // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
-                shadow.getElementById("subtitles").classList.add("highlighting");
+                shadow.getElementById("subtitles").classList.add("text-cursor");
 
                 // Make the subtitles highlightable
                 // Simply ading a class works with the cursor property, however it does not work with the userSelect property
@@ -698,18 +704,7 @@ function defineVideoController() {
             // Ctrl works better than alt because switching windows with Alt + Tab enables text highlighting as a side effect
             // whereas using Ctrl + 1 or Ctrl + 2 for switching tabs doesn't cause any problems
             if (e.key === "Control") {
-                const subtitleStyle = shadow.getElementById("subtitles").style;
-
-                // Unlock the position so the subtitles can be dragged again
-                ctrlPressed = false;
-
-                // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
-                shadow.getElementById("subtitles").classList.remove("highlighting");
-
-                // Make the subtitles not highlightable
-                subtitleStyle.webkitUserSelect = "none";
-                subtitleStyle.mozUserSelect = "none";
-                subtitleStyle.msUserSelect = "none";
+                disableHighlighting(shadow);
             }
         });
 
@@ -1494,4 +1489,19 @@ function isMusic(shadow, music) {
         shadow.getElementById("skip-music").classList.add("hide");
         skipMusicHover = false;
     }
+}
+
+function disableHighlighting(shadow) {
+    const subtitleStyle = shadow.getElementById("subtitles").style;
+
+    // Unlock the position so the subtitles can be dragged again
+    ctrlPressed = false;
+
+    // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
+    shadow.getElementById("subtitles").classList.remove("text-cursor");
+
+    // Make the subtitles not highlightable
+    subtitleStyle.webkitUserSelect = "none";
+    subtitleStyle.mozUserSelect = "none";
+    subtitleStyle.msUserSelect = "none";
 }

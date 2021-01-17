@@ -12,7 +12,7 @@ const orange = "#f0653b";
 let pos = 0;
 
 // The subtitle array before putting our subtitles in there
-let subs = [{ text: "No subtitles selected" }];
+let subs = [{ text: "Click on the icon in the top left corner to load subtitles" }];
 
 // Subtitle calibration/Synchronization
 let offset = 0;
@@ -461,10 +461,10 @@ function defineVideoController() {
             </div>
             <div id="bottom-space"></div>
         </div>
-        <div id="controller">
+        <div id="controller" class="hide">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
                 <button id="prev-button" class="subtitle-button">«</button>
-                <div data-action="drag" class="draggable" id="subtitles">No subtitles selected</div>
+                <div data-action="drag" class="draggable" id="subtitles">${subs[0].text}</div>
                 <button id="next-button" class="subtitle-button">»</button>
             </div>
             <div class="line-break"></div>
@@ -527,7 +527,7 @@ function defineVideoController() {
             }
         }
 
-        // Place the subtitles at the correct position in the video
+        // Place the subtitles at the correct position in the video;
         subtitlePlacer();
 
         shadow.getElementById("skip-music").addEventListener("mouseenter", () => {
@@ -710,10 +710,14 @@ function defineVideoController() {
         window.addEventListener("resize", subtitlePlacer);
 
         function subtitlePlacer() {
+            shadow.getElementById("video-icon").classList.add("hide");
+            shadow.getElementById("controller").classList.add("hide");
+
             setTimeout(() => {
                 // Position the subtitles correctly
                 const subLocation = subtitleLocation(website, thisVideo);
                 shadow.getElementById("controller").style[subLocation.pos] = subLocation.offset;
+                shadow.getElementById("controller").classList.remove("hide");
 
                 if (thisVideo.clientWidth >= 1200) {
                     // fullscreen, show big icon
@@ -723,6 +727,8 @@ function defineVideoController() {
                     // small screen, show small icon
                     shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
                 }
+                shadow.getElementById("video-icon").classList.remove("hide");
+
             }, 500);
         }
 

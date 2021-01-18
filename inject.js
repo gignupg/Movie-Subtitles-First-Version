@@ -5,6 +5,7 @@ let lastMouseMove = null;
 let menuOpen = false;
 let ctrlPressed = false;
 let skipMusicHover = false;
+let controllerPos = null;
 const red = "#C62828";
 const orange = "#f0653b";
 
@@ -387,7 +388,10 @@ function defineVideoController() {
             monitoring = false;
         }
 
+        // Updating the controller position is important for the dragging function
         const website = location.hostname;
+        controllerPos = subtitleLocation(website, this.video).pos;
+
         const shadow = wrapper.attachShadow({ mode: "open" });
 
         const shadowTemplate = `
@@ -1406,18 +1410,14 @@ function handleDrag(video, e) {
     video.classList.add("vcs-dragging");
     shadowController.classList.add("dragging");
 
-    const initialMouseXY = [e.clientX, e.clientY];
-    const initialControllerXY = [
-        parseInt(shadowController.style.left),
-        parseInt(shadowController.style.top)
-    ];
+    const initialMouseY = e.clientY;
+    const initialControllerY = parseInt(shadowController.style[controllerPos]);
 
     const startDragging = (e) => {
-        let style = shadowController.style;
-        // let dx = e.clientX - initialMouseXY[0];
-        let dy = e.clientY - initialMouseXY[1];
-        // style.left = initialControllerXY[0] + dx + "px";
-        style.top = initialControllerXY[1] + dy + "px";
+        const dy = e.clientY - initialMouseY;
+        shadowController.style[controllerPos] = controllerPos === "bottom"
+            ? (initialControllerY - dy) + "px"
+            : (initialControllerY + dy) + "px";
     };
 
     const stopDragging = () => {

@@ -8,12 +8,13 @@ let skipMusicHover = false;
 let controllerPos = null;
 const red = "#C62828";
 const orange = "#f0653b";
+const defaultSubtitles = "To load subtitles click the icon in the top left corner!";
 
 // This is the position of the subtitle array that is currently being displayed
 let pos = 0;
 
 // The subtitle array before putting our subtitles in there
-let subs = [{ text: "To load subtitles click the icon in the top left corner!" }];
+let subs = [{ text: defaultSubtitles }];
 
 // Subtitle calibration/Synchronization
 let offset = 0;
@@ -750,7 +751,8 @@ function defineVideoController() {
         });
 
         // Show video icon
-        this.video.addEventListener("mousemove", function () {
+        document.addEventListener("mousemove", function () {
+            console.log("video mousemove");
             if (!thisVideo.paused) {
                 if (!menuOpen) {
                     shadow.querySelector("#video-icon").classList.remove("hide");
@@ -1466,11 +1468,12 @@ function processMessage(msg, sender, sendResponse) {
 }
 
 function hideVideoIcon(shadow, video) {
+    const subtitlesLoaded = shadow.querySelector("#subtitles").innerHTML !== defaultSubtitles;
+
     // On youtube the progress bar and play buttons disappear after 2.9 seconds it seems
     // This way, at least on youtube, the video icon will disappear at the same time
-
     const timePassed = video.currentTime - lastMouseMove;
-    if (!video.paused && timePassed >= 2.7 && timePassed <= 3.1) {
+    if (!video.paused && subtitlesLoaded && timePassed >= 2 && timePassed <= 4) {
         shadow.querySelector("#video-icon").classList.add("hide");
     }
 }

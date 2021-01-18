@@ -557,7 +557,7 @@ function defineVideoController() {
                         pos = newPos - 1;
 
                         // Display "Skip music" button if there is music
-                        isMusic(shadow, subs[pos].music);
+                        isMusic(shadow);
 
                         shadow.getElementById("subtitles").innerHTML = subs[pos].text;
 
@@ -566,13 +566,13 @@ function defineVideoController() {
                             pos = 0;
 
                             // Display "Skip music" button if there is music
-                            isMusic(shadow, subs[pos].music);
+                            isMusic(shadow);
 
                         } else {
                             pos = subs.length - 1;
 
                             // Display "Skip music" button if there is music
-                            isMusic(shadow, subs[pos].music);
+                            isMusic(shadow);
                         }
                         shadow.getElementById("subtitles").innerHTML = subs[pos].text;
                     }
@@ -892,6 +892,7 @@ function defineVideoController() {
             handleMenuClose(thisVideo, shadow);
         });
 
+        // Creating our subtitle array once an srt file is being uploaded
         shadow.getElementById("chooseFile").addEventListener("change", (e) => {
             const file = e.target.files[0];
             const reader = new FileReader;
@@ -1485,8 +1486,11 @@ function handleMenuClose(video, shadow) {
     shadow.getElementById("video-icon").classList.remove("hide");
 }
 
-function isMusic(shadow, music) {
-    if (music) {
+function isMusic(shadow) {
+    const music = subs[pos].music;
+    const next = subs[pos + 1].music || null;
+
+    if (music && next) {
         shadow.getElementById("skip-music").innerHTML = skipMusicHover ? "Skip the music!" : music.text;
         shadow.getElementById("skip-music").classList.remove("hide");
     } else {

@@ -31,72 +31,90 @@
         >&#xf011;</i
       >
     </div>
-    <div id="video-detected">
-      <h5 class="center-align red-text text-darken-3">No video detected :(</h5>
-      <div class="centered-container">
-        <i
-          id="refresh-popup-icon"
-          style="font-size: 22px; margin-top: 20px"
-          class="fa fa-refresh light-blue-text text-darken-1 tooltipped"
-          data-position="top"
-          data-tooltip="Refresh if video has loaded"
-          aria-hidden="true"
-        ></i>
-      </div>
-    </div>
-    <div id="settings">
+    <div id="settings" class="hide">
       <div id="subtitle-section" class="hide">
-        <h3 class="menu-heading red-text text-darken-3">Subtitle Options:</h3>
+        <h3 class="menu-heading">Subtitle Options:</h3>
         <div class="collection">
           <a
             id="subtitle-settings"
             href="#!"
-            class="collection-item menu black-text tooltipped"
-            data-position="top"
-            data-tooltip="Hint: Feel free to open the subtitle options from inside the video by clicking on the icon in the top left corner."
-          ><span class="badge"><i class="material-icons">subtitles</i></span
-          >Subtitles</a
+            class="collection-item menu"
+            name="subtitles"
           >
+            <span class="badge">
+              <i class="material-icons">subtitles</i>
+            </span>
+            Subtitles
+          </a>
           <a
             id="display-settings"
             href="#!"
-            class="collection-item menu black-text tooltipped"
+            name="display"
+            class="collection-item menu"
+          >
+            <span class="badge">
+              <i class="material-icons">computer</i>
+            </span>
+            Display
+          </a>
+          <a
+            id="sync-settings"
+            href="#!"
+            name="sync"
+            class="collection-item menu"
+          >
+            <span class="badge">
+              <i class="material-icons">sync</i>
+            </span>
+            Synchronization
+          </a>
+        </div>
+      </div>
+      <div id="disabled-subtitle-section">
+        <h3 class="menu-heading">Subtitle Options:</h3>
+        <div class="collection">
+          <a
+            href="#!"
+            class="collection-item menu tooltipped no-video-detected"
             data-position="top"
-            data-tooltip="Hint: Feel free to open the display settings from inside the video by clicking on the icon in the top left corner."
+            data-tooltip="No video detected on this site!"
+            ><span class="badge"><i class="material-icons">subtitles</i></span
+            >Subtitles</a
+          >
+          <a
+            href="#!"
+            class="collection-item menu tooltipped no-video-detected"
+            data-position="top"
+            data-tooltip="No video detected on this site!"
             ><span class="badge"><i class="material-icons">computer</i></span
             >Display</a
           >
           <a
-            id="sync-settings"
             href="#!"
-            class="collection-item menu black-text tooltipped"
+            class="collection-item menu tooltipped no-video-detected"
             data-position="top"
-            data-tooltip="Hint: Feel free to open the synchronization tool from inside the video by clicking on the icon in the top left corner."
+            data-tooltip="No video detected on this site!"
             ><span class="badge"><i class="material-icons">sync</i></span
             >Synchronization</a
           >
         </div>
+      </div>
       <div id="general-section">
-        <h3
-          class="menu-heading red-text text-darken-3"
-          style="margin-top: 30px"
-        >
-          General:
-        </h3>
+        <h3 class="menu-heading" style="margin-top: 30px">General:</h3>
         <div class="collection">
-          <a href="#!" class="collection-item menu black-text" id="shortcuts"
+          <a href="#!" class="collection-item menu" id="shortcuts"
             ><span class="badge"><i class="material-icons">keyboard</i></span
             >Shortcuts</a
           >
-          <a href="#!" class="collection-item menu black-text"
+          <a href="#!" class="collection-item menu"
             ><span class="badge"><i class="material-icons">list</i></span
             >Blacklist</a
           >
-          <a href="#!" class="collection-item menu black-text"
+          <a href="#!" class="collection-item menu"
             ><span class="badge"><i class="material-icons">feedback</i></span
             >Feedback</a
           >
-          <a href="#!" class="collection-item menu black-text"
+          <a href="#!" class="collection-item menu"
             ><span class="badge"><i class="material-icons">group</i></span
             >About</a
           >

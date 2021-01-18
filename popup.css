@@ -1,5 +1,7 @@
 body {
     width: 300px;
+    --red: #c62828;
+    --red-disabled: #c62828a1;
 }
 
 hr {
@@ -55,10 +57,12 @@ hr {
 
 .menu {
     font-size: 14px;
+    color: black !important;
 }
 
 .menu-heading {
     font-size: 16px;
+    color: var(--red);
     margin-left: 20px;
     font-weight: 500;
     margin-top: 10px;
@@ -93,10 +97,6 @@ hr {
     justify-content: space-around;
 }
 
-#refresh-popup-icon:hover {
-    cursor: pointer;
-}
-
 .message {
     margin: 10px 30px;
     font-size: 16px;
@@ -112,4 +112,21 @@ hr {
     margin-left: 20px;
     margin-right: 30px;
     font-size: 16px;
+}
+
+.no-video-detected {
+    color:grey !important;
+    cursor: default;
+}
+
+.no-video-detected > span {
+    color: rgb(192, 192, 192) !important;
+}
+
+.no-video-detected:hover {
+    background-color: white !important;
+}
+
+.no-video-detected > h3 {
+    color: var(--red-disabled) !important;
 }

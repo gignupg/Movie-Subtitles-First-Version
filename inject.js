@@ -7,12 +7,18 @@ let ctrlPressed = false;
 let skipMusicHover = false;
 const red = "#C62828";
 const orange = "#f0653b";
+const sessionID = Date.now();
+chrome.storage.sync.set({
+    sessionID,
+    videoSession: false
+});
+
 
 // This is the position of the subtitle array that is currently being displayed
 let pos = 0;
 
 // The subtitle array before putting our subtitles in there
-let subs = [{ text: "Click on the icon in the top left corner to load subtitles" }];
+let subs = [{ text: "To load subtitles click on the icon in the top left corner " }];
 
 // Subtitle calibration/Synchronization
 let offset = 0;
@@ -378,19 +384,21 @@ function defineVideoController() {
 
     tc.videoController.prototype.initializeControls = function () {
         const document = this.video.ownerDocument;
-        const website = location.hostname;
 
         const wrapper = document.createElement("div");
         wrapper.classList.add("vsc-controller");
 
         if (!this.video.currentSrc) {
             wrapper.classList.add("vsc-nosource");
+            monitoring = false;
         }
 
-        if (tc.settings.startHidden) {
-            wrapper.classList.add("vsc-hidden");
-        }
+        // Now that videoSession and sessionId are the same our popup knows right when it loads
+        // that a video has been detected.
+        const videoSession = sessionID;
+        chrome.storage.sync.set({ videoSession });
 
+        const website = location.hostname;
         const shadow = wrapper.attachShadow({ mode: "open" });
 
         const shadowTemplate = `
@@ -1465,7 +1473,6 @@ function processMessage(msg, sender, sendResponse) {
         } else {
             sendResponse({ videoDetected: false });
         }
-
     }
 }
 

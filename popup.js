@@ -1,45 +1,30 @@
 let extensionOn = false;
 let videoDetected = false;
 
-chrome.storage.sync.get({ enabled: true }, storage => {
+chrome.storage.sync.get(null, storage => {
     extensionOn = storage.enabled;
+    videoDetected = storage.sessionID === storage.videoSession;
+    console.log("inside storage, detection: ", videoDetected);
+    console.log("storage.sessionID", storage.sessionID);
+    console.log("storage.videoSession", storage.videoSession);
     toggleEnabledUI(extensionOn);
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Initializing tooltips for Materialize
-    const toolElem = document.querySelectorAll('.tooltipped');
+// Initializing tooltips for Materialize
+const toolElem = document.querySelectorAll('.tooltipped');
+M.Tooltip.init(toolElem, { enterDelay: 500 });
 
-    M.Tooltip.init(toolElem, { enterDelay: 500 });
-
-    checkForVideo();
-});
-
-document.querySelector("#subtitle-settings").addEventListener("click", () => {
-    messageContentScript({ settings: "subtitles" });
-    window.close();
-});
-
-document.querySelector("#display-settings").addEventListener("click", () => {
-    messageContentScript({ settings: "display" });
-    window.close();
-});
-
-document.querySelector("#sync-settings").addEventListener("click", () => {
-    messageContentScript({ settings: "sync" });
-    window.close();
-});
+document.querySelector("#subtitle-settings").addEventListener("click", openSubtitleSettings);
+document.querySelector("#display-settings").addEventListener("click", openSubtitleSettings);
+document.querySelector("#sync-settings").addEventListener("click", openSubtitleSettings);
 
 document.querySelector(".power-button").addEventListener("click", toggleEnabled);
-
-document.querySelector("#refresh-popup-icon").addEventListener("click", refreshPopup);
 
 document.querySelector("#shortcuts").addEventListener("click", function () {
     window.open(chrome.runtime.getURL("options.html"));
 });
 
 function toggleEnabled() {
-    console.log("toggleEnabled function called");
     extensionOn = !extensionOn;
     chrome.storage.sync.set({ enabled: extensionOn }, () => {
         toggleEnabledUI(extensionOn);
@@ -59,30 +44,33 @@ function toggleEnabledUI(enabled) {
     document.querySelector(".logo").src = "icons/movie-subtitles-48" + suffix;
 
     if (enabled) {
-        // Showing the menu with all its options and settings
+        // Show all popup settings
         document.querySelector("#settings").classList.remove("hide");
-
-        // If the video was detected hide the refresh-popup icon!
-        if (videoDetected) {
-            document.querySelector("#video-detected").classList.add("hide");
-
-        } else {
-            document.querySelector("#video-detected").classList.remove("hide");
-        }
 
         // Changing the hover color of the power button
         document.querySelector(".power-button").classList.remove("turn-on");
         document.querySelector(".power-button").classList.add("turn-off");
 
-        // Reloading the shadow dom!
-        messageContentScript({ show: true });
+        console.log("inside toggleEnabledUI, detection", videoDetected);
 
-        checkForVideo();
+        // If the video was detected hide the refresh-popup icon!
+        if (videoDetected) {
+            document.querySelector("#disabled-subtitle-section").classList.add("hide");
+            document.querySelector("#subtitle-section").classList.remove("hide");
+
+            // Reloading the shadow dom
+            messageContentScript({ show: true });
+
+        } else {
+            document.querySelector("#subtitle-section").classList.add("hide");
+            document.querySelector("#disabled-subtitle-section").classList.remove("hide");
+
+            checkForVideo();
+        }
 
     } else {
-        // Hiding the menu with all its options and settings
+        // Hide all popup settings
         document.querySelector("#settings").classList.add("hide");
-        document.querySelector("#video-detected").classList.add("hide");
 
         // Changing the hover color of the power button
         document.querySelector(".power-button").classList.remove("turn-off");
@@ -106,20 +94,20 @@ function timeInSeconds(time) {
 }
 
 function checkForVideo() {
-    // Display the general-section no matter what
-    document.querySelector("#general-section").classList.remove("hide");
-
     // Video detected?
     // If so, display all subtitle related options
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, { videoRequest: true }, function (response) {
-            if (response && response.videoDetected) {
-                videoDetected = true;
-                document.querySelector("#subtitle-section").classList.remove("hide");
-                document.querySelector("#video-detected").classList.add("hide");
-            }
+    const detectVideo = setInterval(() => {
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            chrome.tabs.sendMessage(tabs[0].id, { videoRequest: true }, function (response) {
+                console.log(response);
+                if (response && response.videoDetected) {
+                    videoDetected = true;
+                    toggleEnabledUI(extensionOn);
+                    clearInterval(detectVideo);
+                }
+            });
         });
-    });
+    }, 1000);
 }
 
 function calibrationHandler(offset, direction) {
@@ -135,29 +123,13 @@ function calibrationHandler(offset, direction) {
     });
 }
 
-function refreshPopup() {
-    // Make the refresh icon spin for half a second
-    document.querySelector("#refresh-popup-icon").classList.add("fa-spin");
-
-    // Hide the general section while refreshing
-    document.querySelector("#general-section").classList.add("hide");
-
-    setTimeout(() => {
-        document.querySelector("#refresh-popup-icon").classList.remove("fa-spin");
-        checkForVideo();
-    }, 1000);
-
-}
-
 function messageContentScript(message) {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
         chrome.tabs.sendMessage(tab[0].id, message);
     });
 }
 
-function displayErrorMessage(msg) {
-    const errorElem = document.querySelector("#error-message");
-
-    errorElem.innerHTML = msg;
-    errorElem.classList.remove("hide");
+function openSubtitleSettings(e) {
+    messageContentScript({ settings: e.target.name });
+    window.close();
 }

@@ -752,7 +752,6 @@ function defineVideoController() {
 
         // Show video icon
         document.addEventListener("mousemove", function () {
-            console.log("video mousemove");
             if (!thisVideo.paused) {
                 if (!menuOpen) {
                     shadow.querySelector("#video-icon").classList.remove("hide");

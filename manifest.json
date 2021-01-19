@@ -10,7 +10,7 @@
     "48": "icons/movie-subtitles-48.png",
     "128": "icons/movie-subtitles-128.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true

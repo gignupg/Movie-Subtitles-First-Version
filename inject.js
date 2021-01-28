@@ -13,7 +13,7 @@ let thisVideo = null;
 let speedChangeCount = 0;
 const red = "#C62828";
 const orange = "#f0653b";
-const defaultSubtitles = "To load subtitles click the icon in the top left corner!";
+const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
 
 const defaultShortcuts = {
     previous: "\u2190",
@@ -494,7 +494,7 @@ function defineVideoController() {
         <div id="controller" class="hide">
             <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
                 <button id="prev-button" class="subtitle-button">«</button>
-                <div data-action="drag" class="draggable" id="subtitles">${subs[0].text}</div>
+                <div id="subtitles">${subs[0].text}</div>
                 <button id="next-button" class="subtitle-button">»</button>
             </div>
             <div class="line-break"></div>
@@ -507,11 +507,12 @@ function defineVideoController() {
         </div>
       `;
         shadow.innerHTML = shadowTemplate;
-        shadow.querySelector(".draggable").addEventListener(
+        shadow.querySelector("#subtitle-div").addEventListener(
             "mousedown",
             (e) => {
+                console.log("subtitle-div clicked");
                 if (!ctrlPressed) {
-                    runAction(e.target.dataset["action"], false, e);
+                    runAction("drag", false, e);
                     e.stopPropagation();
                 }
             },
@@ -1202,7 +1203,6 @@ function initializeNow(document) {
                         // Lock the subtitle position!
                         ctrlPressed = true;
 
-                        // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
                         shadow.getElementById("subtitles").classList.add("text-cursor");
 
                         // Make the subtitles highlightable
@@ -1605,7 +1605,6 @@ function disableHighlighting(shadow) {
     // Unlock the position so the subtitles can be dragged again
     ctrlPressed = false;
 
-    // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
     shadow.getElementById("subtitles").classList.remove("text-cursor");
 
     // Make the subtitles not highlightable

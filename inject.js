@@ -6,9 +6,27 @@ let menuOpen = false;
 let ctrlPressed = false;
 let skipMusicHover = false;
 let controllerPos = null;
+let subtitlesHidden = false;
+let shortcuts = null;
+let shadow = null;
+let thisVideo = null;
+let speedChangeCount = 0;
 const red = "#C62828";
 const orange = "#f0653b";
 const defaultSubtitles = "To load subtitles click the icon in the top left corner!";
+
+const defaultShortcuts = {
+    previous: "\u2190",
+    next: "\u2192",
+    rewind: "a",
+    forward: "s",
+    subtitles: "c",
+    relocate: "r",
+    slower: "",
+    faster: "",
+    rewindTwo: "",
+    forwardTwo: ""
+};
 
 // This is the position of the subtitle array that is currently being displayed
 let pos = 0;
@@ -170,6 +188,16 @@ function log(message, level) {
     }
 }
 
+// Initializing shortcuts
+chrome.storage.sync.get(null, function (storage) {
+    if (storage.shortcuts === undefined) {
+        shortcuts = defaultShortcuts;
+    } else {
+        shortcuts = storage.shortcuts;
+    }
+});
+
+// Initializing Video Controller
 chrome.storage.sync.get(tc.settings, function (storage) {
     tc.settings.keyBindings = storage.keyBindings; // Array
     if (storage.keyBindings.length == 0) {
@@ -393,7 +421,7 @@ function defineVideoController() {
         const website = location.hostname;
         controllerPos = subtitleLocation(website, this.video).pos;
 
-        const shadow = wrapper.attachShadow({ mode: "open" });
+        shadow = wrapper.attachShadow({ mode: "open" });
 
         const shadowTemplate = `
         <style>
@@ -471,9 +499,10 @@ function defineVideoController() {
             </div>
             <div class="line-break"></div>
             <div id="below-subtitles">
-                <div id="skip-music" class="hide sync-msg">Music (0 seconds)</div>
+                <div id="skip-music" class="hide sync-msg"></div>
                 <div id="synced" class="hide sync-msg">Subtitles successfully synced!</div>
                 <div id="not-synced" class="hide sync-msg">Error: no subtitles selected!</div>
+                <div id="speed-indicator" class="hide sync-msg"></div>
             </div>
         </div>
       `;
@@ -503,7 +532,7 @@ function defineVideoController() {
 
         chrome.runtime.onMessage.addListener(messageReceived);
 
-        const thisVideo = this.video;
+        thisVideo = this.video;
 
         function messageReceived(msg) {
             if (msg.settings) {
@@ -526,6 +555,9 @@ function defineVideoController() {
 
             } else if (msg.show && tc.settings.enabled) {
                 wrapper.classList.remove("vsc-nosource");
+
+            } else if (msg.shortcuts) {
+                shortcuts = msg.shortcuts;
             }
         }
 
@@ -658,45 +690,26 @@ function defineVideoController() {
             });
         });
 
-        // Prevent all youtube shortcuts while interacting with the extension.
+        // Prevent some youtube shortcuts while interacting with the extension.
         shadow.addEventListener("keydown", (e) => {
-            // If a number was pressed while the settings menu is open, stop it from skipping to 10%, 20%, 30% and so on...
-            if (e.keyCode >= 48 && e.keyCode <= 57) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
-            // If space was pressed play/stop the video!
-            if (e.keyCode == 32) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (thisVideo.paused) {
-                    thisVideo.play();
-                } else {
-                    thisVideo.pause();
+            if (tc.settings.enabled) {
+                // If a number was pressed while the settings menu is open, stop it from skipping to 10%, 20%, 30% and so on...
+                if (e.keyCode >= 48 && e.keyCode <= 57) {
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
-            }
-        });
 
-        window.addEventListener("keydown", (e) => {
-            // If ctrl was pressed enable text/subtitle highlighting
-            // Ctrl works better than alt because switching windows with Alt + Tab enables text highlighting as a side effect
-            // whereas using Ctrl + 1 or Ctrl + 2 for switching tabs doesn't cause any problems
-            if (e.key === "Control") {
-                const subtitleStyle = shadow.getElementById("subtitles").style;
+                // If space was pressed play/stop the video!
+                if (e.keyCode == 32) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                // Lock the subtitle position!
-                ctrlPressed = true;
-
-                // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
-                shadow.getElementById("subtitles").classList.add("text-cursor");
-
-                // Make the subtitles highlightable
-                // Simply ading a class works with the cursor property, however it does not work with the userSelect property
-                subtitleStyle.webkitUserSelect = "text";
-                subtitleStyle.mozUserSelect = "text";
-                subtitleStyle.msUserSelect = "text";
+                    if (thisVideo.paused) {
+                        thisVideo.play();
+                    } else {
+                        thisVideo.pause();
+                    }
+                }
             }
         });
 
@@ -1176,7 +1189,27 @@ function initializeNow(document) {
             "keydown",
             function (event) {
                 var keyCode = event.keyCode;
-                log("Processing keydown event: " + keyCode, 6);
+
+                // Shortcuts and Text Highlighting
+                if (tc.settings.enabled) {
+                    const key = event.key;
+                    // If ctrl was pressed enable text/subtitle highlighting
+                    // Ctrl works better than alt because switching windows with Alt + Tab enables text highlighting as a side effect
+                    // whereas using Ctrl + 1 or Ctrl + 2 for switching tabs doesn't cause any problems
+                    if (key === "Control") {
+                        const subtitleStyle = shadow.getElementById("subtitles").style;
+
+                        // Lock the subtitle position!
+                        ctrlPressed = true;
+
+                        // We have to use a class to change the cursor. Otherwise we would destroy the draggable cursor. 
+                        shadow.getElementById("subtitles").classList.add("text-cursor");
+
+                        // Make the subtitles highlightable
+                        // Simply ading a class works with the cursor property, however it does not work with the userSelect property
+                        subtitleStyle.webkitUserSelect = "text";
+                    }
+                }
 
                 // Ignore if following modifier is active.
                 if (!event.getModifierState ||
@@ -1187,7 +1220,7 @@ function initializeNow(document) {
                     event.getModifierState("Hyper") ||
                     event.getModifierState("OS")
                 ) {
-                    log("Keydown event ignored due to active modifier: " + keyCode, 5);
+                    console.log("Keydown event ignored due to active modifier");
                     return;
                 }
 
@@ -1197,24 +1230,92 @@ function initializeNow(document) {
                     event.target.nodeName === "TEXTAREA" ||
                     event.target.isContentEditable
                 ) {
+                    console.log("Ignore event if typing in an input box");
                     return false;
                 }
 
                 // Ignore keydown event if typing in a page without vsc
                 if (!tc.mediaElements.length) {
+                    console.log("Ignore event if typing in a page without vsc");
                     return false;
+                }
+
+                // Movie Subtitles Shortcuts
+                if (tc.settings.enabled) {
+                    const arrowKey = {
+                        ArrowLeft: "\u2190",
+                        ArrowUp: "\u2191",
+                        ArrowRight: "\u2192",
+                        ArrowDown: "\u2193"
+                    };
+                    const key = arrowKey[event.key] || event.key.toLowerCase();
+
+                    if (key === shortcuts.previous) {
+                        shadow.getElementById("prev-button").click();
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.next) {
+                        shadow.getElementById("next-button").click();
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.rewind) {
+                        thisVideo.currentTime = thisVideo.currentTime - 5;
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.forward) {
+                        thisVideo.currentTime = thisVideo.currentTime + 5;
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.subtitles) {
+                        hideOrShowSubtitles();
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.relocate) {
+                        shadow.getElementById("controller").style[controllerPos] = "100px";
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.slower) {
+                        const newSpeed = setNewPlaybackRate(thisVideo, -0.25);
+                        displayNewSpeedBriefly(shadow, newSpeed);
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.faster) {
+                        const newSpeed = setNewPlaybackRate(thisVideo, 0.25);
+                        displayNewSpeedBriefly(shadow, newSpeed);
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.rewindTwo) {
+                        thisVideo.currentTime = thisVideo.currentTime - 2.5;
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.forwardTwo) {
+                        thisVideo.currentTime = thisVideo.currentTime + 2.5;
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    }
                 }
 
                 var item = tc.settings.keyBindings.find((item) => item.key === keyCode);
                 if (item) {
+                    console.log("running action");
                     runAction(item.action, item.value);
                     if (item.force === "true") {
+                        console.log("forcing");
                         // disable websites key bindings
                         event.preventDefault();
                         event.stopPropagation();
                     }
                 }
-
                 return false;
             },
             true
@@ -1519,5 +1620,45 @@ function subtitleLocation(url, video) {
             return { pos: "top", offset: (video.clientHeight * 0.7) + "px" };
         default:
             return { pos: "bottom", offset: "100px" };
+    }
+}
+
+function setNewPlaybackRate(video, speed) {
+    const newSpeed = (video.playbackRate + speed).toFixed(2);
+    if (newSpeed < 0) {
+        video.playbackRate = 0;
+
+    } else if (newSpeed > 6) {
+        video.playbackRate = 6;
+
+    } else {
+        video.playbackRate = newSpeed;
+    }
+
+    return video.playbackRate;
+}
+
+function displayNewSpeedBriefly(shadow, speed) {
+    speedChangeCount++;
+    const thisCount = speedChangeCount;
+    // Display new speed
+    shadow.getElementById("speed-indicator").innerHTML = speed;
+    shadow.getElementById("speed-indicator").classList.remove("hide");
+
+    setTimeout(() => {
+        if (thisCount === speedChangeCount) {
+            shadow.getElementById("speed-indicator").classList.add("hide");
+        }
+    }, 2000);
+}
+
+function hideOrShowSubtitles() {
+    if (subtitlesHidden) {
+        subtitlesHidden = false;
+        shadow.getElementById("controller").classList.remove("hide");
+
+    } else {
+        subtitlesHidden = true;
+        shadow.getElementById("controller").classList.add("hide");
     }
 }

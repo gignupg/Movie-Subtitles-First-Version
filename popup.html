@@ -4,12 +4,12 @@
     <title>Video Speed Controller: Popup</title>
     <link rel="stylesheet" href="popup.css" />
     <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
-    <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
     />
     <link
       type="text/css"
@@ -18,20 +18,21 @@
       media="screen,projection"
     />
   </head>
-
   <body>
     <h1 class="heading">Movie Subtitles</h1>
-    <img src="icons/movie-subtitles-38.png" alt="Logo" class="logo" />
-    <div class="centered-container">
-      <i
-        style="font-size: 22px"
-        class="power-button fa tooltipped"
-        data-position="top"
-        data-tooltip="Turn Extension On/Off"
-        >&#xf011;</i
-      >
+    <div id="icons">
+      <img src="icons/movie-subtitles-38.png" alt="Logo" class="logo" />
+      <div class="centered-container">
+        <i
+          style="font-size: 22px"
+          class="power-button fa tooltipped"
+          data-position="top"
+          data-tooltip="Turn Extension On/Off"
+          >&#xf011;</i
+        >
+      </div>
     </div>
-    <div id="settings" class="collection hide">
+    <div id="settings" class="collection">
       <a href="#!" class="collection-item menu" id="shortcuts"
         ><span class="badge"><i class="material-icons">keyboard</i></span
         >Shortcuts</a
@@ -48,6 +49,60 @@
         ><span class="badge"><i class="material-icons">group</i></span
         >About</a
       >
+    </div>
+    <div id="shortcut-settings" class="hide">
+      <i id="shortcut-back" class="material-icons">keyboard_backspace</i>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Previous sentence</div>
+        <input name="previous" type="text" class="browser-default arrow" />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Next sentence</div>
+        <input name="next" type="text" class="browser-default arrow" />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Rewind 5 seconds</div>
+        <input name="rewind" type="text" class="browser-default" />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Fast-forward 5 seconds</div>
+        <input name="forward" type="text" class="browser-default" />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Subtitles on/off</div>
+        <input name="subtitles" type="text" class="browser-default" />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Relocate subtitles</div>
+        <input name="relocate" type="text" class="browser-default" />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Speed (slower)</div>
+        <input name="slower" type="text" class="browser-default" />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Speed (faster)</div>
+        <input name="faster" type="text" class="browser-default" />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Rewind 2.5 seconds</div>
+        <input name="rewindTwo" type="text" class="browser-default" />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Fast-forward 2.5 seconds</div>
+        <input name="forwardTwo" type="text" class="browser-default" />
+      </div>
+      <hr />
     </div>
     <script
       type="text/javascript"

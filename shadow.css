@@ -174,7 +174,7 @@ button:hover {
     top: 15px;
     left: 15px;
     cursor: pointer;
-    z-index: 9999999;
+    z-index: 99999999;
 }
 
 #subtitles {

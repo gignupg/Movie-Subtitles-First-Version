@@ -1113,6 +1113,7 @@ function refreshCoolDown() {
 
 function initializeWhenReady(document) {
     log("Begin initializeWhenReady", 5);
+
     if (isBlacklisted()) {
         return;
     }
@@ -1163,13 +1164,17 @@ function getShadow(parent) {
 
 function initializeNow(document) {
     log("Begin initializeNow", 5);
-    if (!tc.settings.enabled) return;
-    // enforce init-once due to redundant callers
-    if (!document.body || document.body.classList.contains("vsc-initialized")) {
+    if (!tc.settings.enabled) {
         return;
     }
-    document.body.classList.add("vsc-initialized");
-    log("initializeNow: vsc-initialized added to document body", 5);
+    // enforce init-once due to redundant callers
+    if (!document.body || document.body.classList.contains("movie-subtitles-initialized")) {
+        console.log("log 2");
+        return;
+    }
+    console.log("log 3");
+    document.body.classList.add("movie-subtitles-initialized");
+    log("initializeNow: movie-subtitles-initialized added to document body", 5);
 
     if (document === window.document) {
         defineVideoController();

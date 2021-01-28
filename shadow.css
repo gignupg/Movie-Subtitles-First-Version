@@ -53,7 +53,7 @@ p {
     color: black;
     width: 90%;
     max-width: 600px;
-    margin-top: 5vh;
+    top: 5vh;
     left: 50%;
     transform: translateX(-50%);
     border: 1px solid rgb(218, 218, 218);

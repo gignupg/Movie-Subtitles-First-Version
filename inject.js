@@ -510,7 +510,6 @@ function defineVideoController() {
         shadow.querySelector("#subtitle-div").addEventListener(
             "mousedown",
             (e) => {
-                console.log("subtitle-div clicked");
                 if (!ctrlPressed) {
                     runAction("drag", false, e);
                     e.stopPropagation();
@@ -1230,7 +1229,6 @@ function initializeNow(document) {
                     event.getModifierState("Hyper") ||
                     event.getModifierState("OS")
                 ) {
-                    console.log("Keydown event ignored due to active modifier");
                     return;
                 }
 

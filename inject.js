@@ -583,32 +583,39 @@ function defineVideoController() {
             thisVideo.ontimeupdate = () => {
                 if (subs && subs.length > 1) {
                     const time = thisVideo.currentTime.toFixed(3);
-                    const newPos = subs.findIndex(el => el.start > time);
 
-                    // If a match was found update "pos"
-                    if (newPos > 0) {
-                        pos = newPos - 1;
+                    // See if it's the next or previous position.
+                    if (subs[pos] && subs[pos + 1] && time >= subs[pos].start && time < subs[pos + 1].start) {
+                        // Don't do anything. "pos" is correct
 
-                        // Display "Skip music" button if there is music
-                        isMusic(shadow);
+                    } else if (subs[pos + 1] && subs[pos + 2] && time >= subs[pos + 1].start && time < subs[pos + 2].start) {
+                        pos++;
 
-                        shadow.getElementById("subtitles").innerHTML = subs[pos].text;
+                    } else if (subs[pos - 1] && time >= subs[pos - 1].start && time < subs[pos].start) {
+                        pos--;
 
                     } else {
-                        if (time < 200) {
-                            pos = 0;
+                        // Look through the whole array to find the correct position
+                        const newPos = subs.findIndex(el => el.start > time);
 
-                            // Display "Skip music" button if there is music
-                            isMusic(shadow);
+                        // If a match was found update "pos"
+                        if (newPos > 0) {
+                            pos = newPos - 1;
 
                         } else {
-                            pos = subs.length - 1;
+                            if (time < 200) {
+                                pos = 0;
 
-                            // Display "Skip music" button if there is music
-                            isMusic(shadow);
+                            } else {
+                                pos = subs.length - 1;
+                            }
                         }
-                        shadow.getElementById("subtitles").innerHTML = subs[pos].text;
                     }
+
+                    shadow.getElementById("subtitles").innerHTML = subs[pos].text;
+
+                    // Display "Skip music" button if there is music
+                    isMusic(shadow);
                 }
             };
         }
@@ -1169,10 +1176,8 @@ function initializeNow(document) {
     }
     // enforce init-once due to redundant callers
     if (!document.body || document.body.classList.contains("movie-subtitles-initialized")) {
-        console.log("log 2");
         return;
     }
-    console.log("log 3");
     document.body.classList.add("movie-subtitles-initialized");
     log("initializeNow: movie-subtitles-initialized added to document body", 5);
 

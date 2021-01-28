@@ -1641,7 +1641,7 @@ function displayNewSpeedBriefly(shadow, speed) {
     speedChangeCount++;
     const thisCount = speedChangeCount;
     // Display new speed
-    shadow.getElementById("speed-indicator").innerHTML = speed;
+    shadow.getElementById("speed-indicator").innerHTML = "Speed: " + speed;
     shadow.getElementById("speed-indicator").classList.remove("hide");
 
     setTimeout(() => {

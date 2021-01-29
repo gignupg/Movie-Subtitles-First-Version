@@ -1,7 +1,6 @@
 let monitoring = false;
 let pausing = false;
 let forwardRewind = false;
-let lastMouseMove = null;
 let menuOpen = false;
 let ctrlPressed = false;
 let skipMusicHover = false;
@@ -10,6 +9,7 @@ let subtitlesHidden = false;
 let shortcuts = null;
 let shadow = null;
 let thisVideo = null;
+let videoIconCount = 0;
 let speedChangeCount = 0;
 const red = "#C62828";
 const orange = "#f0653b";
@@ -756,10 +756,11 @@ function defineVideoController() {
 
         // Hide video icon if necessary!
         this.video.addEventListener("play", function () {
-            lastMouseMove = thisVideo.currentTime;
+            videoIconCount++;
+            const thisCount = videoIconCount;
 
             setTimeout(() => {
-                hideVideoIcon(shadow, thisVideo);
+                hideVideoIcon(shadow, thisVideo, thisCount);
             }, 2900);
         });
 
@@ -777,10 +778,11 @@ function defineVideoController() {
                     shadow.querySelector("#video-icon").classList.remove("hide");
                 }
 
-                lastMouseMove = thisVideo.currentTime;
+                videoIconCount++;
+                const thisCount = videoIconCount;
 
                 setTimeout(() => {
-                    hideVideoIcon(shadow, thisVideo);
+                    hideVideoIcon(shadow, thisVideo, thisCount);
                 }, 2900);
             }
         });
@@ -1576,13 +1578,12 @@ function processMessage(msg, sender, sendResponse) {
     }
 }
 
-function hideVideoIcon(shadow, video) {
+function hideVideoIcon(shadow, video, count) {
     const subtitlesLoaded = shadow.querySelector("#subtitles").innerHTML !== defaultSubtitles;
 
     // On youtube the progress bar and play buttons disappear after 2.9 seconds it seems
     // This way, at least on youtube, the video icon will disappear at the same time
-    const timePassed = video.currentTime - lastMouseMove;
-    if (!video.paused && subtitlesLoaded && timePassed >= 2 && timePassed <= 4) {
+    if (!video.paused && subtitlesLoaded && count === videoIconCount) {
         shadow.querySelector("#video-icon").classList.add("hide");
     }
 }

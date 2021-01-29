@@ -1,5 +1,6 @@
 let extensionOn = true;
 let shortcuts = null;
+let blacklist = null;
 
 const defaultShortcuts = {
     previous: "\u2190",
@@ -14,6 +15,9 @@ const defaultShortcuts = {
     forwardTwo: ""
 };
 
+// Initializing tooltip
+M.Tooltip.init(document.querySelectorAll('.tooltipped'), { enterDelay: 500 });
+
 chrome.storage.sync.get(null, (storage) => {
     if (storage.enabled !== undefined) {
         extensionOn = storage.enabled;
@@ -25,12 +29,16 @@ chrome.storage.sync.get(null, (storage) => {
         shortcuts = storage.shortcuts;
     }
 
+    blacklist = storage.blacklist || {};
+
     updatePopup();
 });
 
 $(".power-button").addEventListener("click", toggleExtensionOnOff);
 
 $("#shortcuts").addEventListener("click", openShortcutMenu);
+
+$("#blacklist-switch").addEventListener("change", updateBlacklist);
 
 function toggleExtensionOnOff() {
     extensionOn = !extensionOn;
@@ -58,8 +66,23 @@ function updatePopup() {
         $(".power-button").classList.remove("turn-on");
         $(".power-button").classList.add("turn-off");
 
+        // Update the blacklist switch
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+            const thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
+
+            // Turn the visual display of blacklist on/off
+            if (blacklist[thisSite]) {
+                $("#blacklist-switch").checked = true;
+                $("#blacklist-tooltip").dataset.tooltip = `Remove "${thisSite}" from your blacklist to enable the extension on this site.`;
+
+            } else {
+                $("#blacklist-switch").checked = false;
+                $("#blacklist-tooltip").dataset.tooltip = `Blacklist "${thisSite}" to disable the extension on this site.`;
+            }
+        });
+
         // Reloading the shadow dom
-        messageContentScript({ show: true });
+        messageContentScript({ show: true, blacklist: blacklist });
 
     } else {
         // Hide the popup settings
@@ -70,7 +93,7 @@ function updatePopup() {
         $(".power-button").classList.add("turn-on");
 
         // Unloading the shadow dom!
-        messageContentScript({ hide: true });
+        messageContentScript({ hide: true, blacklist: blacklist });
     }
 }
 
@@ -216,4 +239,32 @@ function $(selector, multiple = false) {
     }
 
     return document.querySelector(selector);
+}
+
+function updateBlacklist() {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+        const addToList = $("#blacklist-switch").checked;
+        const thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
+
+        // Update list locally
+        if (addToList) {
+            blacklist[thisSite] = true;
+
+            // Unloading the shadow dom!
+            messageContentScript({ hide: true, blacklist: blacklist });
+
+            $("#blacklist-tooltip").dataset.tooltip = `Remove "${thisSite}" from your blacklist to enable the extension on this site.`;
+
+        } else {
+            delete blacklist[thisSite];
+
+            // Reloading the shadow dom
+            messageContentScript({ show: true, blacklist: blacklist });
+
+            $("#blacklist-tooltip").dataset.tooltip = `Blacklist "${thisSite}" to disable the extension on this site.`;
+        }
+
+        // Update chrome storage
+        chrome.storage.sync.set({ blacklist: blacklist });
+    });
 }

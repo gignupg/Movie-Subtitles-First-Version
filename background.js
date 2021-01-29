@@ -1,3 +1,4 @@
+// On tab change let the content script know
 chrome.tabs.onActivated.addListener(function () {
     chrome.storage.sync.get("enabled", storage => {
         extensionOn = storage.enabled;
@@ -10,6 +11,16 @@ chrome.tabs.onActivated.addListener(function () {
         }
     });
 });
+
+// Incomming messages
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        if (request === "getUrl") {
+            const hostname = sender.tab.url.replace(/^.*\/\//, "").replace(/\/.*/, "");
+            sendResponse({ url: hostname });
+        }
+    }
+);
 
 function messageContentScript(message) {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {

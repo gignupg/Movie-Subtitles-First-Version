@@ -11,6 +11,8 @@ let shadow = null;
 let thisVideo = null;
 let videoIconCount = 0;
 let speedChangeCount = 0;
+let blacklist = null;
+let thisSite = null;
 const red = "#C62828";
 const orange = "#f0653b";
 const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
@@ -144,13 +146,6 @@ var tc = {
         controllerOpacity: 0.5, // default: 0.5
         fontSize: 28,
         keyBindings: [],
-        blacklist: `\
-      www.instagram.com
-      twitter.com
-      vine.co
-      imgur.com
-      teams.microsoft.com
-    `.replace(regStrip, ""),
         defaultLogLevel: 4,
         logLevel: 3
     },
@@ -188,17 +183,17 @@ function log(message, level) {
     }
 }
 
-// Initializing shortcuts
+// Initializing Video Controller
 chrome.storage.sync.get(null, function (storage) {
+    // Initializing shortcuts
     if (storage.shortcuts === undefined) {
         shortcuts = defaultShortcuts;
     } else {
         shortcuts = storage.shortcuts;
     }
-});
 
-// Initializing Video Controller
-chrome.storage.sync.get(tc.settings, function (storage) {
+    blacklist = storage.blacklist || {};
+
     tc.settings.keyBindings = storage.keyBindings; // Array
     if (storage.keyBindings.length == 0) {
         // if first initialization of 0.5.3
@@ -257,8 +252,7 @@ chrome.storage.sync.get(tc.settings, function (storage) {
             startHidden: tc.settings.startHidden,
             enabled: tc.settings.enabled,
             controllerOpacity: tc.settings.controllerOpacity,
-            fontSize: tc.settings.fontSize,
-            blacklist: tc.settings.blacklist.replace(regStrip, "")
+            fontSize: tc.settings.fontSize
         });
     }
     tc.settings.lastSpeed = Number(storage.lastSpeed);
@@ -270,8 +264,6 @@ chrome.storage.sync.get(tc.settings, function (storage) {
     tc.settings.startHidden = Boolean(storage.startHidden);
     tc.settings.controllerOpacity = Number(storage.controllerOpacity);
     tc.settings.fontSize = Number(storage.fontSize);
-    tc.settings.blacklist = String(storage.blacklist);
-
     // ensure that there is a "display" binding (for upgrades from versions that had it as a separate binding)
     if (
         tc.settings.keyBindings.filter((x) => x.action == "display").length == 0
@@ -285,7 +277,11 @@ chrome.storage.sync.get(tc.settings, function (storage) {
         }); // default V
     }
 
-    initializeWhenReady(document);
+    // Update thisSite
+    chrome.runtime.sendMessage("getUrl", function (response) {
+        thisSite = response.url;
+        initializeWhenReady(document);
+    });
 });
 
 function getKeyBindings(action, what = "value") {
@@ -418,8 +414,7 @@ function defineVideoController() {
         }
 
         // Updating the controller position is important for the dragging function
-        const website = location.hostname;
-        controllerPos = subtitleLocation(website, this.video).pos;
+        controllerPos = subtitleLocation(thisSite, this.video).pos;
 
         shadow = wrapper.attachShadow({ mode: "open" });
 
@@ -521,7 +516,7 @@ function defineVideoController() {
         // Hiding the subtitle controller on youtube when loading another video without refreshing the page.
         // This is definitely not a perfect solution but it's the best I could come up with today. 
         document.body.addEventListener("click", function () {
-            if (!tc.settings.enabled) {
+            if (!tc.settings.enabled || blacklist[thisSite]) {
                 setTimeout(() => {
                     wrapper.classList.add("vsc-nosource");
                 }, 1000);
@@ -551,9 +546,12 @@ function defineVideoController() {
 
             } else if (msg.hide) {
                 tc.settings.enabled = false;
+                blacklist = msg.blacklist;
                 wrapper.classList.add("vsc-nosource");
 
-            } else if (msg.show && tc.settings.enabled) {
+            } else if (msg.show) {
+                tc.settings.enabled = true;
+                blacklist = msg.blacklist;
                 wrapper.classList.remove("vsc-nosource");
 
             } else if (msg.shortcuts) {
@@ -732,14 +730,19 @@ function defineVideoController() {
         window.addEventListener("resize", subtitlePlacer);
 
         function subtitlePlacer() {
+            // Hiding the video icon and subtitles temporarily so the user doesn't see the resizing of
+            // the video icon and the replacement of the subtitles, to provide a smoother user experience.
             shadow.getElementById("video-icon").classList.add("hide");
             shadow.getElementById("controller").classList.add("hide");
 
             setTimeout(() => {
                 // Position the subtitles correctly
-                const subLocation = subtitleLocation(website, thisVideo);
+                const subLocation = subtitleLocation(thisSite, thisVideo);
                 shadow.getElementById("controller").style[subLocation.pos] = subLocation.offset;
-                shadow.getElementById("controller").classList.remove("hide");
+
+                if (!subtitlesHidden) {
+                    shadow.getElementById("controller").classList.remove("hide");
+                }
 
                 if (thisVideo.clientWidth >= 1200) {
                     // fullscreen, show big icon
@@ -1080,32 +1083,6 @@ function escapeStringRegExp(str) {
     return str.replace(matchOperatorsRe, "\\$&");
 }
 
-function isBlacklisted() {
-    blacklisted = false;
-    tc.settings.blacklist.split("\n").forEach((match) => {
-        match = match.replace(regStrip, "");
-        if (match.length == 0) {
-            return;
-        }
-
-        if (match.startsWith("/")) {
-            try {
-                var regexp = new RegExp(match);
-            } catch (err) {
-                return;
-            }
-        } else {
-            var regexp = new RegExp(escapeStringRegExp(match));
-        }
-
-        if (regexp.test(location.href)) {
-            blacklisted = true;
-            return;
-        }
-    });
-    return blacklisted;
-}
-
 var coolDown = false;
 
 function refreshCoolDown() {
@@ -1120,14 +1097,10 @@ function refreshCoolDown() {
 }
 
 function initializeWhenReady(document) {
-    log("Begin initializeWhenReady", 5);
-
-    if (isBlacklisted()) {
-        return;
-    }
     window.onload = () => {
         initializeNow(window.document);
     };
+
     if (document) {
         if (document.readyState === "complete") {
             initializeNow(document);
@@ -1171,8 +1144,7 @@ function getShadow(parent) {
 }
 
 function initializeNow(document) {
-    log("Begin initializeNow", 5);
-    if (!tc.settings.enabled) {
+    if (!tc.settings.enabled || blacklist[thisSite]) {
         return;
     }
     // enforce init-once due to redundant callers
@@ -1180,7 +1152,6 @@ function initializeNow(document) {
         return;
     }
     document.body.classList.add("movie-subtitles-initialized");
-    log("initializeNow: movie-subtitles-initialized added to document body", 5);
 
     if (document === window.document) {
         defineVideoController();
@@ -1565,9 +1536,13 @@ function showController(controller) {
 chrome.runtime.onMessage.addListener(processMessage);
 
 function processMessage(msg, sender, sendResponse) {
-    if (msg.show && !tc.settings.enabled) {
-        tc.settings.enabled = true;
-        initializeNow(window.document);
+    if (msg.show) {
+        const initialized = document.body.classList.contains("movie-subtitles-initialized");
+        if (!initialized) {
+            tc.settings.enabled = true;
+            blacklist = msg.blacklist;
+            initializeNow(window.document);
+        }
 
     } else if (msg.videoRequest) {
         if (monitoring) {
@@ -1650,7 +1625,7 @@ function displayNewSpeedBriefly(shadow, speed) {
     speedChangeCount++;
     const thisCount = speedChangeCount;
     // Display new speed
-    shadow.getElementById("speed-indicator").innerHTML = "Speed: " + speed;
+    shadow.getElementById("speed-indicator").innerHTML = speed.toFixed(2);
     shadow.getElementById("speed-indicator").classList.remove("hide");
 
     setTimeout(() => {

@@ -190,3 +190,7 @@ input::-webkit-input-placeholder {
 #shortcut-settings {
     height: 100%;
 }
+
+.switch {
+    margin-right: -18px; 
+}

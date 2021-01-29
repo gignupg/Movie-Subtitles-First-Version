@@ -431,6 +431,7 @@ function defineVideoController() {
         <div id="video-icon">
             <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="video-img"/>
         </div>
+        <div id="speed-indicator" class="hide sync-msg"></div>
         <div id="settings-wrapper" class="hide">
             <div id="settings-header">
                 <div id="settings-close" class="settings-item">&times;</div>
@@ -502,7 +503,6 @@ function defineVideoController() {
                 <div id="skip-music" class="hide sync-msg"></div>
                 <div id="synced" class="hide sync-msg">Subtitles successfully synced!</div>
                 <div id="not-synced" class="hide sync-msg">Error: no subtitles selected!</div>
-                <div id="speed-indicator" class="hide sync-msg"></div>
             </div>
         </div>
       `;

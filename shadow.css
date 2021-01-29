@@ -177,6 +177,13 @@ button:hover {
     z-index: 99999999;
 }
 
+#speed-indicator {
+    position: absolute;
+    top: 60px;
+    left: 10px;
+    z-index: 99999999;
+}
+
 #subtitles {
     display: inline-block;
     margin-left: 0;

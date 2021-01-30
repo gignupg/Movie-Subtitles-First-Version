@@ -189,8 +189,6 @@ button:hover {
     margin-left: 0;
     margin-right: 0;
     -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
 }
 
 #video-img {

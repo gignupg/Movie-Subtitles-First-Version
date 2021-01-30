@@ -498,6 +498,7 @@ function defineVideoController() {
                 <div id="skip-music" class="hide sync-msg"></div>
                 <div id="synced" class="hide sync-msg">Subtitles successfully synced!</div>
                 <div id="not-synced" class="hide sync-msg">Error: no subtitles selected!</div>
+                <div id="loaded" class="hide sync-msg">Subtitles successfully loaded!</div>
             </div>
         </div>
       `;
@@ -928,6 +929,7 @@ function defineVideoController() {
                 let type = null;
 
                 for (let i = 0; i < srtFile.length; i++) {
+
                     const line = srtFile[i].trim();
 
                     if (type === "time") {
@@ -941,7 +943,7 @@ function defineVideoController() {
                         newSubs[count].end = Number(end);
 
                     } else if (type === "text") {
-                        if (!srtFile[i + 1].trim()) type = null;
+                        if (srtFile[i + 1] && !srtFile[i + 1].trim()) type = null;
 
                         newSubs[count].text += line + " ";
 
@@ -1010,7 +1012,11 @@ function defineVideoController() {
                 subs = newSubs;
 
                 // Display success message
-                shadow.querySelector("#subtitles").innerHTML = "Subtitles successfully loaded!";
+                shadow.querySelector("#loaded").classList.remove("hide");
+                // Hide success message after 2 seconds
+                setTimeout(() => {
+                    shadow.querySelector("#loaded").classList.add("hide");
+                }, 3000);
 
                 // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
                 if (this.video.paused) {

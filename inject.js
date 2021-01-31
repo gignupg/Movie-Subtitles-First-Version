@@ -499,7 +499,7 @@ function defineVideoController() {
             <div id="below-subtitles">
                 <div id="skip-music" class="hide sync-msg"></div>
                 <div id="synced" class="hide sync-msg">Subtitles successfully synced!</div>
-                <div id="not-synced" class="hide sync-msg">Error: no subtitles selected!</div>
+                <div id="not-synced" class="hide sync-msg">Error: No subtitles selected!</div>
                 <div id="loaded" class="hide sync-msg">Subtitles successfully loaded!</div>
             </div>
         </div>
@@ -650,6 +650,11 @@ function defineVideoController() {
 
         shadow.getElementById("settings-close").addEventListener("click", () => {
             handleMenuClose(thisVideo, shadow);
+        });
+
+        shadow.getElementById("settings-wrapper").addEventListener("click", () => {
+            console.log("settings-wrapper clicked");
+            lastTimeExtClicked = Date.now();
         });
 
         shadow.getElementById("controller").addEventListener("click", () => {

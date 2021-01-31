@@ -653,7 +653,6 @@ function defineVideoController() {
         });
 
         shadow.getElementById("settings-wrapper").addEventListener("click", () => {
-            console.log("settings-wrapper clicked");
             lastTimeExtClicked = Date.now();
         });
 
@@ -702,7 +701,7 @@ function defineVideoController() {
         // Prevent some youtube shortcuts while interacting with the extension.
         shadow.addEventListener("keydown", (e) => {
             if (tc.settings.enabled) {
-                // If a number was pressed while the settings menu is open, stop it from skipping to 10%, 20%, 30% and so on...
+                // If a number was pressed while the input field of the settings menu is focused, stop it from skipping to 10%, 20%, 30% and so on...
                 if (e.keyCode >= 48 && e.keyCode <= 57) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -1222,6 +1221,9 @@ function initializeNow(document) {
                         // Make the subtitles highlightable
                         // Simply ading a class works with the cursor property, however it does not work with the userSelect property
                         subtitleStyle.webkitUserSelect = "text";
+
+                    } else if (key === "Escape" && menuOpen) {
+                        handleMenuClose(thisVideo, shadow);
                     }
                 }
 

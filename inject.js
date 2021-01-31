@@ -42,148 +42,16 @@ let subs = [{ text: defaultSubtitles }];
 let offset = 0;
 let direction = "earlier";
 
-function buttonClicked(e) {
-    const action = e.currentTarget.myParam;
-
-    // Enables us to jump between sentences. Either to the next or to the previous sentence
-    if (subs.length > 1) {
-        const time = video.currentTime;
-        const firstPos = pos === 0;
-        const lastPos = pos === subs.length - 1;
-        const rangeNotValid = (firstPos && action < 0) || (lastPos && action > 0);
-
-        // Jump back to the start of the same sentence if the sentence has been played longer than one second.
-        if (action < 0 && time > subs[pos].start + 1) {
-            video.currentTime = subs[pos].start;
-
-            // Jump to the previous or next spot in the video as long as we stay in the correct range (we don't leave the subs array)
-        } else if (!rangeNotValid) {
-            video.currentTime = subs[pos + action].start;
-        }
-    }
-}
-
-function subtitleCalibrator(calibration, video, shadow) {
-    if (subs.length > 1) {
-        let offset = 0;
-
-        if (calibration.direction === "earlier") {
-            offset = calibration.offset * -1;
-        } else {
-            offset = calibration.offset;
-        }
-
-        // Calculate the new start and end times for the whole subtitle array
-        const calibratedSubs = [];
-        subs.forEach(elem => {
-            if (elem.music) {
-                calibratedSubs.push({
-                    start: elem.start + offset,
-                    end: elem.end + offset,
-                    text: elem.text,
-                    music: {
-                        text: elem.music.text,
-                        start: elem.music.start + offset,
-                        end: elem.music.end + offset
-                    }
-                });
-            } else {
-                calibratedSubs.push({ start: elem.start + offset, end: elem.end + offset, text: elem.text });
-            }
-        });
-
-        subs = calibratedSubs;
-
-        // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
-        if (video.paused) {
-            video.play();
-            video.pause();
-        }
-
-        // Display success message
-        shadow.querySelector("#synced").classList.remove("hide");
-
-        // Hide success message after 2 seconds
-        setTimeout(() => {
-            shadow.querySelector("#synced").classList.add("hide");
-        }, 3000);
-
-    } else {
-        // Display error message
-        shadow.querySelector("#not-synced").classList.remove("hide");
-
-        // Hide error message after 2 seconds
-        setTimeout(() => {
-            shadow.querySelector("#not-synced").classList.add("hide");
-        }, 6000);
-    }
-
-    handleMenuClose(video, shadow);
-}
-
-function timeInSeconds(time) {
-    const split = time.split(/:|,/);
-
-    const s1 = Number(split[0] * 60 * 60); // hours
-    const s2 = Number(split[1] * 60); // minutes
-    const s3 = Number(split[2]); // seconds
-    const s4 = split[3]; // milliseconds
-
-    const seconds = s1 + s2 + s3;
-    return seconds + "." + s4;
-}
-
-var regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
-
 var tc = {
     settings: {
-        lastSpeed: 1.0, // default 1x
         enabled: true, // default enabled
-        speeds: {}, // empty object to hold speed for each source
-        displayKeyCode: 86, // default: V
-        rememberSpeed: false, // default: false
-        forceLastSavedSpeed: false, //default: false
-        audioBoolean: false, // default: false
-        startHidden: false, // default: false
         controllerOpacity: 0.5, // default: 0.5
-        fontSize: 28,
-        keyBindings: [],
-        defaultLogLevel: 4,
-        logLevel: 3
+        fontSize: 28
     },
 
     // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
     mediaElements: []
 };
-
-/* Log levels (depends on caller specifying the correct level)
-  1 - none
-  2 - error
-  3 - warning
-  4 - info
-  5 - debug
-  6 - debug high verbosity + stack trace on each message
-*/
-function log(message, level) {
-    verbosity = tc.settings.logLevel;
-    if (typeof level === "undefined") {
-        level = tc.settings.defaultLogLevel;
-    }
-    if (verbosity >= level) {
-        if (level === 2) {
-            console.log("ERROR:" + message);
-        } else if (level === 3) {
-            console.log("WARNING:" + message);
-        } else if (level === 4) {
-            console.log("INFO:" + message);
-        } else if (level === 5) {
-            console.log("DEBUG:" + message);
-        } else if (level === 6) {
-            console.log("DEBUG (VERBOSE):" + message);
-            console.trace();
-        }
-    }
-}
 
 // Initializing Video Controller
 chrome.storage.sync.get(null, function (storage) {
@@ -196,88 +64,9 @@ chrome.storage.sync.get(null, function (storage) {
 
     blacklist = storage.blacklist || {};
 
-    tc.settings.keyBindings = storage.keyBindings; // Array
-    if (storage.keyBindings.length == 0) {
-        // if first initialization of 0.5.3
-        // UPDATE
-        tc.settings.keyBindings.push({
-            action: "slower",
-            key: Number(storage.slowerKeyCode) || 83,
-            value: Number(storage.speedStep) || 0.1,
-            force: false,
-            predefined: true
-        }); // default S
-        tc.settings.keyBindings.push({
-            action: "faster",
-            key: Number(storage.fasterKeyCode) || 68,
-            value: Number(storage.speedStep) || 0.1,
-            force: false,
-            predefined: true
-        }); // default: D
-        tc.settings.keyBindings.push({
-            action: "rewind",
-            key: Number(storage.rewindKeyCode) || 90,
-            value: Number(storage.rewindTime) || 10,
-            force: false,
-            predefined: true
-        }); // default: Z
-        tc.settings.keyBindings.push({
-            action: "advance",
-            key: Number(storage.advanceKeyCode) || 88,
-            value: Number(storage.advanceTime) || 10,
-            force: false,
-            predefined: true
-        }); // default: X
-        tc.settings.keyBindings.push({
-            action: "reset",
-            key: Number(storage.resetKeyCode) || 82,
-            value: 1.0,
-            force: false,
-            predefined: true
-        }); // default: R
-        tc.settings.keyBindings.push({
-            action: "fast",
-            key: Number(storage.fastKeyCode) || 71,
-            value: Number(storage.fastSpeed) || 1.8,
-            force: false,
-            predefined: true
-        }); // default: G
-        tc.settings.version = "0.5.3";
-
-        chrome.storage.sync.set({
-            keyBindings: tc.settings.keyBindings,
-            version: tc.settings.version,
-            displayKeyCode: tc.settings.displayKeyCode,
-            rememberSpeed: tc.settings.rememberSpeed,
-            forceLastSavedSpeed: tc.settings.forceLastSavedSpeed,
-            audioBoolean: tc.settings.audioBoolean,
-            startHidden: tc.settings.startHidden,
-            enabled: tc.settings.enabled,
-            controllerOpacity: tc.settings.controllerOpacity,
-            fontSize: tc.settings.fontSize
-        });
-    }
-    tc.settings.lastSpeed = Number(storage.lastSpeed);
-    tc.settings.displayKeyCode = Number(storage.displayKeyCode);
-    tc.settings.rememberSpeed = Boolean(storage.rememberSpeed);
-    tc.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
-    tc.settings.audioBoolean = Boolean(storage.audioBoolean);
     tc.settings.enabled = Boolean(storage.enabled);
-    tc.settings.startHidden = Boolean(storage.startHidden);
     tc.settings.controllerOpacity = Number(storage.controllerOpacity);
     tc.settings.fontSize = Number(storage.fontSize);
-    // ensure that there is a "display" binding (for upgrades from versions that had it as a separate binding)
-    if (
-        tc.settings.keyBindings.filter((x) => x.action == "display").length == 0
-    ) {
-        tc.settings.keyBindings.push({
-            action: "display",
-            key: Number(storage.displayKeyCode) || 86,
-            value: 0,
-            force: false,
-            predefined: true
-        }); // default V
-    }
 
     // Update thisSite
     chrome.runtime.sendMessage("getUrl", function (response) {
@@ -285,20 +74,6 @@ chrome.storage.sync.get(null, function (storage) {
         initializeWhenReady(document);
     });
 });
-
-function getKeyBindings(action, what = "value") {
-    try {
-        return tc.settings.keyBindings.find((item) => item.action === action)[what];
-    } catch (e) {
-        return false;
-    }
-}
-
-function setKeyBindings(action, value) {
-    tc.settings.keyBindings.find((item) => item.action === action)[
-        "value"
-    ] = value;
-}
 
 function defineVideoController() {
     // Data structures
@@ -322,44 +97,8 @@ function defineVideoController() {
 
         this.video = target;
         this.parent = target.parentElement || parent;
-        storedSpeed = tc.settings.speeds[target.currentSrc];
-        if (!tc.settings.rememberSpeed) {
-            if (!storedSpeed) {
-                log(
-                    "Overwriting stored speed to 1.0 due to rememberSpeed being disabled",
-                    5
-                );
-                storedSpeed = 1.0;
-            }
-            setKeyBindings("reset", getKeyBindings("fast")); // resetSpeed = fastSpeed
-        } else {
-            log("Recalling stored speed due to rememberSpeed being enabled", 5);
-            storedSpeed = tc.settings.lastSpeed;
-        }
-
-        log("Explicitly setting playbackRate to: " + storedSpeed, 5);
-        target.playbackRate = storedSpeed;
 
         this.div = this.initializeControls();
-
-        var mediaEventAction = function (event) {
-            storedSpeed = tc.settings.speeds[event.target.currentSrc];
-            if (!tc.settings.rememberSpeed) {
-                if (!storedSpeed) {
-                    log("Overwriting stored speed to 1.0 (rememberSpeed not enabled)", 4);
-                    storedSpeed = 1.0;
-                }
-                // resetSpeed isn't really a reset, it's a toggle
-                log("Setting reset keybinding to fast", 5);
-                setKeyBindings("reset", getKeyBindings("fast")); // resetSpeed = fastSpeed
-            } else {
-                log(
-                    "Storing lastSpeed into tc.settings.speeds (rememberSpeed enabled)",
-                    5
-                );
-                storedSpeed = tc.settings.lastSpeed;
-            }
-        };
 
         target.addEventListener(
             "play",
@@ -378,7 +117,6 @@ function defineVideoController() {
                     (mutation.attributeName === "src" ||
                         mutation.attributeName === "currentSrc")
                 ) {
-                    log("mutation of A/V element", 5);
                     var controller = this.div;
                     if (!mutation.target.src && !mutation.target.currentSrc) {
                         controller.classList.add("vsc-nosource");
@@ -762,8 +500,6 @@ function defineVideoController() {
 
         // Hide video icon if necessary!
         this.video.addEventListener("play", function () {
-            console.log("play event triggered");
-
             videoIconCount++;
             const thisCount = videoIconCount;
 
@@ -783,7 +519,6 @@ function defineVideoController() {
 
         // Show video icon
         this.video.addEventListener("pause", function () {
-            console.log("pause event triggered");
             // In the rare case that the website uses capturing instead of bubbling this will prevent unexpected behaviour
             if (Math.abs(lastTimeExtClicked - Date.now()) <= 50 && !recentlyForcedPlayback) {
                 recentlyForcedPlayback = true;
@@ -1117,14 +852,12 @@ function escapeStringRegExp(str) {
 var coolDown = false;
 
 function refreshCoolDown() {
-    log("Begin refreshCoolDown", 5);
     if (coolDown) {
         clearTimeout(coolDown);
     }
     coolDown = setTimeout(function () {
         coolDown = false;
     }, 1000);
-    log("End refreshCoolDown", 5);
 }
 
 function initializeWhenReady(document) {
@@ -1143,7 +876,6 @@ function initializeWhenReady(document) {
             };
         }
     }
-    log("End initializeWhenReady", 5);
 }
 
 function inIframe() {
@@ -1245,13 +977,13 @@ function initializeNow(document) {
                     event.target.nodeName === "TEXTAREA" ||
                     event.target.isContentEditable
                 ) {
-                    console.log("Ignore event if typing in an input box");
+                    // Ignore event if typing in an input box
                     return false;
                 }
 
                 // Ignore keydown event if typing in a page without vsc
                 if (!tc.mediaElements.length) {
-                    console.log("Ignore event if typing in a page without vsc");
+                    // Ignore event if typing in a page without vsc
                     return false;
                 }
 
@@ -1322,10 +1054,8 @@ function initializeNow(document) {
 
                 var item = tc.settings.keyBindings.find((item) => item.key === keyCode);
                 if (item) {
-                    console.log("running action");
                     runAction(item.action, item.value);
                     if (item.force === "true") {
-                        console.log("forcing");
                         // disable websites key bindings
                         event.preventDefault();
                         event.stopPropagation();
@@ -1342,10 +1072,7 @@ function initializeNow(document) {
         if (!added && document.body.contains(node)) {
             return;
         }
-        if (
-            node.nodeName === "VIDEO" ||
-            (node.nodeName === "AUDIO" && tc.settings.audioBoolean)
-        ) {
+        if (node.nodeName === "VIDEO") {
             if (added) {
                 node.vsc = new tc.videoController(node, parent);
             } else {
@@ -1404,11 +1131,7 @@ function initializeNow(document) {
         subtree: true
     });
 
-    if (tc.settings.audioBoolean) {
-        var mediaTags = document.querySelectorAll("video,audio");
-    } else {
-        var mediaTags = document.querySelectorAll("video");
-    }
+    var mediaTags = document.querySelectorAll("video");
 
     mediaTags.forEach(function (video) {
         video.vsc = new tc.videoController(video);
@@ -1424,12 +1147,9 @@ function initializeNow(document) {
         }
         initializeWhenReady(childDocument);
     });
-    log("End initializeNow", 5);
 }
 
 function runAction(action, value, e) {
-    log("runAction Begin", 5);
-
     var mediaTags = tc.mediaElements;
 
     // Get the controller that was used if called from a button press event e
@@ -1449,11 +1169,9 @@ function runAction(action, value, e) {
 
         if (!v.classList.contains("vsc-cancelled")) {
             if (action === "display") {
-                log("Showing controller", 5);
                 controller.classList.add("vsc-manual");
                 controller.classList.toggle("vsc-hidden");
             } else if (action === "blink") {
-                log("Showing controller momentarily", 5);
                 // if vsc is hidden, show it briefly to give the use visual feedback that the action is excuted.
                 if (
                     controller.classList.contains("vsc-hidden") ||
@@ -1482,15 +1200,12 @@ function runAction(action, value, e) {
             }
         }
     });
-    log("runAction End", 5);
 }
 
 function pause(v) {
     if (v.paused) {
-        log("Resuming video", 5);
         v.play();
     } else {
-        log("Pausing video", 5);
         v.pause();
     }
 }
@@ -1500,12 +1215,10 @@ function muted(v) {
 }
 
 function setMark(v) {
-    log("Adding marker", 5);
     v.vsc.mark = v.currentTime;
 }
 
 function jumpToMark(v) {
-    log("Recalling marker", 5);
     if (v.vsc.mark && typeof v.vsc.mark === "number") {
         v.currentTime = v.vsc.mark;
     }
@@ -1555,7 +1268,6 @@ function handleDrag(video, e) {
 var timer = null;
 
 function showController(controller) {
-    log("Showing controller", 4);
     controller.classList.add("vcs-show");
 
     if (timer) clearTimeout(timer);
@@ -1563,7 +1275,6 @@ function showController(controller) {
     timer = setTimeout(function () {
         controller.classList.remove("vcs-show");
         timer = false;
-        log("Hiding controller", 5);
     }, 2000);
 }
 
@@ -1676,4 +1387,95 @@ function hideOrShowSubtitles() {
         subtitlesHidden = true;
         shadow.getElementById("controller").classList.add("hide");
     }
+}
+
+function buttonClicked(e) {
+    const action = e.currentTarget.myParam;
+
+    // Enables us to jump between sentences. Either to the next or to the previous sentence
+    if (subs.length > 1) {
+        const time = video.currentTime;
+        const firstPos = pos === 0;
+        const lastPos = pos === subs.length - 1;
+        const rangeNotValid = (firstPos && action < 0) || (lastPos && action > 0);
+
+        // Jump back to the start of the same sentence if the sentence has been played longer than one second.
+        if (action < 0 && time > subs[pos].start + 1) {
+            video.currentTime = subs[pos].start;
+
+            // Jump to the previous or next spot in the video as long as we stay in the correct range (we don't leave the subs array)
+        } else if (!rangeNotValid) {
+            video.currentTime = subs[pos + action].start;
+        }
+    }
+}
+
+function subtitleCalibrator(calibration, video, shadow) {
+    if (subs.length > 1) {
+        let offset = 0;
+
+        if (calibration.direction === "earlier") {
+            offset = calibration.offset * -1;
+        } else {
+            offset = calibration.offset;
+        }
+
+        // Calculate the new start and end times for the whole subtitle array
+        const calibratedSubs = [];
+        subs.forEach(elem => {
+            if (elem.music) {
+                calibratedSubs.push({
+                    start: elem.start + offset,
+                    end: elem.end + offset,
+                    text: elem.text,
+                    music: {
+                        text: elem.music.text,
+                        start: elem.music.start + offset,
+                        end: elem.music.end + offset
+                    }
+                });
+            } else {
+                calibratedSubs.push({ start: elem.start + offset, end: elem.end + offset, text: elem.text });
+            }
+        });
+
+        subs = calibratedSubs;
+
+        // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
+        if (video.paused) {
+            video.play();
+            video.pause();
+        }
+
+        // Display success message
+        shadow.querySelector("#synced").classList.remove("hide");
+
+        // Hide success message after 2 seconds
+        setTimeout(() => {
+            shadow.querySelector("#synced").classList.add("hide");
+        }, 3000);
+
+    } else {
+        // Display error message
+        shadow.querySelector("#not-synced").classList.remove("hide");
+
+        // Hide error message after 2 seconds
+        setTimeout(() => {
+            shadow.querySelector("#not-synced").classList.add("hide");
+        }, 6000);
+    }
+
+    handleMenuClose(video, shadow);
+}
+
+function timeInSeconds(time) {
+    const split = time.split(/:|,/);
+
+    const s1 = Number(split[0] * 60 * 60); // hours
+    const s2 = Number(split[1] * 60); // minutes
+    const s3 = Number(split[2]); // seconds
+    const s4 = split[3]; // milliseconds
+
+    const seconds = s1 + s2 + s3;
+    return seconds + "." + s4;
 }

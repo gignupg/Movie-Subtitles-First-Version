@@ -13,6 +13,8 @@ let videoIconCount = 0;
 let speedChangeCount = 0;
 let blacklist = null;
 let thisSite = null;
+let lastTimeExtClicked = {};
+let recentlyForcedPlayback = null;
 const red = "#C62828";
 const orange = "#f0653b";
 const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
@@ -516,7 +518,7 @@ function defineVideoController() {
 
         // Hiding the subtitle controller on youtube when loading another video without refreshing the page.
         // This is definitely not a perfect solution but it's the best I could come up with today. 
-        document.body.addEventListener("click", function () {
+        document.body.addEventListener("click", function (e) {
             if (!tc.settings.enabled || blacklist[thisSite]) {
                 setTimeout(() => {
                     wrapper.classList.add("vsc-nosource");
@@ -531,21 +533,7 @@ function defineVideoController() {
         thisVideo = this.video;
 
         function messageReceived(msg) {
-            if (msg.settings) {
-                shadow.getElementById("video-icon").click();
-                const menuItem = shadow.querySelectorAll(".menu-item");
-
-                if (msg.settings === "subtitles") {
-                    menuItem[0].click();
-
-                } else if (msg.settings === "display") {
-                    menuItem[1].click();
-
-                } else {
-                    menuItem[2].click();
-                }
-
-            } else if (msg.hide) {
+            if (msg.hide) {
                 tc.settings.enabled = false;
                 blacklist = msg.blacklist;
                 wrapper.classList.add("vsc-nosource");
@@ -621,6 +609,8 @@ function defineVideoController() {
         shadow.getElementById("prev-button").addEventListener("click", () => {
             forwardRewind = true;
 
+            lastTimeExtClicked = Date.now();
+
             if (thisVideo.currentTime > subs[pos].start + 1) {
                 thisVideo.currentTime = subs[pos].start;
 
@@ -633,6 +623,8 @@ function defineVideoController() {
 
         shadow.getElementById("next-button").addEventListener("click", () => {
             forwardRewind = true;
+
+            lastTimeExtClicked = Date.now();
 
             if (pos !== subs.length - 1) {
                 thisVideo.currentTime = subs[pos + 1].start;
@@ -660,7 +652,13 @@ function defineVideoController() {
             handleMenuClose(thisVideo, shadow);
         });
 
+        shadow.getElementById("controller").addEventListener("click", () => {
+            lastTimeExtClicked = Date.now();
+        });
+
         shadow.getElementById("video-icon").addEventListener("click", () => {
+            lastTimeExtClicked = Date.now();
+
             menuOpen = true;
             // Blur the background when the settings are opened
             thisVideo.style.filter = "blur(10px)";
@@ -760,8 +758,19 @@ function defineVideoController() {
 
         // Hide video icon if necessary!
         this.video.addEventListener("play", function () {
+            console.log("play event triggered");
+
             videoIconCount++;
             const thisCount = videoIconCount;
+
+            // In the rare case that the website uses capturing instead of bubbling this will prevent unexpected behaviour
+            if (Math.abs(lastTimeExtClicked - Date.now()) <= 50 && !recentlyForcedPlayback) {
+                recentlyForcedPlayback = true;
+                thisVideo.pause();
+                setTimeout(() => {
+                    recentlyForcedPlayback = false;
+                }, 51);
+            }
 
             setTimeout(() => {
                 hideVideoIcon(shadow, thisVideo, thisCount);
@@ -770,6 +779,18 @@ function defineVideoController() {
 
         // Show video icon
         this.video.addEventListener("pause", function () {
+            console.log("pause event triggered");
+            // In the rare case that the website uses capturing instead of bubbling this will prevent unexpected behaviour
+            if (Math.abs(lastTimeExtClicked - Date.now()) <= 50 && !recentlyForcedPlayback) {
+                recentlyForcedPlayback = true;
+
+                thisVideo.play();
+
+                setTimeout(() => {
+                    recentlyForcedPlayback = false;
+                }, 51);
+            }
+
             if (!menuOpen) {
                 shadow.querySelector("#video-icon").classList.remove("hide");
             }
@@ -1599,8 +1620,6 @@ function disableHighlighting(shadow) {
 
     // Make the subtitles not highlightable
     subtitleStyle.webkitUserSelect = "none";
-    subtitleStyle.mozUserSelect = "none";
-    subtitleStyle.msUserSelect = "none";
 }
 
 function subtitleLocation(url, video) {

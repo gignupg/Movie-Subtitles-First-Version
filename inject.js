@@ -1,3 +1,4 @@
+let extensionOn = true;
 let monitoring = false;
 let pausing = false;
 let forwardRewind = false;
@@ -6,7 +7,6 @@ let ctrlPressed = false;
 let skipMusicHover = false;
 let controllerPos = null;
 let subtitlesHidden = false;
-let shortcuts = null;
 let shadow = null;
 let thisVideo = null;
 let videoIconCount = 0;
@@ -15,11 +15,13 @@ let blacklist = null;
 let thisSite = null;
 let lastTimeExtClicked = {};
 let recentlyForcedPlayback = null;
+let controllerOpacity = null;
+let fontSize = null;
 const red = "#C62828";
 const orange = "#f0653b";
 const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
 
-const defaultShortcuts = {
+let shortcuts = {
     previous: "\u2190",
     next: "\u2192",
     rewind: "a",
@@ -43,12 +45,6 @@ let offset = 0;
 let direction = "earlier";
 
 var tc = {
-    settings: {
-        enabled: true, // default enabled
-        controllerOpacity: 0.5, // default: 0.5
-        fontSize: 28
-    },
-
     // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
     mediaElements: []
 };
@@ -56,17 +52,14 @@ var tc = {
 // Initializing Video Controller
 chrome.storage.sync.get(null, function (storage) {
     // Initializing shortcuts
-    if (storage.shortcuts === undefined) {
-        shortcuts = defaultShortcuts;
-    } else {
-        shortcuts = storage.shortcuts;
-    }
+    if (storage.shortcuts !== undefined) shortcuts = storage.shortcuts;
 
     blacklist = storage.blacklist || {};
 
-    tc.settings.enabled = Boolean(storage.enabled);
-    tc.settings.controllerOpacity = Number(storage.controllerOpacity);
-    tc.settings.fontSize = Number(storage.fontSize);
+    if (storage.enabled !== undefined) extensionOn = storage.enabled;
+
+    controllerOpacity = storage.controllerOpacity || 0.5;
+    fontSize = storage.fontSize || 28;
 
     // Update thisSite
     chrome.runtime.sendMessage("getUrl", function (response) {
@@ -195,11 +188,11 @@ function defineVideoController() {
                 <div id="display-content" class="section hide">
                     <div class="display-box">
                         <label class="display-label" for="display-range-1">Subtitle Size:</label>
-                        <input class="slider" id="display-range-1" type="range" min="2" max="54" value="${tc.settings.fontSize}">
+                        <input class="slider" id="display-range-1" type="range" min="2" max="54" value="${fontSize}">
                     </div>
                     <div class="display-box" style="margin-top: -10px">
                         <label class="display-label" for="display-range-2">Background:</label>
-                        <input class="slider" id="display-range-2" type="range" min="0" max="1" step="0.05" value="${tc.settings.controllerOpacity}">
+                        <input class="slider" id="display-range-2" type="range" min="0" max="1" step="0.05" value="${controllerOpacity}">
                     </div>
                 </div>
                 <div id="sync-content" class="section hide">
@@ -228,7 +221,7 @@ function defineVideoController() {
             <div id="bottom-space"></div>
         </div>
         <div id="controller" class="hide">
-            <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${tc.settings.controllerOpacity});">
+            <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${controllerOpacity});">
                 <button id="prev-button" class="subtitle-button">«</button>
                 <div id="subtitles">${subs[0].text}</div>
                 <button id="next-button" class="subtitle-button">»</button>
@@ -257,7 +250,7 @@ function defineVideoController() {
         // Hiding the subtitle controller on youtube when loading another video without refreshing the page.
         // This is definitely not a perfect solution but it's the best I could come up with today. 
         document.body.addEventListener("click", function (e) {
-            if (!tc.settings.enabled || blacklist[thisSite]) {
+            if (!extensionOn || blacklist[thisSite]) {
                 setTimeout(() => {
                     wrapper.classList.add("vsc-nosource");
                 }, 1000);
@@ -272,12 +265,12 @@ function defineVideoController() {
 
         function messageReceived(msg) {
             if (msg.hide) {
-                tc.settings.enabled = false;
+                extensionOn = false;
                 blacklist = msg.blacklist;
                 wrapper.classList.add("vsc-nosource");
 
             } else if (msg.show) {
-                tc.settings.enabled = true;
+                extensionOn = true;
                 blacklist = msg.blacklist;
                 wrapper.classList.remove("vsc-nosource");
 
@@ -438,7 +431,7 @@ function defineVideoController() {
 
         // Prevent some youtube shortcuts while interacting with the extension.
         shadow.addEventListener("keydown", (e) => {
-            if (tc.settings.enabled) {
+            if (extensionOn) {
                 // If a number was pressed while the input field of the settings menu is focused, stop it from skipping to 10%, 20%, 30% and so on...
                 if (e.keyCode >= 48 && e.keyCode <= 57) {
                     e.preventDefault();
@@ -556,7 +549,7 @@ function defineVideoController() {
             shadow.querySelector("#display-range-1").value = newSize;
             shadow.querySelector("#subtitles").style.fontSize = newSize + "px";
             shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = newSize + "px");
-            tc.settings.fontSize = newSize;
+            fontSize = newSize;
             chrome.storage.sync.set({ fontSize: newSize });
         });
 
@@ -564,7 +557,7 @@ function defineVideoController() {
             const newOpacity = e.target.value;
             shadow.querySelector("#display-range-2").value = newOpacity;
             shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
-            tc.settings.controllerOpacity = newOpacity;
+            controllerOpacity = newOpacity;
             chrome.storage.sync.set({ controllerOpacity: newOpacity });
         });
 
@@ -644,9 +637,9 @@ function defineVideoController() {
         });
 
         // Settings the fontSize and opacity
-        shadow.querySelector("#subtitles").style.fontSize = tc.settings.fontSize + "px";
-        shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = tc.settings.fontSize + "px");
-        shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${tc.settings.controllerOpacity})`;
+        shadow.querySelector("#subtitles").style.fontSize = fontSize + "px";
+        shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = fontSize + "px");
+        shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${controllerOpacity})`;
 
         // Pausing the video when hovering on the subtitles
         shadow.querySelector("#subtitle-div").addEventListener("mouseenter", () => {
@@ -861,6 +854,7 @@ function refreshCoolDown() {
 }
 
 function initializeWhenReady(document) {
+    console.log("1 initializing when ready");
     window.onload = () => {
         initializeNow(window.document);
     };
@@ -907,9 +901,10 @@ function getShadow(parent) {
 }
 
 function initializeNow(document) {
-    if (!tc.settings.enabled || blacklist[thisSite]) {
+    if (!extensionOn || blacklist[thisSite]) {
         return;
     }
+    console.log("5 one step further");
     // enforce init-once due to redundant callers
     if (!document.body || document.body.classList.contains("movie-subtitles-initialized")) {
         return;
@@ -937,7 +932,7 @@ function initializeNow(document) {
                 var keyCode = event.keyCode;
 
                 // Shortcuts and Text Highlighting
-                if (tc.settings.enabled) {
+                if (extensionOn) {
                     const key = event.key;
                     // If ctrl was pressed enable text/subtitle highlighting
                     // Ctrl works better than alt because switching windows with Alt + Tab enables text highlighting as a side effect
@@ -988,7 +983,7 @@ function initializeNow(document) {
                 }
 
                 // Movie Subtitles Shortcuts
-                if (tc.settings.enabled) {
+                if (extensionOn) {
                     const arrowKey = {
                         ArrowLeft: "\u2190",
                         ArrowUp: "\u2191",
@@ -1049,16 +1044,6 @@ function initializeNow(document) {
                         event.preventDefault();
                         event.stopPropagation();
 
-                    }
-                }
-
-                var item = tc.settings.keyBindings.find((item) => item.key === keyCode);
-                if (item) {
-                    runAction(item.action, item.value);
-                    if (item.force === "true") {
-                        // disable websites key bindings
-                        event.preventDefault();
-                        event.stopPropagation();
                     }
                 }
                 return false;
@@ -1284,7 +1269,7 @@ function processMessage(msg, sender, sendResponse) {
     if (msg.show) {
         const initialized = document.body.classList.contains("movie-subtitles-initialized");
         if (!initialized) {
-            tc.settings.enabled = true;
+            extensionOn = true;
             blacklist = msg.blacklist;
             initializeNow(window.document);
         }

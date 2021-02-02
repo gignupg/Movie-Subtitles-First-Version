@@ -44,27 +44,6 @@ let subs = [{ text: defaultSubtitles }];
 let offset = 0;
 let direction = "earlier";
 
-function buttonClicked(e) {
-    const action = e.currentTarget.myParam;
-
-    // Enables us to jump between sentences. Either to the next or to the previous sentence
-    if (subs.length > 1) {
-        const time = video.currentTime;
-        const firstPos = pos === 0;
-        const lastPos = pos === subs.length - 1;
-        const rangeNotValid = (firstPos && action < 0) || (lastPos && action > 0);
-
-        // Jump back to the start of the same sentence if the sentence has been played longer than one second.
-        if (action < 0 && time > subs[pos].start + 1) {
-            video.currentTime = subs[pos].start;
-
-            // Jump to the previous or next spot in the video as long as we stay in the correct range (we don't leave the subs array)
-        } else if (!rangeNotValid) {
-            video.currentTime = subs[pos + action].start;
-        }
-    }
-}
-
 function subtitleCalibrator(calibration, video, shadow) {
     if (subs.length > 1) {
         let offset = 0;
@@ -947,8 +926,6 @@ function getShadow(parent) {
 }
 
 function initializeNow(document) {
-    console.log("initializing now");
-    console.log("extensionOn", extensionOn);
     if (!extensionOn || blacklist[thisSite]) {
         return;
     }

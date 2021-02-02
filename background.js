@@ -1,7 +1,9 @@
 // On tab change let the content script know
 chrome.tabs.onActivated.addListener(function () {
     chrome.storage.sync.get("enabled", storage => {
-        extensionOn = storage.enabled;
+        let extensionOn = true;
+        if (storage.enabled !== undefined) extensionOn = storage.enabled;
+
         if (extensionOn) {
             // Reloading the shadow dom
             messageContentScript({ show: true });

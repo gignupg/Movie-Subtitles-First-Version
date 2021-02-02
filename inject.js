@@ -11,12 +11,12 @@ let shadow = null;
 let thisVideo = null;
 let videoIconCount = 0;
 let speedChangeCount = 0;
-let blacklist = null;
+let blacklist = {};
 let thisSite = null;
 let lastTimeExtClicked = {};
 let recentlyForcedPlayback = null;
-let controllerOpacity = null;
-let fontSize = null;
+let opacity = 0.5;
+let fontSize = 28;
 const red = "#C62828";
 const orange = "#f0653b";
 const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
@@ -44,6 +44,97 @@ let subs = [{ text: defaultSubtitles }];
 let offset = 0;
 let direction = "earlier";
 
+function buttonClicked(e) {
+    const action = e.currentTarget.myParam;
+
+    // Enables us to jump between sentences. Either to the next or to the previous sentence
+    if (subs.length > 1) {
+        const time = video.currentTime;
+        const firstPos = pos === 0;
+        const lastPos = pos === subs.length - 1;
+        const rangeNotValid = (firstPos && action < 0) || (lastPos && action > 0);
+
+        // Jump back to the start of the same sentence if the sentence has been played longer than one second.
+        if (action < 0 && time > subs[pos].start + 1) {
+            video.currentTime = subs[pos].start;
+
+            // Jump to the previous or next spot in the video as long as we stay in the correct range (we don't leave the subs array)
+        } else if (!rangeNotValid) {
+            video.currentTime = subs[pos + action].start;
+        }
+    }
+}
+
+function subtitleCalibrator(calibration, video, shadow) {
+    if (subs.length > 1) {
+        let offset = 0;
+
+        if (calibration.direction === "earlier") {
+            offset = calibration.offset * -1;
+        } else {
+            offset = calibration.offset;
+        }
+
+        // Calculate the new start and end times for the whole subtitle array
+        const calibratedSubs = [];
+        subs.forEach(elem => {
+            if (elem.music) {
+                calibratedSubs.push({
+                    start: elem.start + offset,
+                    end: elem.end + offset,
+                    text: elem.text,
+                    music: {
+                        text: elem.music.text,
+                        start: elem.music.start + offset,
+                        end: elem.music.end + offset
+                    }
+                });
+            } else {
+                calibratedSubs.push({ start: elem.start + offset, end: elem.end + offset, text: elem.text });
+            }
+        });
+
+        subs = calibratedSubs;
+
+        // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
+        if (video.paused) {
+            video.play();
+            video.pause();
+        }
+
+        // Display success message
+        shadow.querySelector("#synced").classList.remove("hide");
+
+        // Hide success message after 2 seconds
+        setTimeout(() => {
+            shadow.querySelector("#synced").classList.add("hide");
+        }, 3000);
+
+    } else {
+        // Display error message
+        shadow.querySelector("#not-synced").classList.remove("hide");
+
+        // Hide error message after 2 seconds
+        setTimeout(() => {
+            shadow.querySelector("#not-synced").classList.add("hide");
+        }, 6000);
+    }
+
+    handleMenuClose(video, shadow);
+}
+
+function timeInSeconds(time) {
+    const split = time.split(/:|,/);
+
+    const s1 = Number(split[0] * 60 * 60); // hours
+    const s2 = Number(split[1] * 60); // minutes
+    const s3 = Number(split[2]); // seconds
+    const s4 = split[3]; // milliseconds
+
+    const seconds = s1 + s2 + s3;
+    return seconds + "." + s4;
+}
+
 var tc = {
     // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
     mediaElements: []
@@ -51,15 +142,11 @@ var tc = {
 
 // Initializing Video Controller
 chrome.storage.sync.get(null, function (storage) {
-    // Initializing shortcuts
+    if (storage.shortcuts !== undefined) extensionOn = storage.enabled;
     if (storage.shortcuts !== undefined) shortcuts = storage.shortcuts;
-
-    blacklist = storage.blacklist || {};
-
-    if (storage.enabled !== undefined) extensionOn = storage.enabled;
-
-    controllerOpacity = storage.controllerOpacity || 0.5;
-    fontSize = storage.fontSize || 28;
+    if (storage.opacity !== undefined) opacity = storage.opacity;
+    if (storage.fontSize !== undefined) fontSize = storage.fontSize;
+    if (storage.blacklist !== undefined) blacklist = storage.blacklist;
 
     // Update thisSite
     chrome.runtime.sendMessage("getUrl", function (response) {
@@ -92,16 +179,6 @@ function defineVideoController() {
         this.parent = target.parentElement || parent;
 
         this.div = this.initializeControls();
-
-        target.addEventListener(
-            "play",
-            (this.handlePlay = mediaEventAction.bind(this))
-        );
-
-        target.addEventListener(
-            "seeked",
-            (this.handleSeek = mediaEventAction.bind(this))
-        );
 
         var observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -192,7 +269,7 @@ function defineVideoController() {
                     </div>
                     <div class="display-box" style="margin-top: -10px">
                         <label class="display-label" for="display-range-2">Background:</label>
-                        <input class="slider" id="display-range-2" type="range" min="0" max="1" step="0.05" value="${controllerOpacity}">
+                        <input class="slider" id="display-range-2" type="range" min="0" max="1" step="0.05" value="${opacity}">
                     </div>
                 </div>
                 <div id="sync-content" class="section hide">
@@ -221,7 +298,7 @@ function defineVideoController() {
             <div id="bottom-space"></div>
         </div>
         <div id="controller" class="hide">
-            <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${controllerOpacity});">
+            <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${opacity});">
                 <button id="prev-button" class="subtitle-button">«</button>
                 <div id="subtitles">${subs[0].text}</div>
                 <button id="next-button" class="subtitle-button">»</button>
@@ -240,7 +317,7 @@ function defineVideoController() {
             "mousedown",
             (e) => {
                 if (!ctrlPressed) {
-                    runAction("drag", false, e);
+                    initiateDrag(e);
                     e.stopPropagation();
                 }
             },
@@ -440,14 +517,14 @@ function defineVideoController() {
 
                 // If space was pressed play/stop the video!
                 if (e.keyCode == 32) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
                     if (thisVideo.paused) {
                         thisVideo.play();
                     } else {
                         thisVideo.pause();
                     }
+
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
             }
         });
@@ -493,6 +570,7 @@ function defineVideoController() {
 
         // Hide video icon if necessary!
         this.video.addEventListener("play", function () {
+
             videoIconCount++;
             const thisCount = videoIconCount;
 
@@ -557,8 +635,8 @@ function defineVideoController() {
             const newOpacity = e.target.value;
             shadow.querySelector("#display-range-2").value = newOpacity;
             shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
-            controllerOpacity = newOpacity;
-            chrome.storage.sync.set({ controllerOpacity: newOpacity });
+            opacity = newOpacity;
+            chrome.storage.sync.set({ opacity: newOpacity });
         });
 
         shadow.querySelector("#sync-range").addEventListener("input", (e) => {
@@ -639,7 +717,7 @@ function defineVideoController() {
         // Settings the fontSize and opacity
         shadow.querySelector("#subtitles").style.fontSize = fontSize + "px";
         shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = fontSize + "px");
-        shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${controllerOpacity})`;
+        shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
 
         // Pausing the video when hovering on the subtitles
         shadow.querySelector("#subtitle-div").addEventListener("mouseenter", () => {
@@ -781,21 +859,6 @@ function defineVideoController() {
             reader.readAsText(file, 'ISO-8859-1');
         });
 
-        shadow.querySelectorAll("button").forEach(function (button) {
-            button.addEventListener(
-                "click",
-                (e) => {
-                    runAction(
-                        e.target.dataset["action"],
-                        getKeyBindings(e.target.dataset["action"]),
-                        e
-                    );
-                    e.stopPropagation();
-                },
-                true
-            );
-        });
-
         shadow
             .querySelector("#controller")
             .addEventListener("click", (e) => e.stopPropagation(), false);
@@ -837,24 +900,7 @@ function defineVideoController() {
     };
 }
 
-function escapeStringRegExp(str) {
-    matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
-    return str.replace(matchOperatorsRe, "\\$&");
-}
-
-var coolDown = false;
-
-function refreshCoolDown() {
-    if (coolDown) {
-        clearTimeout(coolDown);
-    }
-    coolDown = setTimeout(function () {
-        coolDown = false;
-    }, 1000);
-}
-
 function initializeWhenReady(document) {
-    console.log("1 initializing when ready");
     window.onload = () => {
         initializeNow(window.document);
     };
@@ -901,14 +947,16 @@ function getShadow(parent) {
 }
 
 function initializeNow(document) {
+    console.log("initializing now");
+    console.log("extensionOn", extensionOn);
     if (!extensionOn || blacklist[thisSite]) {
         return;
     }
-    console.log("5 one step further");
     // enforce init-once due to redundant callers
     if (!document.body || document.body.classList.contains("movie-subtitles-initialized")) {
         return;
     }
+
     document.body.classList.add("movie-subtitles-initialized");
 
     if (document === window.document) {
@@ -929,8 +977,6 @@ function initializeNow(document) {
         doc.addEventListener(
             "keydown",
             function (event) {
-                var keyCode = event.keyCode;
-
                 // Shortcuts and Text Highlighting
                 if (extensionOn) {
                     const key = event.key;
@@ -972,13 +1018,11 @@ function initializeNow(document) {
                     event.target.nodeName === "TEXTAREA" ||
                     event.target.isContentEditable
                 ) {
-                    // Ignore event if typing in an input box
                     return false;
                 }
 
                 // Ignore keydown event if typing in a page without vsc
                 if (!tc.mediaElements.length) {
-                    // Ignore event if typing in a page without vsc
                     return false;
                 }
 
@@ -1116,7 +1160,7 @@ function initializeNow(document) {
         subtree: true
     });
 
-    var mediaTags = document.querySelectorAll("video");
+    var mediaTags = document.querySelectorAll("video,audio");
 
     mediaTags.forEach(function (video) {
         video.vsc = new tc.videoController(video);
@@ -1134,7 +1178,7 @@ function initializeNow(document) {
     });
 }
 
-function runAction(action, value, e) {
+function initiateDrag(e) {
     var mediaTags = tc.mediaElements;
 
     // Get the controller that was used if called from a button press event e
@@ -1153,36 +1197,7 @@ function runAction(action, value, e) {
         showController(controller);
 
         if (!v.classList.contains("vsc-cancelled")) {
-            if (action === "display") {
-                controller.classList.add("vsc-manual");
-                controller.classList.toggle("vsc-hidden");
-            } else if (action === "blink") {
-                // if vsc is hidden, show it briefly to give the use visual feedback that the action is excuted.
-                if (
-                    controller.classList.contains("vsc-hidden") ||
-                    controller.blinkTimeOut !== undefined
-                ) {
-                    clearTimeout(controller.blinkTimeOut);
-                    controller.classList.remove("vsc-hidden");
-                    controller.blinkTimeOut = setTimeout(
-                        () => {
-                            controller.classList.add("vsc-hidden");
-                            controller.blinkTimeOut = undefined;
-                        },
-                        value ? value : 1000
-                    );
-                }
-            } else if (action === "drag") {
-                handleDrag(v, e);
-            } else if (action === "pause") {
-                pause(v);
-            } else if (action === "muted") {
-                muted(v);
-            } else if (action === "mark") {
-                setMark(v);
-            } else if (action === "jump") {
-                jumpToMark(v);
-            }
+            handleDrag(v, e);
         }
     });
 }
@@ -1192,20 +1207,6 @@ function pause(v) {
         v.play();
     } else {
         v.pause();
-    }
-}
-
-function muted(v) {
-    v.muted = v.muted !== true;
-}
-
-function setMark(v) {
-    v.vsc.mark = v.currentTime;
-}
-
-function jumpToMark(v) {
-    if (v.vsc.mark && typeof v.vsc.mark === "number") {
-        v.currentTime = v.vsc.mark;
     }
 }
 
@@ -1372,95 +1373,4 @@ function hideOrShowSubtitles() {
         subtitlesHidden = true;
         shadow.getElementById("controller").classList.add("hide");
     }
-}
-
-function buttonClicked(e) {
-    const action = e.currentTarget.myParam;
-
-    // Enables us to jump between sentences. Either to the next or to the previous sentence
-    if (subs.length > 1) {
-        const time = video.currentTime;
-        const firstPos = pos === 0;
-        const lastPos = pos === subs.length - 1;
-        const rangeNotValid = (firstPos && action < 0) || (lastPos && action > 0);
-
-        // Jump back to the start of the same sentence if the sentence has been played longer than one second.
-        if (action < 0 && time > subs[pos].start + 1) {
-            video.currentTime = subs[pos].start;
-
-            // Jump to the previous or next spot in the video as long as we stay in the correct range (we don't leave the subs array)
-        } else if (!rangeNotValid) {
-            video.currentTime = subs[pos + action].start;
-        }
-    }
-}
-
-function subtitleCalibrator(calibration, video, shadow) {
-    if (subs.length > 1) {
-        let offset = 0;
-
-        if (calibration.direction === "earlier") {
-            offset = calibration.offset * -1;
-        } else {
-            offset = calibration.offset;
-        }
-
-        // Calculate the new start and end times for the whole subtitle array
-        const calibratedSubs = [];
-        subs.forEach(elem => {
-            if (elem.music) {
-                calibratedSubs.push({
-                    start: elem.start + offset,
-                    end: elem.end + offset,
-                    text: elem.text,
-                    music: {
-                        text: elem.music.text,
-                        start: elem.music.start + offset,
-                        end: elem.music.end + offset
-                    }
-                });
-            } else {
-                calibratedSubs.push({ start: elem.start + offset, end: elem.end + offset, text: elem.text });
-            }
-        });
-
-        subs = calibratedSubs;
-
-        // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
-        if (video.paused) {
-            video.play();
-            video.pause();
-        }
-
-        // Display success message
-        shadow.querySelector("#synced").classList.remove("hide");
-
-        // Hide success message after 2 seconds
-        setTimeout(() => {
-            shadow.querySelector("#synced").classList.add("hide");
-        }, 3000);
-
-    } else {
-        // Display error message
-        shadow.querySelector("#not-synced").classList.remove("hide");
-
-        // Hide error message after 2 seconds
-        setTimeout(() => {
-            shadow.querySelector("#not-synced").classList.add("hide");
-        }, 6000);
-    }
-
-    handleMenuClose(video, shadow);
-}
-
-function timeInSeconds(time) {
-    const split = time.split(/:|,/);
-
-    const s1 = Number(split[0] * 60 * 60); // hours
-    const s2 = Number(split[1] * 60); // minutes
-    const s3 = Number(split[2]); // seconds
-    const s4 = split[3]; // milliseconds
-
-    const seconds = s1 + s2 + s3;
-    return seconds + "." + s4;
 }

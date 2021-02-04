@@ -734,13 +734,14 @@ function defineVideoController() {
             reader.onload = () => {
                 const srtFile = reader.result.split("\n");
                 const newSubs = [{ text: "" }];
+                const emptyLines = [];
                 const musicRegEx = new RegExp('♪');
                 let count = 0;
                 let type = null;
+                let previousTextWithoutHtml = { text: null, count: -1 };
 
                 for (let i = 0; i < srtFile.length; i++) {
-
-                    const line = srtFile[i].trim();
+                    const line = srtFile[i].trim().replace(/\n/g, "");
 
                     if (type === "time") {
                         type = "text";
@@ -753,7 +754,29 @@ function defineVideoController() {
                         newSubs[count].end = Number(end);
 
                     } else if (type === "text") {
-                        if (srtFile[i + 1] && !srtFile[i + 1].trim()) type = null;
+                        // If the next line is empty, set the type for the next i to null!
+                        if (i + 1 < srtFile.length) {
+                            const nextLineEmpty = !srtFile[i + 1].trim();
+                            if (nextLineEmpty) {
+                                type = null;
+                            }
+                        }
+
+                        // Removing html tags, because they do not count as text. 
+                        const textWithoutHtml = line.replace(/\<\/*.*?\>/g, "");
+                        // If this line doesn't contain word characters and the next line contains no text at all push "count" into the empty array so it can be removed later on
+                        if (!/\w/.test(textWithoutHtml) && type === null) {
+                            // If the current node has one line
+                            if (previousTextWithoutHtml.count !== count) {
+                                emptyLines.push(count);
+
+                                // If the current node has two lines or more
+                            } else if (!/\w/.test(previousTextWithoutHtml.text)) {
+                                // If the previous line has the same count and doesn't contain word characters either
+                                emptyLines.push(count);
+                            }
+                        }
+                        previousTextWithoutHtml = { text: textWithoutHtml, count: count };
 
                         newSubs[count].text += line + " ";
 
@@ -773,7 +796,13 @@ function defineVideoController() {
                     }
                 }
 
-                if (!newSubs[newSubs.length - 1].text) newSubs.pop();
+                // Delete all empty lines! We only want to keep lines that contain word characters!
+                for (let b = emptyLines.length - 1; b >= 0; b--) {
+                    newSubs.splice([emptyLines[b]], 1);
+                }
+
+                // Delete the last node in the subtitle array if it has no text
+                if (!newSubs[newSubs.length - 1].text.trim()) newSubs.pop();
 
                 // Adding "Skip Start" manually
                 if (newSubs[0].start > 5) {

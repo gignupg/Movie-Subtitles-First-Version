@@ -526,7 +526,7 @@ function defineVideoController() {
             shadow.getElementById("controller").classList.add("hide");
 
             setTimeout(() => {
-                // Position the subtitles correctly
+                // Reposition the subtitles correctly
                 const subLocation = subtitleLocation(thisSite, thisVideo);
                 shadow.getElementById("controller").style[subLocation.pos] = subLocation.offset;
 
@@ -534,16 +534,17 @@ function defineVideoController() {
                     shadow.getElementById("controller").classList.remove("hide");
                 }
 
-                if (thisVideo.clientWidth >= 1200) {
-                    // fullscreen, show big icon
-                    shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-38.png");
+                if (!menuOpen) {
+                    if (thisVideo.clientWidth >= 1200) {
+                        // fullscreen, show big icon
+                        shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-38.png");
 
-                } else {
-                    // small screen, show small icon
-                    shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
+                    } else {
+                        // small screen, show small icon
+                        shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
+                    }
+                    shadow.getElementById("video-icon").classList.remove("hide");
                 }
-                shadow.getElementById("video-icon").classList.remove("hide");
-
             }, 500);
         }
 

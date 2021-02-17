@@ -18,8 +18,10 @@ chrome.tabs.onActivated.addListener(function () {
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request === "getUrl") {
-            const hostname = sender.tab.url.replace(/^.*\/\//, "").replace(/\/.*/, "");
-            sendResponse({ url: hostname });
+            let thisSite = sender.tab.url.replace(/^.*\/\//, "").replace(/\/.*/, "");
+            if (!/^www/.test(thisSite)) thisSite = "www." + thisSite;
+
+            sendResponse({ url: thisSite });
         }
     }
 );

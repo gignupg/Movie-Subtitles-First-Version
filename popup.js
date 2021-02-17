@@ -68,7 +68,8 @@ function updatePopup() {
 
         // Update the blacklist switch
         chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-            const thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
+            let thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
+            if (!/^www/.test(thisSite)) thisSite = "www." + thisSite;
 
             // Turn the visual display of blacklist on/off
             if (blacklist[thisSite]) {
@@ -244,7 +245,8 @@ function $(selector, multiple = false) {
 function updateBlacklist() {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
         const addToList = $("#blacklist-switch").checked;
-        const thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
+        let thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
+        if (!/^www/.test(thisSite)) thisSite = "www." + thisSite;
 
         // Update list locally
         if (addToList) {

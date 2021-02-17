@@ -134,6 +134,14 @@ button:hover {
     background-color: yellowgreen;
 }
 
+#speed-indicator {
+    position: absolute;
+    top: 60px;
+    left: 10px;
+    color: white;
+    z-index: 99999999;
+}
+
 .sync-msg {
     display: inline-block;
     font-size: 16px;
@@ -175,13 +183,6 @@ button:hover {
     top: 15px;
     left: 15px;
     cursor: pointer;
-    z-index: 99999999;
-}
-
-#speed-indicator {
-    position: absolute;
-    top: 60px;
-    left: 10px;
     z-index: 99999999;
 }
 

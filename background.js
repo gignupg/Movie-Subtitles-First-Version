@@ -1,3 +1,9 @@
+// Necessary because if nothing is listening to the connect event from the content script
+// it will immediately disconnect. So we're preventing an immediate disconnect event being fired.
+chrome.runtime.onConnect.addListener(() => {
+    console.log("something connected");
+});
+
 // On tab change let the content script know
 chrome.tabs.onActivated.addListener(function () {
     chrome.storage.sync.get("enabled", storage => {
@@ -22,6 +28,9 @@ chrome.runtime.onMessage.addListener(
             if (!/^www/.test(thisSite)) thisSite = "www." + thisSite;
 
             sendResponse({ url: thisSite });
+
+        } else if (request === "backgroundRunning") {
+            sendResponse(true);
         }
     }
 );

@@ -1,4 +1,5 @@
 let extensionOn = true;
+let wrapper = null;
 let monitoring = false;
 let pausing = false;
 let forwardRewind = false;
@@ -20,6 +21,14 @@ let fontSize = 28;
 const red = "#C62828";
 const orange = "#f0653b";
 const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
+
+const backgroundPort = chrome.runtime.connect();
+backgroundPort.onDisconnect.addListener(() => {
+    // Immediately hiding the extension when disabled via the 
+    // extension page so that the user doesn't have to refresh the page. 
+    extensionOn = false;
+    wrapper.classList.add("vsc-nosource");
+});
 
 let shortcuts = {
     previous: "\u2190",
@@ -194,7 +203,7 @@ function defineVideoController() {
     tc.videoController.prototype.initializeControls = function () {
         const document = this.video.ownerDocument;
 
-        const wrapper = document.createElement("div");
+        wrapper = document.createElement("div");
         wrapper.classList.add("vsc-controller");
 
         if (!this.video.currentSrc) {
@@ -566,6 +575,9 @@ function defineVideoController() {
             setTimeout(() => {
                 hideVideoIcon(shadow, thisVideo, thisCount);
             }, 2900);
+
+            console.log("Execute backgroundRunning function");
+            console.log("After executing backgroundRunning function");
         });
 
         // Show video icon

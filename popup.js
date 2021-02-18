@@ -2,6 +2,10 @@ let extensionOn = true;
 let shortcuts = null;
 let blacklist = null;
 
+chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+    isContentScriptRunning(tab[0]);
+});
+
 const defaultShortcuts = {
     previous: "\u2190",
     next: "\u2192",
@@ -269,4 +273,26 @@ function updateBlacklist() {
         // Update chrome storage
         chrome.storage.sync.set({ blacklist: blacklist });
     });
+}
+
+function isContentScriptRunning(tab) {
+    let contentOn = null;
+
+    // send message to backgroundscript to see if it is enabled
+    chrome.tabs.sendMessage(tab.id, { action: "contentRunning" }, (response) => {
+        contentOn = response;
+    });
+
+    // After 1 second, if there is no response show the reload dialog
+    setTimeout(() => {
+        if (!contentOn) {
+            // Tell the user to reload the page!
+            let confirmation = confirm('To use Moive Subtitles please reload the page! Reload now?');
+            if (confirmation == true) {
+                chrome.tabs.reload(tab.id);
+            }
+
+            window.close();
+        }
+    }, 500);
 }

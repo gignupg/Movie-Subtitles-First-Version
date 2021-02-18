@@ -279,7 +279,7 @@ function isContentScriptRunning(tab) {
     let contentOn = null;
 
     // send message to backgroundscript to see if it is enabled
-    chrome.tabs.sendMessage(tab.id, { action: "contentRunning" }, (response) => {
+    chrome.tabs.sendMessage(tab.id, { contentRunning: "request" }, (response) => {
         contentOn = response;
     });
 

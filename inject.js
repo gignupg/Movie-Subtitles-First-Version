@@ -1286,7 +1286,10 @@ function showController(controller) {
 chrome.runtime.onMessage.addListener(processMessage);
 
 function processMessage(msg, sender, sendResponse) {
-    if (msg.show) {
+    if (msg.contentRunning) {
+        sendResponse(true);
+
+    } else if (msg.show) {
         const initialized = document.body.classList.contains("movie-subtitles-initialized");
         if (!initialized) {
             extensionOn = true;

@@ -1179,7 +1179,7 @@ function initializeNow(document) {
         subtree: true
     });
 
-    var mediaTags = document.querySelectorAll("video,audio");
+    var mediaTags = document.querySelectorAll("video");
 
     mediaTags.forEach(function (video) {
         video.vsc = new tc.videoController(video);

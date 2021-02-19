@@ -752,11 +752,14 @@ function defineVideoController() {
                 let count = 0;
                 let type = null;
                 let previousTextWithoutHtml = { text: null, count: -1 };
+                let prevLine = null;
 
                 for (let i = 0; i < srtFile.length; i++) {
                     const line = srtFile[i].trim().replace(/\n/g, "");
 
                     if (type === "time") {
+                        if (count >= newSubs.length) break;
+
                         type = "text";
                         const split = line.split(/ --> /);
                         const start = timeInSeconds(split[0]);
@@ -801,12 +804,19 @@ function defineVideoController() {
                         }
 
                     } else if (!line) {
-                        count++;
+                        if (i > 0 && !prevLine) {
+                            // Don't increase the count! It's just an empty line...
+
+                        } else {
+                            count++;
+                        }
 
                     } else if (!isNaN(line)) {
                         type = "time";
                         newSubs.push({ text: "" });
                     }
+
+                    prevLine = line;
                 }
 
                 // Delete all empty lines! We only want to keep lines that contain word characters!
@@ -865,7 +875,8 @@ function defineVideoController() {
 
                 // Display success message
                 shadow.querySelector("#loaded").classList.remove("hide");
-                // Hide success message after 2 seconds
+
+                // Hide success message after a few seconds
                 setTimeout(() => {
                     shadow.querySelector("#loaded").classList.add("hide");
                 }, 3000);

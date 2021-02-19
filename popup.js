@@ -285,7 +285,7 @@ function isContentScriptRunning(tab) {
 
     // After 1 second, if there is no response show the reload dialog
     setTimeout(() => {
-        if (!contentOn) {
+        if (!contentOn && (tab.url !== "chrome://extensions/" && tab.url !== "chrome://newtab/")) {
             // Tell the user to reload the page!
             let confirmation = confirm('To use Moive Subtitles please reload the page! Reload now?');
             if (confirmation == true) {

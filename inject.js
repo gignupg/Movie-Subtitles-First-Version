@@ -744,151 +744,7 @@ function defineVideoController() {
         shadow.getElementById("chooseFile").addEventListener("change", (e) => {
             const file = e.target.files[0];
             const reader = new FileReader;
-            reader.onload = () => {
-                const srtFile = reader.result.split("\n");
-                const newSubs = [{ text: "" }];
-                const emptyLines = [];
-                const musicRegEx = new RegExp('♪');
-                let count = 0;
-                let type = null;
-                let previousTextWithoutHtml = { text: null, count: -1 };
-                let prevLine = null;
-
-                for (let i = 0; i < srtFile.length; i++) {
-                    const line = srtFile[i].trim().replace(/\n/g, "");
-
-                    if (type === "time") {
-                        if (count >= newSubs.length) break;
-
-                        type = "text";
-                        const split = line.split(/ --> /);
-                        const start = timeInSeconds(split[0]);
-                        const end = timeInSeconds(split[1]);
-
-                        // Updating the object
-                        newSubs[count].start = Number(start);
-                        newSubs[count].end = Number(end);
-
-                    } else if (type === "text") {
-                        // If the next line is empty, set the type for the next i to null!
-                        if (i + 1 < srtFile.length) {
-                            const nextLineEmpty = !srtFile[i + 1].trim();
-                            if (nextLineEmpty) {
-                                type = null;
-                            }
-                        }
-
-                        // Removing html tags, because they do not count as text. 
-                        const textWithoutHtml = line.replace(/\<\/*.*?\>/g, "");
-                        // If this line doesn't contain word characters and the next line contains no text at all push "count" into the empty array so it can be removed later on
-                        if (!/\w/.test(textWithoutHtml) && type === null) {
-                            // If the current node has one line
-                            if (previousTextWithoutHtml.count !== count) {
-                                emptyLines.push(count);
-
-                                // If the current node has two lines or more
-                            } else if (!/\w/.test(previousTextWithoutHtml.text)) {
-                                // If the previous line has the same count and doesn't contain word characters either
-                                emptyLines.push(count);
-                            }
-                        }
-                        previousTextWithoutHtml = { text: textWithoutHtml, count: count };
-
-                        newSubs[count].text += line + " ";
-
-                        const music = musicRegEx.test(newSubs[count].text);
-
-                        // If it's music
-                        if (music) {
-                            newSubs[count].music = {};
-                        }
-
-                    } else if (!line) {
-                        if (i > 0 && !prevLine) {
-                            // Don't increase the count! It's just an empty line...
-
-                        } else {
-                            count++;
-                        }
-
-                    } else if (!isNaN(line)) {
-                        type = "time";
-                        newSubs.push({ text: "" });
-                    }
-
-                    prevLine = line;
-                }
-
-                // Delete all empty lines! We only want to keep lines that contain word characters!
-                for (let b = emptyLines.length - 1; b >= 0; b--) {
-                    newSubs.splice([emptyLines[b]], 1);
-                }
-
-                // Delete the last node in the subtitle array if it has no text
-                if (!newSubs[newSubs.length - 1].text.trim()) newSubs.pop();
-
-                // Adding "Skip Start" manually
-                if (newSubs[0].start > 5) {
-                    newSubs.unshift({ text: "Silence (" + Math.round(newSubs[0].start) + " seconds)", start: 0, end: newSubs[0].start });
-                }
-
-                // Adding "(end)" manually
-                const lastNode = newSubs[newSubs.length - 1];
-                lastNode.text = lastNode.text + "(end)";
-
-                // Adding "Skip silence" to our subtitle array (newSubs) and updating the music property
-                for (let i = 1; i < newSubs.length; i++) {
-                    // Adding silence
-                    const silence = newSubs[i].start - newSubs[i - 1].end;
-                    if (silence > 5) {
-                        newSubs.splice(i, 0, {
-                            text: "Silence (" + Math.round(silence) + " seconds)",
-                            start: newSubs[i - 1].end,
-                            end: newSubs[i].start
-                        });
-                    }
-
-                    // Adding music
-                    if (newSubs[i].music) {
-                        const music = newSubs[i].music;
-                        music.start = newSubs[i].start;
-
-                        // Find the end
-                        for (let j = i; j < newSubs.length; j++) {
-                            if (!newSubs[j].music) {
-                                music.end = newSubs[j].start;
-                                break;
-                            }
-                        }
-
-                        // If no end was found we must be at the end of the subtitle array
-                        if (!music.end) {
-                            music.end = newSubs[newSubs.length - 1].end;
-                        }
-
-                        music.text = "Music (" + (music.end - music.start).toFixed() + " seconds)";
-                    }
-                }
-
-                // Updating our active subtitle array (subs)
-                subs = newSubs;
-
-                // Display success message
-                shadow.querySelector("#loaded").classList.remove("hide");
-
-                // Hide success message after a few seconds
-                setTimeout(() => {
-                    shadow.querySelector("#loaded").classList.add("hide");
-                }, 3000);
-
-                // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
-                if (this.video.paused) {
-                    this.video.play();
-                    this.video.pause();
-                }
-            };
-
-            reader.readAsText(file, 'ISO-8859-1');
+            detectEncoding(file, reader, "UTF-8");
         });
 
         shadow
@@ -1405,5 +1261,167 @@ function hideOrShowSubtitles() {
     } else {
         subtitlesHidden = true;
         shadow.getElementById("controller").classList.add("hide");
+    }
+}
+
+function detectEncoding(file, reader, encoding) {
+    reader.onload = () => {
+        const srtFile = reader.result;
+        const encodingCorrect = !/�/.test(srtFile);
+
+        if (encodingCorrect) {
+            processSubtitles(srtFile.split("\n"));
+
+        } else if (encoding !== "ISO-8859-1") {
+            detectEncoding(file, reader, 'ISO-8859-1');
+
+        } else {
+            console.log("Sorry, the language of this subtitle file is not yet supported");
+        }
+    };
+
+    reader.readAsText(file, encoding);
+}
+
+function processSubtitles(srtFile) {
+    const newSubs = [{ text: "" }];
+    const emptyLines = [];
+    const musicRegEx = new RegExp('♪');
+    let count = 0;
+    let type = null;
+    let previousTextWithoutHtml = { text: null, count: -1 };
+    let prevLine = null;
+
+    for (let i = 0; i < srtFile.length; i++) {
+        const line = srtFile[i].trim().replace(/\n/g, "");
+
+        if (type === "time") {
+            if (count >= newSubs.length) break;
+
+            type = "text";
+            const split = line.split(/ --> /);
+            const start = timeInSeconds(split[0]);
+            const end = timeInSeconds(split[1]);
+
+            // Updating the object
+            newSubs[count].start = Number(start);
+            newSubs[count].end = Number(end);
+
+        } else if (type === "text") {
+            // If the next line is empty, set the type for the next i to null!
+            if (i + 1 < srtFile.length) {
+                const nextLineEmpty = !srtFile[i + 1].trim();
+                if (nextLineEmpty) {
+                    type = null;
+                }
+            }
+
+            // Removing html tags, because they do not count as text. 
+            const textWithoutHtml = line.replace(/\<\/*.*?\>/g, "");
+            // If this line doesn't contain word characters and the next line contains no text at all push "count" into the empty array so it can be removed later on
+            if (!/\w/.test(textWithoutHtml) && type === null) {
+                // If the current node has one line
+                if (previousTextWithoutHtml.count !== count) {
+                    emptyLines.push(count);
+
+                    // If the current node has two lines or more
+                } else if (!/\w/.test(previousTextWithoutHtml.text)) {
+                    // If the previous line has the same count and doesn't contain word characters either
+                    emptyLines.push(count);
+                }
+            }
+            previousTextWithoutHtml = { text: textWithoutHtml, count: count };
+
+            newSubs[count].text += line + " ";
+
+            const music = musicRegEx.test(newSubs[count].text);
+
+            // If it's music
+            if (music) {
+                newSubs[count].music = {};
+            }
+
+        } else if (!line) {
+            if (i > 0 && !prevLine) {
+                // Don't increase the count! It's just an empty line...
+
+            } else {
+                count++;
+            }
+
+        } else if (!isNaN(line)) {
+            type = "time";
+            newSubs.push({ text: "" });
+        }
+
+        prevLine = line;
+    }
+
+    // Delete all empty lines! We only want to keep lines that contain word characters!
+    for (let b = emptyLines.length - 1; b >= 0; b--) {
+        newSubs.splice([emptyLines[b]], 1);
+    }
+
+    // Delete the last node in the subtitle array if it has no text
+    if (!newSubs[newSubs.length - 1].text.trim()) newSubs.pop();
+
+    // Adding "Skip Start" manually
+    if (newSubs[0].start > 5) {
+        newSubs.unshift({ text: "Silence (" + Math.round(newSubs[0].start) + " seconds)", start: 0, end: newSubs[0].start });
+    }
+
+    // Adding "(end)" manually
+    const lastNode = newSubs[newSubs.length - 1];
+    lastNode.text = lastNode.text + "(end)";
+
+    // Adding "Skip silence" to our subtitle array (newSubs) and updating the music property
+    for (let i = 1; i < newSubs.length; i++) {
+        // Adding silence
+        const silence = newSubs[i].start - newSubs[i - 1].end;
+        if (silence > 5) {
+            newSubs.splice(i, 0, {
+                text: "Silence (" + Math.round(silence) + " seconds)",
+                start: newSubs[i - 1].end,
+                end: newSubs[i].start
+            });
+        }
+
+        // Adding music
+        if (newSubs[i].music) {
+            const music = newSubs[i].music;
+            music.start = newSubs[i].start;
+
+            // Find the end
+            for (let j = i; j < newSubs.length; j++) {
+                if (!newSubs[j].music) {
+                    music.end = newSubs[j].start;
+                    break;
+                }
+            }
+
+            // If no end was found we must be at the end of the subtitle array
+            if (!music.end) {
+                music.end = newSubs[newSubs.length - 1].end;
+            }
+
+            music.text = "Music (" + (music.end - music.start).toFixed() + " seconds)";
+        }
+    }
+
+    // Updating our active subtitle array (subs)
+    subs = newSubs;
+
+    // Display success message
+    shadow.querySelector("#loaded").classList.remove("hide");
+
+    // Hide success message after a few seconds
+    setTimeout(() => {
+        shadow.querySelector("#loaded").classList.add("hide");
+    }, 3000);
+
+    // If the video is paused, play it for just a millisecond, so the subtitles will display correctly
+    if (thisVideo.paused) {
+        thisVideo.play();
+        thisVideo.pause();
     }
 }

@@ -1,4 +1,5 @@
 let extensionOn = true;
+let exactUrl = window.location.href;
 let wrapper = null;
 let monitoring = false;
 let pausing = false;
@@ -314,11 +315,21 @@ function defineVideoController() {
 
         // Hiding the subtitle controller on youtube when loading another video without refreshing the page.
         // This is definitely not a perfect solution but it's the best I could come up with today. 
-        document.body.addEventListener("click", function (e) {
+        document.body.addEventListener("click", function () {
             if (!extensionOn || blacklist[thisSite]) {
                 setTimeout(() => {
                     wrapper.classList.add("vsc-nosource");
                 }, 1000);
+            }
+
+            // If the url changed, it means another video was loaded. 
+            const newUrl = window.location.href;
+            if (newUrl !== exactUrl) {
+                exactUrl = newUrl;
+                // Reset the subtitles
+                subs = [{ text: defaultSubtitles }];
+                shadow.querySelector("#subtitles").innerHTML = subs[0].text;
+                shadow.querySelector("#chooseFile").value = "";
             }
 
             disableHighlighting(shadow);
@@ -559,7 +570,6 @@ function defineVideoController() {
 
         // Hide video icon if necessary!
         this.video.addEventListener("play", function () {
-
             videoIconCount++;
             const thisCount = videoIconCount;
 
@@ -575,9 +585,6 @@ function defineVideoController() {
             setTimeout(() => {
                 hideVideoIcon(shadow, thisVideo, thisCount);
             }, 2900);
-
-            console.log("Execute backgroundRunning function");
-            console.log("After executing backgroundRunning function");
         });
 
         // Show video icon
@@ -742,6 +749,7 @@ function defineVideoController() {
 
         // Creating our subtitle array once an srt file is being uploaded
         shadow.getElementById("chooseFile").addEventListener("change", (e) => {
+            console.log("file changed");
             const file = e.target.files[0];
             const reader = new FileReader;
             detectEncoding(file, reader, "UTF-8");

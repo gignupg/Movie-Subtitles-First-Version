@@ -749,7 +749,6 @@ function defineVideoController() {
 
         // Creating our subtitle array once an srt file is being uploaded
         shadow.getElementById("chooseFile").addEventListener("change", (e) => {
-            console.log("file changed");
             const file = e.target.files[0];
             const reader = new FileReader;
             detectEncoding(file, reader, "UTF-8");
@@ -1275,13 +1274,62 @@ function hideOrShowSubtitles() {
 function detectEncoding(file, reader, encoding) {
     reader.onload = () => {
         const srtFile = reader.result;
-        const encodingCorrect = !/�/.test(srtFile);
 
-        if (encodingCorrect) {
+        if (encoding === "UTF-8") {  // English
+            console.log("utf");
+            const encodingCorrect = !/�/i.test(srtFile);
+
+            if (encodingCorrect) {
+                processSubtitles(srtFile.split("\n"));
+            } else {
+                detectEncoding(file, reader, "ISO-8859-1");
+            }
+
+        } else if (encoding === "ISO-8859-1") {  // European
+            console.log("iso");
+            const encodingCorrect = !/(å|\w³\w)/i.test(srtFile);    // å = Russian = cp1251 || \w³\w = Polish = cp1250
+
+            if (encodingCorrect) {
+                processSubtitles(srtFile.split("\n"));
+            } else {
+                detectEncoding(file, reader, "CP1251");
+            }
+
+        } else if (encoding === "CP1251") {  // Cyrillic
+            console.log("1251");
+            const encodingCorrect = !/Ї/i.test(srtFile);    // Ї = Polish = cp1250
+
+            if (encodingCorrect) {
+                processSubtitles(srtFile.split("\n"));
+            } else {
+                detectEncoding(file, reader, "CP1250");
+            }
+
+        } else if (encoding === "CP1250") {  // Polish
+            console.log("1250");
+            const encodingCorrect = !/ß/i.test(srtFile);    // ß = Arabic = cp1256
+
+            if (encodingCorrect) {
+                processSubtitles(srtFile.split("\n"));
+            } else {
+                detectEncoding(file, reader, "CP1256");
+            }
+
+        } else if (encoding === "CP1256") {  // Arabic
+            console.log("1256");
+
+            const encodingCorrect = !/ß/i.test(srtFile);    // ß = Arabic = cp1256
+
+            if (encodingCorrect) {
+                processSubtitles(srtFile.split("\n"));
+            } else {
+                detectEncoding(file, reader, "CP1255");
+            }
+
+        } else if (encoding === "CP1255") {  // Hebrew
+            console.log("1255");
+            console.log(srtFile);
             processSubtitles(srtFile.split("\n"));
-
-        } else if (encoding !== "ISO-8859-1") {
-            detectEncoding(file, reader, 'ISO-8859-1');
 
         } else {
             console.log("Sorry, the language of this subtitle file is not yet supported");
@@ -1327,13 +1375,13 @@ function processSubtitles(srtFile) {
             // Removing html tags, because they do not count as text. 
             const textWithoutHtml = line.replace(/\<\/*.*?\>/g, "");
             // If this line doesn't contain word characters and the next line contains no text at all push "count" into the empty array so it can be removed later on
-            if (!/\w/.test(textWithoutHtml) && type === null) {
+            if (!textWithoutHtml && type === null) {
                 // If the current node has one line
                 if (previousTextWithoutHtml.count !== count) {
                     emptyLines.push(count);
 
                     // If the current node has two lines or more
-                } else if (!/\w/.test(previousTextWithoutHtml.text)) {
+                } else if (!previousTextWithoutHtml.text) {
                     // If the previous line has the same count and doesn't contain word characters either
                     emptyLines.push(count);
                 }
@@ -1386,6 +1434,7 @@ function processSubtitles(srtFile) {
     for (let i = 1; i < newSubs.length; i++) {
         // Adding silence
         const silence = newSubs[i].start - newSubs[i - 1].end;
+
         if (silence > 5) {
             newSubs.splice(i, 0, {
                 text: "Silence (" + Math.round(silence) + " seconds)",

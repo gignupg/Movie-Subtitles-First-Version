@@ -1275,65 +1275,115 @@ function detectEncoding(file, reader, encoding) {
     reader.onload = () => {
         const srtFile = reader.result;
 
-        if (encoding === "UTF-8") {  // English
+        if (encoding === "UTF-8") {  // Any language
             console.log("utf");
-            const encodingCorrect = !/�/i.test(srtFile);
 
-            if (encodingCorrect) {
-                processSubtitles(srtFile.split("\n"));
-            } else {
-                detectEncoding(file, reader, "ISO-8859-1");
+
+            function text2Binary(string) {
+                return string.split('').map(function (char) {
+                    return char.charCodeAt(0).toString(2);
+                }).join(' ');
             }
 
-        } else if (encoding === "ISO-8859-1") {  // European
-            console.log("iso");
-            const encodingCorrect = !/(å|\w³\w)/i.test(srtFile);    // å = Russian = cp1251 || \w³\w = Polish = cp1250
+            console.log(text2Binary(srtFile));
 
-            if (encodingCorrect) {
-                processSubtitles(srtFile.split("\n"));
-            } else {
-                detectEncoding(file, reader, "CP1251");
-            }
+            // const encodingCorrect = !/�/i.test(srtFile);
 
-        } else if (encoding === "CP1251") {  // Cyrillic
-            console.log("1251");
-            const encodingCorrect = !/Ї/i.test(srtFile);    // Ї = Polish = cp1250
+            // if (encodingCorrect) {
+            //     processSubtitles(srtFile.split("\n"));
+            // } else {
+            //     detectEncoding(file, reader, "ISO-8859-1");
+            // }
 
-            if (encodingCorrect) {
-                processSubtitles(srtFile.split("\n"));
-            } else {
-                detectEncoding(file, reader, "CP1250");
-            }
+        } else {  // Latin languages
+            const languageCount = {
+                russian: 0,
+                polish: 0,
+                arabic: 0,
+                chineseSimple: 0,
+                chineseTrad: 0,
+                japanese: 0
+            };
 
-        } else if (encoding === "CP1250") {  // Polish
-            console.log("1250");
-            const encodingCorrect = !/ß/i.test(srtFile);    // ß = Arabic = cp1256
+            const srtSplit = srtFile.split("\n");
 
-            if (encodingCorrect) {
-                processSubtitles(srtFile.split("\n"));
-            } else {
-                detectEncoding(file, reader, "CP1256");
-            }
+            srtSplit.forEach(phrase => {
+                if (/÷òî/.test(phrase)) {
+                    languageCount.russian++;
+                }
+                if (/siê/.test(phrase)) {
+                    languageCount.polish++;
+                }
+                if (/åÐÇ/.test(phrase) || /åÇÑí/.test(phrase)) {
+                    languageCount.arabic++;
+                }
+                if (/ÔÚ/.test(phrase)) {
+                    languageCount.chineseSimple++;
+                }
+                if (/¦b/.test(phrase)) {
+                    languageCount.chineseTrad++;
+                }
+                if (/‚»/.test(phrase)) {
+                    languageCount.japanese++;
+                }
 
-        } else if (encoding === "CP1256") {  // Arabic
-            console.log("1256");
+            });
 
-            const encodingCorrect = !/ß/i.test(srtFile);    // ß = Arabic = cp1256
-
-            if (encodingCorrect) {
-                processSubtitles(srtFile.split("\n"));
-            } else {
-                detectEncoding(file, reader, "CP1255");
-            }
-
-        } else if (encoding === "CP1255") {  // Hebrew
-            console.log("1255");
-            console.log(srtFile);
+            console.log("languageCount", languageCount);
             processSubtitles(srtFile.split("\n"));
-
-        } else {
-            console.log("Sorry, the language of this subtitle file is not yet supported");
         }
+
+
+
+        // else if (encoding === "ISO-8859-1") {  // Latin
+        //     console.log("iso");
+        //     const encodingCorrect = !/(å|\w³\w)/i.test(srtFile);    // å = Russian = cp1251 || \w³\w = Polish = cp1250
+
+        //     if (encodingCorrect) {
+        //         processSubtitles(srtFile.split("\n"));
+        //     } else {
+        //         detectEncoding(file, reader, "CP1251");
+        //     }
+
+        // } else if (encoding === "CP1251") {  // Cyrillic
+        //     console.log("1251");
+        //     let encodingCorrect = !/Ї/i.test(srtFile);    // Ї = Polish = cp1250
+
+        //     if (encodingCorrect) {
+        //         processSubtitles(srtFile.split("\n"));
+        //     } else {
+        //         detectEncoding(file, reader, "CP1250");
+        //     }
+
+        // } else if (encoding === "CP1250") {  // Polish
+        //     console.log("1250");
+        //     const encodingCorrect = !/ß/i.test(srtFile);    // ß = Arabic = cp1256
+
+        //     if (encodingCorrect) {
+        //         processSubtitles(srtFile.split("\n"));
+        //     } else {
+        //         detectEncoding(file, reader, "CP1256");
+        //     }
+
+        // } else if (encoding === "CP1256") {  // Arabic
+        //     console.log("1256");
+        //     const encodingCorrect = !/ß/i.test(srtFile);    // ß = Arabic = cp1256
+
+        //     if (encodingCorrect) {
+        //         processSubtitles(srtFile.split("\n"));
+        //     } else {
+        //         detectEncoding(file, reader, "GB18030");
+        //     }
+
+        // } else if (encoding === "GB18030") {  // Chinese
+        //     console.log("GB18030");
+        //     processSubtitles(srtFile.split("\n"));
+
+        // } else {
+        //     console.log("Sorry, the language of this subtitle file is not yet supported");
+        // }
+
+
     };
 
     reader.readAsText(file, encoding);

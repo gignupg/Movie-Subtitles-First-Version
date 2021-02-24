@@ -1281,22 +1281,10 @@ function detectEncoding(file, reader, encoding) {
 
             for (let b = 0; b < srtFile.length; b++) {
                 // If � is encountered it's definitely not utf8!
-                if (srtFile[b] === "�") detectEncoding(file, reader, "ISO-8859-1");
-
-                const charCode = srtFile.charCodeAt(b);
-                const binLength = charCode.toString(2).length;
-
-                // Number of Bytes 1. Allowed format 0xxxxxxx
-                if (binLength > 0 && binLength <= 8 && charCode > 127) {
+                if (srtFile[b] === "�") {
                     utf8 = false;
                     break;
                 }
-
-                // Number of Bytes 2. Allowed format 110xxxxx 10xxxxxx
-
-                // Number of Bytes 3. Allowed format 1110xxxx 10xxxxxx 10xxxxxx
-
-                // Number of Bytes 4. Allowed format 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
             }
 
             if (utf8) {
@@ -1317,7 +1305,8 @@ function detectEncoding(file, reader, encoding) {
                 chineseTrad: 0,
                 japanese: 0,
                 english: 0,
-                french: 0
+                french: 0,
+                spaPort: 0
             };
 
             const srtSplit = srtFile.split("\n");
@@ -1328,6 +1317,9 @@ function detectEncoding(file, reader, encoding) {
                 }
                 if (/c'est/i.test(phrase)) {
                     languageCount.french++;
+                }
+                if (/está/i.test(phrase)) {
+                    languageCount.spaPort++;
                 }
                 if (/÷òî/i.test(phrase)) {
                     languageCount.russian++;
@@ -1357,6 +1349,8 @@ function detectEncoding(file, reader, encoding) {
             if (languageCount[detectedLang] > 0) {
                 switch (detectedLang) {
                     case "english":
+                    case "french":
+                    case "spaPort":
                         processSubtitles(srtFile.split("\n"));
                         break;
                     case "arabic":

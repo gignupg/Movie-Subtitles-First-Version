@@ -1316,14 +1316,18 @@ function detectEncoding(file, reader, encoding) {
                 chineseSimple: 0,
                 chineseTrad: 0,
                 japanese: 0,
-                english: 0
+                english: 0,
+                french: 0
             };
 
             const srtSplit = srtFile.split("\n");
 
             srtSplit.forEach(phrase => {
-                if (/and/i.test(phrase)) {
+                if (/\sthe\s/i.test(phrase)) {
                     languageCount.english++;
+                }
+                if (/c'est/i.test(phrase)) {
+                    languageCount.french++;
                 }
                 if (/÷òî/i.test(phrase)) {
                     languageCount.russian++;

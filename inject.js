@@ -1276,7 +1276,7 @@ function detectEncoding(file, reader, encoding) {
         const srtFile = reader.result;
 
         if (encoding === "UTF-8") {  // Any language
-            console.log("utf");
+            console.log("utf8");
             let utf8 = true;
 
             for (let b = 0; b < srtFile.length; b++) {
@@ -1289,6 +1289,7 @@ function detectEncoding(file, reader, encoding) {
 
             if (utf8) {
                 processSubtitles(srtFile.split("\n"));
+
             } else {
                 detectEncoding(file, reader, "ISO-8859-1");
             }
@@ -1305,13 +1306,19 @@ function detectEncoding(file, reader, encoding) {
                 italian: 0,
                 danishNorSwe: 0,
                 dutch: 0,
-                russian: 0,
                 polish: 0,
                 czech: 0,
+                hungarian: 0,
+                romanian: 0,
+                russian: 0,
+                greek: 0,
+                turkish: 0,
+                hebrew: 0,
                 arabic: 0,
                 chineseSimple: 0,
                 chineseTrad: 0,
-                japanese: 0
+                japanese: 0,
+                korean: 0
             };
 
             const srtSplit = srtFile.split("\n");
@@ -1323,7 +1330,7 @@ function detectEncoding(file, reader, encoding) {
                 if (/c'est/i.test(phrase)) {
                     languageCount.french++;
                 }
-                if (/está/i.test(phrase)) {
+                if (/está/i.test(phrase) || /\spor\s/i.test(phrase)) {
                     languageCount.spaPort++;
                 }
                 if (/\sdas\s/i.test(phrase)) {
@@ -1338,19 +1345,34 @@ function detectEncoding(file, reader, encoding) {
                 if (/\shet\s/i.test(phrase)) {
                     languageCount.dutch++;
                 }
-                if (/÷òî/i.test(phrase)) {
-                    languageCount.russian++;
-                }
                 if (/siê/i.test(phrase)) {
                     languageCount.polish++;
                 }
                 if (/jsem/i.test(phrase) || /jsi/i.test(phrase)) {
                     languageCount.czech++;
                 }
+                if (/\snem\s/i.test(phrase)) {
+                    languageCount.hungarian++;
+                }
+                if (/asta/i.test(phrase) || /sunt/i.test(phrase)) {
+                    languageCount.romanian++;
+                }
+                if (/÷òî/i.test(phrase)) {
+                    languageCount.russian++;
+                }
+                if (/åßíáé/i.test(phrase)) {
+                    languageCount.greek++;
+                }
+                if (/\sbir\s/i.test(phrase)) {
+                    languageCount.turkish++;
+                }
+                if (/àúä/i.test(phrase)) {
+                    languageCount.hebrew++;
+                }
                 if (/ãäç/i.test(phrase)) {
                     languageCount.arabic++;
                 }
-                if (/ÔÚ/i.test(phrase)) {
+                if (/Õâ/i.test(phrase)) {
                     languageCount.chineseSimple++;
                 }
                 if (/¦b/i.test(phrase)) {
@@ -1358,6 +1380,9 @@ function detectEncoding(file, reader, encoding) {
                 }
                 if (/‚»/i.test(phrase)) {
                     languageCount.japanese++;
+                }
+                if (/àö¾î/i.test(phrase) || /å¾ß/i.test(phrase) || /¡¼­/i.test(phrase)) {
+                    languageCount.korean++;
                 }
 
             });
@@ -1377,12 +1402,23 @@ function detectEncoding(file, reader, encoding) {
                     case "dutch":
                         processSubtitles(srtFile.split("\n"));
                         break;
+                    case "polish":
+                    case "czech":
+                    case "hungarian":
+                    case "romanian":
+                        detectEncoding(file, reader, "CP1250");
+                        break;
                     case "russian":
                         detectEncoding(file, reader, "CP1251");
                         break;
-                    case "polish":
-                    case "czech":
-                        detectEncoding(file, reader, "CP1250");
+                    case "greek":
+                        detectEncoding(file, reader, "CP1253");
+                        break;
+                    case "turkish":
+                        detectEncoding(file, reader, "CP1254");
+                        break;
+                    case "hebrew":
+                        detectEncoding(file, reader, "CP1255");
                         break;
                     case "arabic":
                         detectEncoding(file, reader, "CP1256");
@@ -1396,38 +1432,23 @@ function detectEncoding(file, reader, encoding) {
                     case "japanese":
                         detectEncoding(file, reader, "Shift-JIS");
                         break;
+                    case "korean":
+                        detectEncoding(file, reader, "EUC-KR");
+                        break;
                 }
+
             } else {
                 console.log("Please try another subtitle file! Make sure it ends with .srt");
             }
 
-        } else if (encoding === "CP1251") {  // Cyrillic
-            console.log("1251");
+        } else {  // Process and load the subtitles
+            console.log("encoding: ", encoding);
             processSubtitles(srtFile.split("\n"));
-
-        } else if (encoding === "CP1250") {  // Polish
-            console.log("1250");
-            processSubtitles(srtFile.split("\n"));
-
-        } else if (encoding === "CP1256") {  // Arabic
-            console.log("1256");
-            processSubtitles(srtFile.split("\n"));
-
-        } else if (encoding === "GB18030") {  // Chinese Simplified
-            console.log("GB18030");
-            processSubtitles(srtFile.split("\n"));
-
-        } else if (encoding === "BIG5") {  // Chinese Traditional
-            console.log("BIG5");
-            processSubtitles(srtFile.split("\n"));
-
-        } else {
-            console.log("Sorry, the language of this subtitle file is not yet supported");
         }
     };
 
     reader.readAsText(file, encoding);
-}
+};
 
 function processSubtitles(srtFile) {
     const newSubs = [{ text: "" }];

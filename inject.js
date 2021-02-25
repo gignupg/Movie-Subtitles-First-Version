@@ -1309,7 +1309,7 @@ function detectEncoding(file, reader, encoding) {
                 spaPort: 0,
                 german: 0,
                 italian: 0,
-                danish: 0,
+                danishNor: 0,
                 dutch: 0
             };
 
@@ -1332,7 +1332,7 @@ function detectEncoding(file, reader, encoding) {
                     languageCount.italian++;
                 }
                 if (/\sdet\s/i.test(phrase)) {
-                    languageCount.danish++;
+                    languageCount.danishNor++;
                 }
                 if (/\shet\s/i.test(phrase)) {
                     languageCount.dutch++;
@@ -1369,7 +1369,7 @@ function detectEncoding(file, reader, encoding) {
                     case "spaPort":
                     case "german":
                     case "italian":
-                    case "danish":
+                    case "danishNor":
                     case "dutch":
                         processSubtitles(srtFile.split("\n"));
                         break;

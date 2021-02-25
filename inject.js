@@ -1306,11 +1306,13 @@ function detectEncoding(file, reader, encoding) {
                 italian: 0,
                 danishNorSwe: 0,
                 dutch: 0,
+                finnish: 0,
                 polish: 0,
                 czech: 0,
                 hungarian: 0,
                 romanian: 0,
                 russian: 0,
+                ukrainian: 0,
                 greek: 0,
                 turkish: 0,
                 hebrew: 0,
@@ -1345,6 +1347,9 @@ function detectEncoding(file, reader, encoding) {
                 if (/\shet\s/i.test(phrase)) {
                     languageCount.dutch++;
                 }
+                if (/hän/i.test(phrase)) {
+                    languageCount.finnish++;
+                }
                 if (/siê/i.test(phrase)) {
                     languageCount.polish++;
                 }
@@ -1354,11 +1359,14 @@ function detectEncoding(file, reader, encoding) {
                 if (/\snem\s/i.test(phrase)) {
                     languageCount.hungarian++;
                 }
-                if (/asta/i.test(phrase) || /sunt/i.test(phrase)) {
+                if (/sunt/i.test(phrase) || /eºti/i.test(phrase)) {
                     languageCount.romanian++;
                 }
                 if (/÷òî/i.test(phrase)) {
                     languageCount.russian++;
+                }
+                if (/â³í/i.test(phrase) || /àëå/i.test(phrase)) {
+                    languageCount.ukrainian++;
                 }
                 if (/åßíáé/i.test(phrase)) {
                     languageCount.greek++;
@@ -1400,6 +1408,7 @@ function detectEncoding(file, reader, encoding) {
                     case "italian":
                     case "danishNorSwe":
                     case "dutch":
+                    case "finnish":
                         processSubtitles(srtFile.split("\n"));
                         break;
                     case "polish":
@@ -1409,6 +1418,7 @@ function detectEncoding(file, reader, encoding) {
                         detectEncoding(file, reader, "CP1250");
                         break;
                     case "russian":
+                    case "ukrainian":
                         detectEncoding(file, reader, "CP1251");
                         break;
                     case "greek":

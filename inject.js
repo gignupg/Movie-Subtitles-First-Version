@@ -1369,7 +1369,7 @@ function detectEncoding(file, reader, encoding) {
                 if (/àúä/i.test(phrase)) {
                     languageCount.hebrew++;
                 }
-                if (/ãäç/i.test(phrase)) {
+                if (/åðç/i.test(phrase)) {
                     languageCount.arabic++;
                 }
                 if (/Õâ/i.test(phrase)) {

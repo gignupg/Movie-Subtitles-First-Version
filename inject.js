@@ -1308,7 +1308,9 @@ function detectEncoding(file, reader, encoding) {
                 french: 0,
                 spaPort: 0,
                 german: 0,
-                italian: 0
+                italian: 0,
+                danish: 0,
+                dutch: 0
             };
 
             const srtSplit = srtFile.split("\n");
@@ -1328,6 +1330,12 @@ function detectEncoding(file, reader, encoding) {
                 }
                 if (/\sche/i.test(phrase)) {
                     languageCount.italian++;
+                }
+                if (/\sdet\s/i.test(phrase)) {
+                    languageCount.danish++;
+                }
+                if (/\shet\s/i.test(phrase)) {
+                    languageCount.dutch++;
                 }
                 if (/÷òî/i.test(phrase)) {
                     languageCount.russian++;
@@ -1361,6 +1369,8 @@ function detectEncoding(file, reader, encoding) {
                     case "spaPort":
                     case "german":
                     case "italian":
+                    case "danish":
+                    case "dutch":
                         processSubtitles(srtFile.split("\n"));
                         break;
                     case "arabic":

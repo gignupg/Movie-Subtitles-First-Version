@@ -1298,12 +1298,6 @@ function detectEncoding(file, reader, encoding) {
             // console.log(srtFile);
 
             const languageCount = {
-                russian: 0,
-                polish: 0,
-                arabic: 0,
-                chineseSimple: 0,
-                chineseTrad: 0,
-                japanese: 0,
                 english: 0,
                 french: 0,
                 spaPort: 0,
@@ -1311,7 +1305,13 @@ function detectEncoding(file, reader, encoding) {
                 italian: 0,
                 danishNorSwe: 0,
                 dutch: 0,
-                swedish: 0
+                russian: 0,
+                polish: 0,
+                czech: 0,
+                arabic: 0,
+                chineseSimple: 0,
+                chineseTrad: 0,
+                japanese: 0
             };
 
             const srtSplit = srtFile.split("\n");
@@ -1344,6 +1344,9 @@ function detectEncoding(file, reader, encoding) {
                 if (/siê/i.test(phrase)) {
                     languageCount.polish++;
                 }
+                if (/jsem/i.test(phrase) || /jsi/i.test(phrase)) {
+                    languageCount.czech++;
+                }
                 if (/ãäç/i.test(phrase)) {
                     languageCount.arabic++;
                 }
@@ -1374,6 +1377,13 @@ function detectEncoding(file, reader, encoding) {
                     case "dutch":
                         processSubtitles(srtFile.split("\n"));
                         break;
+                    case "russian":
+                        detectEncoding(file, reader, "CP1251");
+                        break;
+                    case "polish":
+                    case "czech":
+                        detectEncoding(file, reader, "CP1250");
+                        break;
                     case "arabic":
                         detectEncoding(file, reader, "CP1256");
                         break;
@@ -1385,12 +1395,6 @@ function detectEncoding(file, reader, encoding) {
                         break;
                     case "japanese":
                         detectEncoding(file, reader, "Shift-JIS");
-                        break;
-                    case "polish":
-                        detectEncoding(file, reader, "CP1250");
-                        break;
-                    case "russian":
-                        detectEncoding(file, reader, "CP1251");
                         break;
                 }
             } else {

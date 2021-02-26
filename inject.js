@@ -246,9 +246,9 @@ function defineVideoController() {
                         <div class="settings-button subtitle-search-button">Subtitle Search</div>
                         <label for="chooseFile" class="fileLabel settings-button subtitle-upload-button tooltip">
                             Load Subtitles from PC
-                            <span class="tooltiptext">Make sure the file format is .srt</span>
+                            <span class="tooltiptext">Make sure the file ending is either .srt, .txt or .sub!</span>
                         </label>
-                        <input id="chooseFile" type="file" accept=".srt"></input>
+                        <input id="chooseFile" type="file" accept=".srt, .txt, .sub"></input>
                     </div>
                 </div>
                 <div id="display-content" class="section hide">
@@ -1299,6 +1299,12 @@ function detectEncoding(file, reader, encoding) {
             // console.log(srtFile);
 
             const languageCount = {
+                polish: 0,
+                czech: 0,
+                hungarian: 0,
+                romanian: 0,
+                russian: 0,
+                ukrainian: 0,
                 english: 0,
                 french: 0,
                 spaPort: 0,
@@ -1307,12 +1313,7 @@ function detectEncoding(file, reader, encoding) {
                 danishNorSwe: 0,
                 dutch: 0,
                 finnish: 0,
-                polish: 0,
-                czech: 0,
-                hungarian: 0,
-                romanian: 0,
-                russian: 0,
-                ukrainian: 0,
+                croatian: 0,
                 greek: 0,
                 turkish: 0,
                 hebrew: 0,
@@ -1326,6 +1327,24 @@ function detectEncoding(file, reader, encoding) {
             const srtSplit = srtFile.split("\n");
 
             srtSplit.forEach(phrase => {
+                if (/siê/i.test(phrase)) {
+                    languageCount.polish++;
+                }
+                if (/jsem/i.test(phrase) || /jsi/i.test(phrase)) {
+                    languageCount.czech++;
+                }
+                if (/\snem\s/i.test(phrase)) {
+                    languageCount.hungarian++;
+                }
+                if (/sunt/i.test(phrase) || /eºti/i.test(phrase)) {
+                    languageCount.romanian++;
+                }
+                if (/÷òî/i.test(phrase)) {
+                    languageCount.russian++;
+                }
+                if (/â³í/i.test(phrase) || /àëå/i.test(phrase)) {
+                    languageCount.ukrainian++;
+                }
                 if (/\sthe\s/i.test(phrase)) {
                     languageCount.english++;
                 }
@@ -1350,23 +1369,8 @@ function detectEncoding(file, reader, encoding) {
                 if (/hän/i.test(phrase)) {
                     languageCount.finnish++;
                 }
-                if (/siê/i.test(phrase)) {
-                    languageCount.polish++;
-                }
-                if (/jsem/i.test(phrase) || /jsi/i.test(phrase)) {
-                    languageCount.czech++;
-                }
-                if (/\snem\s/i.test(phrase)) {
-                    languageCount.hungarian++;
-                }
-                if (/sunt/i.test(phrase) || /eºti/i.test(phrase)) {
-                    languageCount.romanian++;
-                }
-                if (/÷òî/i.test(phrase)) {
-                    languageCount.russian++;
-                }
-                if (/â³í/i.test(phrase) || /àëå/i.test(phrase)) {
-                    languageCount.ukrainian++;
+                if (/\ssam\s/i.test(phrase) || /kako/i.test(phrase)) {
+                    languageCount.croatian++;
                 }
                 if (/åßíáé/i.test(phrase)) {
                     languageCount.greek++;
@@ -1401,16 +1405,6 @@ function detectEncoding(file, reader, encoding) {
 
             if (languageCount[detectedLang] > 0) {
                 switch (detectedLang) {
-                    case "english":
-                    case "french":
-                    case "spaPort":
-                    case "german":
-                    case "italian":
-                    case "danishNorSwe":
-                    case "dutch":
-                    case "finnish":
-                        processSubtitles(srtFile.split("\n"));
-                        break;
                     case "polish":
                     case "czech":
                     case "hungarian":
@@ -1420,6 +1414,17 @@ function detectEncoding(file, reader, encoding) {
                     case "russian":
                     case "ukrainian":
                         detectEncoding(file, reader, "CP1251");
+                        break;
+                    case "english":
+                    case "french":
+                    case "spaPort":
+                    case "german":
+                    case "italian":
+                    case "danishNorSwe":
+                    case "dutch":
+                    case "finnish":
+                    case "croatian":
+                        detectEncoding(file, reader, "CP1252");
                         break;
                     case "greek":
                         detectEncoding(file, reader, "CP1253");

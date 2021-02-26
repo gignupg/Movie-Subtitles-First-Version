@@ -1303,6 +1303,8 @@ function detectEncoding(file, reader, encoding) {
                 czech: 0,
                 hungarian: 0,
                 romanian: 0,
+                slovak: 0,
+                slovenian: 0,
                 russian: 0,
                 ukrainian: 0,
                 english: 0,
@@ -1314,6 +1316,7 @@ function detectEncoding(file, reader, encoding) {
                 dutch: 0,
                 finnish: 0,
                 croatian: 0,
+                estonian: 0,
                 greek: 0,
                 turkish: 0,
                 hebrew: 0,
@@ -1338,6 +1341,12 @@ function detectEncoding(file, reader, encoding) {
                 }
                 if (/sunt/i.test(phrase) || /eºti/i.test(phrase)) {
                     languageCount.romanian++;
+                }
+                if (/\ssom\s/i.test(phrase)) {
+                    languageCount.slovak++;
+                }
+                if (/kaj/i.test(phrase)) {
+                    languageCount.slovenian++;
                 }
                 if (/÷òî/i.test(phrase)) {
                     languageCount.russian++;
@@ -1369,8 +1378,11 @@ function detectEncoding(file, reader, encoding) {
                 if (/hän/i.test(phrase)) {
                     languageCount.finnish++;
                 }
-                if (/\ssam\s/i.test(phrase) || /kako/i.test(phrase)) {
+                if (/\ssam\s/i.test(phrase) || /\skako\s/i.test(phrase)) {
                     languageCount.croatian++;
+                }
+                if (/see/i.test(phrase)) {
+                    languageCount.estonian++;
                 }
                 if (/åßíáé/i.test(phrase)) {
                     languageCount.greek++;
@@ -1409,6 +1421,8 @@ function detectEncoding(file, reader, encoding) {
                     case "czech":
                     case "hungarian":
                     case "romanian":
+                    case "slovak":
+                    case "slovenian":
                         detectEncoding(file, reader, "CP1250");
                         break;
                     case "russian":
@@ -1424,6 +1438,7 @@ function detectEncoding(file, reader, encoding) {
                     case "dutch":
                     case "finnish":
                     case "croatian":
+                    case "estonian":
                         detectEncoding(file, reader, "CP1252");
                         break;
                     case "greek":
@@ -1488,7 +1503,6 @@ function processSubtitles(content) {
         for (let i = 0; i < content.length; i++) {
             const line = content[i].trim().replace(/\n/g, "");
             const split = line.split(/[{}|]/g).filter(e => e);
-            if (i === 1) console.log(split);
 
             // Only lines that contain text! Empty lines will be skipped...
             if (split.length > 2) {
@@ -1587,8 +1601,6 @@ function processSubtitles(content) {
             prevLine = line;
         }
     }
-
-    console.log(newSubs);
 
     // Delete all empty lines! We only want to keep lines that contain word characters!
     for (let b = emptyLines.length - 1; b >= 0; b--) {

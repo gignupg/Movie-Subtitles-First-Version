@@ -1273,22 +1273,22 @@ function hideOrShowSubtitles() {
 
 function detectEncoding(file, reader, encoding) {
     reader.onload = () => {
-        const srtFile = reader.result;
+        const content = reader.result;
 
         if (encoding === "UTF-8") {  // Any language
             console.log("utf8");
             let utf8 = true;
 
-            for (let b = 0; b < srtFile.length; b++) {
+            for (let b = 0; b < content.length; b++) {
                 // If � is encountered it's definitely not utf8!
-                if (srtFile[b] === "�") {
+                if (content[b] === "�") {
                     utf8 = false;
                     break;
                 }
             }
 
             if (utf8) {
-                processSubtitles(srtFile.split("\n"));
+                processSubtitles(content.split("\n"));
 
             } else {
                 detectEncoding(file, reader, "ISO-8859-1");
@@ -1296,7 +1296,7 @@ function detectEncoding(file, reader, encoding) {
 
         } else if (encoding === "ISO-8859-1") {  // Detect the encoding. If it's a Latin language process the file otherwise pass in the correct encoding
             console.log("iso-8859");
-            // console.log(srtFile);
+            // console.log(content);
 
             const languageCount = {
                 polish: 0,
@@ -1324,7 +1324,7 @@ function detectEncoding(file, reader, encoding) {
                 korean: 0
             };
 
-            const srtSplit = srtFile.split("\n");
+            const srtSplit = content.split("\n");
 
             srtSplit.forEach(phrase => {
                 if (/siê/i.test(phrase)) {
@@ -1458,86 +1458,137 @@ function detectEncoding(file, reader, encoding) {
 
         } else {  // Process and load the subtitles
             console.log("encoding: ", encoding);
-            processSubtitles(srtFile.split("\n"));
+            processSubtitles(content.split("\n"));
         }
     };
 
     reader.readAsText(file, encoding);
 };
 
-function processSubtitles(srtFile) {
-    const newSubs = [{ text: "" }];
+function processSubtitles(content) {
+    const newSubs = [];
     const emptyLines = [];
     const musicRegEx = new RegExp('♪');
     let count = 0;
     let type = null;
     let previousTextWithoutHtml = { text: null, count: -1 };
     let prevLine = null;
+    let curlyBraces = 0;
 
-    for (let i = 0; i < srtFile.length; i++) {
-        const line = srtFile[i].trim().replace(/\n/g, "");
+    // Determine the subtitle format to choose the appropriate method for reading them!
+    for (let i = 50; i < 60; i++) {
+        const line = content[i].trim();
+        if (/{.*}{.*}/.test(line)) {
+            curlyBraces++;
+        }
+    }
 
-        if (type === "time") {
-            if (count >= newSubs.length) break;
+    // Use Method 1 to read the subtitles
+    if (curlyBraces >= 7) {
+        for (let i = 0; i < content.length; i++) {
+            const line = content[i].trim().replace(/\n/g, "");
+            const split = line.split(/[{}|]/g).filter(e => e);
+            if (i === 1) console.log(split);
 
-            type = "text";
-            const split = line.split(/ --> /);
-            const start = timeInSeconds(split[0]);
-            const end = timeInSeconds(split[1]);
+            // Only lines that contain text! Empty lines will be skipped...
+            if (split.length > 2) {
+                const start = split[0];
+                const end = split[1];
+                const formatting = split.some(elem => /y:/.test(elem));
+                const music = split.some(elem => musicRegEx.test(elem));
+                const text = split.reduce((acc, val) => /[{}\d\|(y:)]/g.test(val) ? acc : acc + " " + val, "").trim();
 
-            // Updating the object
-            newSubs[count].start = Number(start);
-            newSubs[count].end = Number(end);
+                if (text && start && end) {
+                    const node = {};
 
-        } else if (type === "text") {
-            // If the next line is empty, set the type for the next i to null!
-            if (i + 1 < srtFile.length) {
-                const nextLineEmpty = !srtFile[i + 1].trim();
-                if (nextLineEmpty) {
-                    type = null;
+                    // Make sure it's a number!
+                    node.start = Number((Number(start) / (24000 / 1001)).toFixed(3));  // 24000 / 1001 = 23.976 frame/s
+                    node.end = Number((Number(end) / (24000 / 1001)).toFixed(3));  // // 24000 / 1001 = 23.976 frame/s
+
+                    if (formatting) {
+                        const format = split.reduce((acc, val) => /y:/.test(val) ? val.replace(/y:/, "") : acc, "");
+                        node.text = `<${format}>${text}</${format}>`;
+                    } else {
+                        node.text = text;
+                    }
+
+                    if (music) node.music = {};
+
+                    newSubs.push(node);
                 }
             }
-
-            // Removing html tags, because they do not count as text. 
-            const textWithoutHtml = line.replace(/\<\/*.*?\>/g, "");
-            // If this line doesn't contain word characters and the next line contains no text at all push "count" into the empty array so it can be removed later on
-            if (!textWithoutHtml && type === null) {
-                // If the current node has one line
-                if (previousTextWithoutHtml.count !== count) {
-                    emptyLines.push(count);
-
-                    // If the current node has two lines or more
-                } else if (!previousTextWithoutHtml.text) {
-                    // If the previous line has the same count and doesn't contain word characters either
-                    emptyLines.push(count);
-                }
-            }
-            previousTextWithoutHtml = { text: textWithoutHtml, count: count };
-
-            newSubs[count].text += line + " ";
-
-            const music = musicRegEx.test(newSubs[count].text);
-
-            // If it's music
-            if (music) {
-                newSubs[count].music = {};
-            }
-
-        } else if (!line) {
-            if (i > 0 && !prevLine) {
-                // Don't increase the count! It's just an empty line...
-
-            } else {
-                count++;
-            }
-
-        } else if (!isNaN(line)) {
-            type = "time";
-            newSubs.push({ text: "" });
         }
 
-        prevLine = line;
+        // Use Method 2 to read the subtitles
+    } else {
+        newSubs.push({ text: "" });
+        for (let i = 0; i < content.length; i++) {
+            const line = content[i].trim().replace(/\n/g, "");
+
+            if (type === "time") {
+                if (count >= newSubs.length) break;
+
+                type = "text";
+                const split = line.split(/ --> /);
+                const start = timeInSeconds(split[0]);
+                const end = timeInSeconds(split[1]);
+
+                // Updating the object
+                newSubs[count].start = Number(start);
+                newSubs[count].end = Number(end);
+
+            } else if (type === "text") {
+                // If the next line is empty, set the type for the next i to null!
+                if (i + 1 < content.length) {
+                    const nextLineEmpty = !content[i + 1].trim();
+                    if (nextLineEmpty) {
+                        type = null;
+                    }
+                }
+
+                // Removing html tags, because they do not count as text. 
+                const textWithoutHtml = line.replace(/\<\/*.*?\>/g, "");
+                // If this line doesn't contain word characters and the next line contains no text at all push "count" into the empty array so it can be removed later on
+                if (!textWithoutHtml && type === null) {
+                    // If the current node has one line
+                    if (previousTextWithoutHtml.count !== count) {
+                        emptyLines.push(count);
+
+                        // If the current node has two lines or more
+                    } else if (!previousTextWithoutHtml.text) {
+                        // If the previous line has the same count and doesn't contain word characters either
+                        emptyLines.push(count);
+                    }
+                }
+                previousTextWithoutHtml = { text: textWithoutHtml, count: count };
+
+                newSubs[count].text += line + " ";
+
+                const music = musicRegEx.test(newSubs[count].text);
+
+                // If it's music
+                if (music) {
+                    newSubs[count].music = {};
+                }
+
+            } else if (!line) {
+                if (i > 0 && !prevLine) {
+                    // Don't increase the count! It's just an empty line...
+
+                } else {
+                    count++;
+                }
+
+            } else if (!isNaN(line)) {
+                type = "time";
+                newSubs.push({ text: "" });
+            }
+
+            prevLine = line;
+        }
     }
+
+    console.log(newSubs);
 
     // Delete all empty lines! We only want to keep lines that contain word characters!
     for (let b = emptyLines.length - 1; b >= 0; b--) {

@@ -1305,8 +1305,10 @@ function detectEncoding(file, reader, encoding) {
                 romanian: 0,
                 slovak: 0,
                 slovenian: 0,
+                albanian: 0,
                 russian: 0,
                 ukrainian: 0,
+                bulgarian: 0,
                 english: 0,
                 french: 0,
                 spaPort: 0,
@@ -1315,7 +1317,7 @@ function detectEncoding(file, reader, encoding) {
                 danishNorSwe: 0,
                 dutch: 0,
                 finnish: 0,
-                croatian: 0,
+                croatianSerbBos: 0,
                 estonian: 0,
                 greek: 0,
                 turkish: 0,
@@ -1348,11 +1350,17 @@ function detectEncoding(file, reader, encoding) {
                 if (/kaj/i.test(phrase)) {
                     languageCount.slovenian++;
                 }
+                if (/nuk/i.test(phrase)) {
+                    languageCount.albanian++;
+                }
                 if (/÷òî/i.test(phrase)) {
                     languageCount.russian++;
                 }
                 if (/â³í/i.test(phrase) || /àëå/i.test(phrase)) {
                     languageCount.ukrainian++;
+                }
+                if (/òîâà/i.test(phrase) || /äîáðå/i.test(phrase) || /êaêâo/i.test(phrase)) {
+                    languageCount.bulgarian++;
                 }
                 if (/\sthe\s/i.test(phrase)) {
                     languageCount.english++;
@@ -1379,7 +1387,7 @@ function detectEncoding(file, reader, encoding) {
                     languageCount.finnish++;
                 }
                 if (/\ssam\s/i.test(phrase) || /\skako\s/i.test(phrase)) {
-                    languageCount.croatian++;
+                    languageCount.croatianSerbBos++;
                 }
                 if (/see/i.test(phrase)) {
                     languageCount.estonian++;
@@ -1423,10 +1431,12 @@ function detectEncoding(file, reader, encoding) {
                     case "romanian":
                     case "slovak":
                     case "slovenian":
+                    case "albanian":
                         detectEncoding(file, reader, "CP1250");
                         break;
                     case "russian":
                     case "ukrainian":
+                    case "bulgarian":
                         detectEncoding(file, reader, "CP1251");
                         break;
                     case "english":
@@ -1437,7 +1447,7 @@ function detectEncoding(file, reader, encoding) {
                     case "danishNorSwe":
                     case "dutch":
                     case "finnish":
-                    case "croatian":
+                    case "croatianSerbBos":
                     case "estonian":
                         detectEncoding(file, reader, "CP1252");
                         break;

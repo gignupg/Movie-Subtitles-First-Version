@@ -1326,7 +1326,8 @@ function detectEncoding(file, reader, encoding) {
                 chineseSimple: 0,
                 chineseTrad: 0,
                 japanese: 0,
-                korean: 0
+                korean: 0,
+                thai: 0
             };
 
             const srtSplit = content.split("\n");
@@ -1404,7 +1405,7 @@ function detectEncoding(file, reader, encoding) {
                 if (/åðç/i.test(phrase)) {
                     languageCount.arabic++;
                 }
-                if (/Õâ/i.test(phrase)) {
+                if (/¶¼/i.test(phrase) || /¹ý/i.test(phrase) || /¸ø/i.test(phrase)) {
                     languageCount.chineseSimple++;
                 }
                 if (/¦b/i.test(phrase)) {
@@ -1415,6 +1416,9 @@ function detectEncoding(file, reader, encoding) {
                 }
                 if (/àö¾î/i.test(phrase) || /å¾ß/i.test(phrase) || /¡¼­/i.test(phrase)) {
                     languageCount.korean++;
+                }
+                if (/áîãìãõè/i.test(phrase) || /¾íµàµíãì/i.test(phrase)) {
+                    languageCount.thai++;
                 }
 
             });
@@ -1474,6 +1478,9 @@ function detectEncoding(file, reader, encoding) {
                         break;
                     case "korean":
                         detectEncoding(file, reader, "EUC-KR");
+                        break;
+                    case "thai":
+                        detectEncoding(file, reader, "TIS-620");
                         break;
                 }
 

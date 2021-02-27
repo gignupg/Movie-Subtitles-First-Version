@@ -4,19 +4,24 @@ chrome.runtime.onConnect.addListener(() => {
     console.log("something connected");
 });
 
-// On tab change let the content script know
+// On tab switch let the content script know
 chrome.tabs.onActivated.addListener(function () {
     chrome.storage.sync.get("enabled", storage => {
         let extensionOn = true;
         if (storage.enabled !== undefined) extensionOn = storage.enabled;
 
-        if (extensionOn) {
-            // Reloading the shadow dom
-            messageContentScript({ show: true });
-        } else {
-            // Unloading the shadow dom!
-            messageContentScript({ hide: true });
-        }
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+            let thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
+            if (!/^www/.test(thisSite)) thisSite = "www." + thisSite;
+
+            if (extensionOn && !blacklist[thisSite]) {
+                // Reloading the shadow dom
+                chrome.tabs.sendMessage(tab[0].id, { show: true });
+            } else {
+                // Unloading the shadow dom!
+                chrome.tabs.sendMessage(tab[0].id, { hide: true });
+            }
+        });
     });
 });
 

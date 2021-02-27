@@ -330,6 +330,9 @@ function defineVideoController() {
                 subs = [{ text: defaultSubtitles }];
                 shadow.querySelector("#subtitles").innerHTML = subs[0].text;
                 shadow.querySelector("#chooseFile").value = "";
+
+                // Make sure the subtitles are being placed correctly! Definitely don't omit this step on Youtube!
+                subtitlePlacer();
             }
 
             disableHighlighting(shadow);

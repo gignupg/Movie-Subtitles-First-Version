@@ -1276,7 +1276,6 @@ function detectEncoding(file, reader, encoding) {
         const content = reader.result;
 
         if (encoding === "UTF-8") {  // Any language
-            console.log("utf8");
             let utf8 = true;
 
             for (let b = 0; b < content.length; b++) {
@@ -1295,9 +1294,6 @@ function detectEncoding(file, reader, encoding) {
             }
 
         } else if (encoding === "ISO-8859-1") {  // Detect the encoding. If it's a Latin language process the file otherwise pass in the correct encoding
-            console.log("iso-8859");
-            // console.log(content);
-
             const languageCount = {
                 polish: 0,
                 czech: 0,
@@ -1319,6 +1315,8 @@ function detectEncoding(file, reader, encoding) {
                 finnish: 0,
                 croatianSerbBos: 0,
                 estonian: 0,
+                icelandic: 0,
+                indonesian: 0,
                 greek: 0,
                 turkish: 0,
                 hebrew: 0,
@@ -1345,7 +1343,7 @@ function detectEncoding(file, reader, encoding) {
                 if (/sunt/i.test(phrase) || /eºti/i.test(phrase)) {
                     languageCount.romanian++;
                 }
-                if (/\ssom\s/i.test(phrase)) {
+                if (/\sako\s/i.test(phrase) || /poriadku/i.test(phrase) || /myslím/i.test(phrase)) {
                     languageCount.slovak++;
                 }
                 if (/kaj/i.test(phrase)) {
@@ -1393,6 +1391,12 @@ function detectEncoding(file, reader, encoding) {
                 if (/see/i.test(phrase)) {
                     languageCount.estonian++;
                 }
+                if (/Það/i.test(phrase)) {
+                    languageCount.icelandic++;
+                }
+                if (/tidak/i.test(phrase)) {
+                    languageCount.indonesian++;
+                }
                 if (/åßíáé/i.test(phrase)) {
                     languageCount.greek++;
                 }
@@ -1405,7 +1409,7 @@ function detectEncoding(file, reader, encoding) {
                 if (/åðç/i.test(phrase)) {
                     languageCount.arabic++;
                 }
-                if (/¶¼/i.test(phrase) || /¹ý/i.test(phrase) || /¸ø/i.test(phrase)) {
+                if (/´ó/i.test(phrase) || /¶¯/i.test(phrase) || /Å®/i.test(phrase)) {
                     languageCount.chineseSimple++;
                 }
                 if (/¦b/i.test(phrase)) {
@@ -1422,8 +1426,6 @@ function detectEncoding(file, reader, encoding) {
                 }
 
             });
-
-            console.log(languageCount);
 
             const detectedLang = Object.keys(languageCount).reduce((a, b) => languageCount[a] > languageCount[b] ? a : b);
 
@@ -1453,6 +1455,8 @@ function detectEncoding(file, reader, encoding) {
                     case "finnish":
                     case "croatianSerbBos":
                     case "estonian":
+                    case "icelandic":
+                    case "indonesian":
                         detectEncoding(file, reader, "CP1252");
                         break;
                     case "greek":
@@ -1489,7 +1493,6 @@ function detectEncoding(file, reader, encoding) {
             }
 
         } else {  // Process and load the subtitles
-            console.log("encoding: ", encoding);
             processSubtitles(content.split("\n"));
         }
     };

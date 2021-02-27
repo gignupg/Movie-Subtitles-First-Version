@@ -48,6 +48,7 @@ function toggleExtensionOnOff() {
     extensionOn = !extensionOn;
     updatePopup();
     chrome.storage.sync.set({ enabled: extensionOn });
+    updateSubtitleDisplay();
 }
 
 function updatePopup() {
@@ -86,9 +87,6 @@ function updatePopup() {
             }
         });
 
-        // Reloading the shadow dom
-        messageContentScript({ show: true, blacklist: blacklist });
-
     } else {
         // Hide the popup settings
         $("#settings").classList.add("hide");
@@ -96,9 +94,6 @@ function updatePopup() {
         // Changing the hover color of the power button
         $(".power-button").classList.remove("turn-off");
         $(".power-button").classList.add("turn-on");
-
-        // Unloading the shadow dom!
-        messageContentScript({ hide: true, blacklist: blacklist });
     }
 }
 
@@ -295,4 +290,19 @@ function isContentScriptRunning(tab) {
             window.close();
         }
     }, 500);
+}
+
+function updateSubtitleDisplay() {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+        let thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
+        if (!/^www/.test(thisSite)) thisSite = "www." + thisSite;
+
+        if (extensionOn && !blacklist[thisSite]) {
+            // Reloading the shadow dom
+            chrome.tabs.sendMessage(tab[0].id, { show: true });
+        } else {
+            // Unloading the shadow dom!
+            chrome.tabs.sendMessage(tab[0].id, { hide: true });
+        }
+    });
 }

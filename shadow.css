@@ -4,6 +4,7 @@
     --orange: #f0653b;
     --active-orange: #ff754b;
     --active-grey: rgb(211, 210, 210);
+    --menu-font-size: 17px;
 }
 
 i {
@@ -70,10 +71,10 @@ p {
 #settings-body {
     display: flex;
     margin-top: 10px;
-    font-size: 14px;
+    font-size: var(--menu-font-size);
 }
 
-.settings-item {
+.settings-header-item {
     margin: 10px;
 }
 
@@ -207,6 +208,7 @@ button:hover {
 }
 
 .menu-item {
+    font-size: var(--menu-font-size);
     padding: 10px 15px 10px 30px;
     border-right: 1px solid rgb(189, 189, 189);
     cursor: pointer;
@@ -228,7 +230,7 @@ button:hover {
     text-align: center;
     padding: 8px 16px;
     margin: 10px;
-    font-size: 16px;
+    font-size: var(--menu-font-size);
     font-weight: 600;
     border-radius: 5px;
     box-shadow: 3px 3px 10px rgb(136, 136, 136);
@@ -282,7 +284,7 @@ button:hover {
 }
 
 .display-label {
-    font-size: 17px;
+    font-size: var(--menu-font-size);
 }
 
 .display-box {
@@ -378,6 +380,10 @@ button:hover {
     align-items: center;
 }
 
+.sync-style {
+    font-size: var(--menu-font-size);
+}
+
 #subtitle-sync-button {
     width: 100%;
     padding-left: 0;
@@ -409,7 +415,7 @@ button:hover {
     border: none;
     width: 45px;
     margin-left: 32px;
-    font-size: 16px;
+    font-size: var(--menu-font-size);
 }
 
 .sync-input:focus {
@@ -424,7 +430,7 @@ button:hover {
     border: none;
     outline: none;
     color: #ee5122;
-    font-size: 17px;
+    font-size: var(--menu-font-size);
     font-weight: 600;
     cursor: pointer;
 }
@@ -444,4 +450,97 @@ option {
 
 .text-cursor {
     cursor: text;
+}
+
+@media screen and (max-width: 1024px) {
+    * {
+        --menu-font-size: 14px;
+    }
+    #settings-wrapper {
+      max-width: 500px;
+    }
+    #settings-title {
+        font-size: 19px;
+    }
+    .menu-item {
+        padding: 7px 10px 7px 20px;
+    }
+    .settings-button {
+        padding: 6px 12px;
+        margin: 8px;
+    }
+    #settings-spacer {
+        height: 10px;
+    }
+    #settings-close {
+        font-size: 25px;
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    * {
+        --menu-font-size: 26px;
+    }
+    #settings-wrapper {
+      max-width: 800px;
+    }
+    #settings-title {
+        font-size: 33px;
+    }
+    .menu-item {
+        padding: 20px 30px 20px 40px;
+    }
+    .settings-button {
+        padding: 12px 24px;
+        margin: 16px;
+    }
+    #settings-spacer {
+        height: 30px;
+    }
+    #settings-close {
+        font-size: 45px;
+        margin-top: 5px;
+    }
+    .settings-header-item {
+        margin: 20px;
+    }
+    .slider {
+        width: 250px;
+        --range-size: 20px;
+        height: 4px;
+    }
+}
+
+@media screen and (min-width: 2304px) {
+    * {
+        --menu-font-size: 34px;
+    }
+    #settings-wrapper {
+      max-width: 1100px;
+    }
+    #settings-title {
+        font-size: 48px;
+    }
+    .menu-item {
+        padding: 30px 45px 30px 60px;
+    }
+    .settings-button {
+        padding: 15px 30px;
+        margin: 20px;
+    }
+    #settings-spacer {
+        height: 40px;
+    }
+    #settings-close {
+        font-size: 55px;
+        margin-top: 10px;
+    }
+    .settings-header-item {
+        margin: 30px;
+    }
+    .slider {
+        width: 300px;
+        --range-size: 27px;
+        height: 5px;
+    }
 }

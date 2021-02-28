@@ -37,6 +37,12 @@ const videoIcon = {
         bigIcon: chrome.runtime.getURL("icons/movie-subtitles-96.png")
     }
 };
+const menuIcon = {
+    small: chrome.runtime.getURL("icons/movie-subtitles-24.png"),
+    medium: chrome.runtime.getURL("icons/movie-subtitles-28.png"),
+    large: chrome.runtime.getURL("icons/movie-subtitles-48.png"),
+    XL: chrome.runtime.getURL("icons/movie-subtitles-64.png")
+};
 let extensionOn = true;
 let exactUrl = window.location.href;
 let wrapper = null;
@@ -263,10 +269,10 @@ function defineVideoController() {
         <div id="speed-indicator" class="hide sync-msg"></div>
         <div id="settings-wrapper" class="hide">
             <div id="settings-header">
-                <div id="settings-close" class="settings-item">&times;</div>
-                <div id="settings-title" class="settings-item">Subtitle Options</div>
-                <div class="settings-item">
-                    <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="settings-icon"/>
+                <div id="settings-close" class="settings-header-item">&times;</div>
+                <div id="settings-title" class="settings-header-item">Subtitle Options</div>
+                <div class="settings-header-item">
+                    <img src="${menuIcon[screenSize]}" alt="Logo" class="logo" id="settings-icon"/>
                 </div>
             </div>
             <div id="settings-spacer"></div>
@@ -298,7 +304,7 @@ function defineVideoController() {
                 </div>
                 <div id="sync-content" class="section hide">
                     <div id="sync-box">
-                        <div style="font-size: 17px;">
+                        <div class="sync-style">
                             Display subtitles 
                             <input
                             type="number"

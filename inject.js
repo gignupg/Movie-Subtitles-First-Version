@@ -1,3 +1,42 @@
+const screenSize = getScreenSize();
+const red = "#C62828";
+const orange = "#f0653b";
+const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
+const subtitleFontSizes = {
+    small: { min: 1, value: 20, max: 39 },
+    medium: { min: 2, value: 28, max: 54 },
+    large: { min: 3, value: 38, max: 73 },
+    XL: { min: 10, value: 60, max: 110 }
+};
+const fontSize = {
+    val: subtitleFontSizes[screenSize].value,
+    min: subtitleFontSizes[screenSize].min,
+    max: subtitleFontSizes[screenSize].max
+};
+const iconThreshold = {
+    small: 768,
+    medium: 1024,
+    large: 1440,
+    XL: 1920
+};
+const videoIcon = {
+    small: {
+        smallIcon: chrome.runtime.getURL("icons/movie-subtitles-19.png"),
+        bigIcon: chrome.runtime.getURL("icons/movie-subtitles-28.png")
+    },
+    medium: {
+        smallIcon: chrome.runtime.getURL("icons/movie-subtitles-28.png"),
+        bigIcon: chrome.runtime.getURL("icons/movie-subtitles-38.png")
+    },
+    large: {
+        smallIcon: chrome.runtime.getURL("icons/movie-subtitles-48.png"),
+        bigIcon: chrome.runtime.getURL("icons/movie-subtitles-64.png")
+    },
+    XL: {
+        smallIcon: chrome.runtime.getURL("icons/movie-subtitles-64.png"),
+        bigIcon: chrome.runtime.getURL("icons/movie-subtitles-96.png")
+    }
+};
 let extensionOn = true;
 let exactUrl = window.location.href;
 let wrapper = null;
@@ -18,10 +57,6 @@ let thisSite = null;
 let lastTimeExtClicked = {};
 let recentlyForcedPlayback = null;
 let opacity = 0.5;
-let fontSize = 28;
-const red = "#C62828";
-const orange = "#f0653b";
-const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
 
 const backgroundPort = chrome.runtime.connect();
 backgroundPort.onDisconnect.addListener(() => {
@@ -134,7 +169,7 @@ chrome.storage.sync.get(null, function (storage) {
     if (storage.shortcuts !== undefined) extensionOn = storage.enabled;
     if (storage.shortcuts !== undefined) shortcuts = storage.shortcuts;
     if (storage.opacity !== undefined) opacity = storage.opacity;
-    if (storage.fontSize !== undefined) fontSize = storage.fontSize;
+    if (storage.fontSize !== undefined && storage.fontSize[screenSize] !== undefined) fontSize.val = storage.fontSize[screenSize];
     if (storage.blacklist !== undefined) blacklist = storage.blacklist;
 
     // Update thisSite
@@ -254,7 +289,7 @@ function defineVideoController() {
                 <div id="display-content" class="section hide">
                     <div class="display-box">
                         <label class="display-label" for="display-range-1">Subtitle Size:</label>
-                        <input class="slider" id="display-range-1" type="range" min="2" max="54" value="${fontSize}">
+                        <input class="slider" id="display-range-1" type="range" min="${fontSize.min}" max="${fontSize.max}" value="${fontSize.val}">
                     </div>
                     <div class="display-box" style="margin-top: -10px">
                         <label class="display-label" for="display-range-2">Background:</label>
@@ -558,13 +593,18 @@ function defineVideoController() {
                 }
 
                 if (!menuOpen) {
-                    if (thisVideo.clientWidth >= 1200) {
+                    console.log("iconThreshold[screenSize]", iconThreshold[screenSize]);
+                    console.log("thisVideo.clientWidth", thisVideo.clientWidth);
+
+                    if (thisVideo.clientWidth > iconThreshold[screenSize]) {
                         // fullscreen, show big icon
-                        shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-38.png");
+                        shadow.getElementById("video-img").src = videoIcon[screenSize].bigIcon;
+                        // shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-38.png");
 
                     } else {
                         // small screen, show small icon
-                        shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
+                        shadow.getElementById("video-img").src = videoIcon[screenSize].smallIcon;
+                        // shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
                     }
                     shadow.getElementById("video-icon").classList.remove("hide");
                 }
@@ -626,11 +666,16 @@ function defineVideoController() {
 
         shadow.querySelector("#display-range-1").addEventListener("input", (e) => {
             const newSize = e.target.value;
+            console.log(newSize);
             shadow.querySelector("#display-range-1").value = newSize;
             shadow.querySelector("#subtitles").style.fontSize = newSize + "px";
             shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = newSize + "px");
-            fontSize = newSize;
-            chrome.storage.sync.set({ fontSize: newSize });
+            fontSize.val = newSize;
+            chrome.storage.sync.set({
+                fontSize: {
+                    [screenSize]: newSize
+                }
+            });
         });
 
         shadow.querySelector("#display-range-2").addEventListener("input", (e) => {
@@ -717,8 +762,8 @@ function defineVideoController() {
         });
 
         // Settings the fontSize and opacity
-        shadow.querySelector("#subtitles").style.fontSize = fontSize + "px";
-        shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = fontSize + "px");
+        shadow.querySelector("#subtitles").style.fontSize = fontSize.val + "px";
+        shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = fontSize.val + "px");
         shadow.querySelector("#subtitle-div").style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
 
         // Pausing the video when hovering on the subtitles
@@ -1692,5 +1737,22 @@ function processSubtitles(content) {
     if (thisVideo.paused) {
         thisVideo.play();
         thisVideo.pause();
+    }
+}
+
+function getScreenSize() {
+    const width = screen.width;
+
+    if (width <= 1024) {
+        return "small";
+
+    } else if (width <= 1366) {
+        return "medium";
+
+    } else if (width <= 1920) {
+        return "large";
+
+    } else {
+        return "XL";
     }
 }

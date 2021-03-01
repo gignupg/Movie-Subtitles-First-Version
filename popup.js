@@ -272,9 +272,8 @@ function isContentScriptRunning(tab) {
             let confirmation = confirm('To use Moive Subtitles please reload the page! Reload now?');
             if (confirmation == true) {
                 chrome.tabs.reload(tab.id);
+                window.close();
             }
-
-            window.close();
         }
     }, 1000);
 }

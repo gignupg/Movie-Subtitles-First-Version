@@ -1,3 +1,6 @@
+let extensionOn = true;
+let blacklist = defaultBlacklist;
+
 // Necessary because if nothing is listening to the connect event from the content script
 // it will immediately disconnect. So we're preventing an immediate disconnect event being fired.
 chrome.runtime.onConnect.addListener(() => {
@@ -7,8 +10,8 @@ chrome.runtime.onConnect.addListener(() => {
 // On tab switch let the content script know
 chrome.tabs.onActivated.addListener(function () {
     chrome.storage.sync.get("enabled", storage => {
-        let extensionOn = true;
         if (storage.enabled !== undefined) extensionOn = storage.enabled;
+        if (storage.blacklist !== undefined) blacklist = storage.blacklist;
 
         chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
             let thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");

@@ -20,7 +20,7 @@
     "default_popup": "popup.html"
   },
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["config.js", "background.js"],
     "persistent": false
   },
   "content_scripts": [
@@ -34,7 +34,7 @@
         "https://meet.google.com/*"
       ],
       "css": ["inject.css"],
-      "js": ["inject.js"]
+      "js": ["config.js", "inject.js"]
     }
   ],
   "web_accessible_resources": ["inject.css", "shadow.css", "icons/*.png"]

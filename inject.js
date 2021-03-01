@@ -58,7 +58,7 @@ let shadow = null;
 let thisVideo = null;
 let videoIconCount = 0;
 let speedChangeCount = 0;
-let blacklist = {};
+let blacklist = defaultBlacklist;
 let thisSite = null;
 let lastTimeExtClicked = {};
 let recentlyForcedPlayback = null;
@@ -72,18 +72,8 @@ backgroundPort.onDisconnect.addListener(() => {
     wrapper.classList.add("vsc-nosource");
 });
 
-let shortcuts = {
-    previous: "\u2190",
-    next: "\u2192",
-    rewind: "a",
-    forward: "s",
-    subtitles: "c",
-    relocate: "r",
-    slower: "",
-    faster: "",
-    rewindTwo: "",
-    forwardTwo: ""
-};
+let shortcuts = defaultShortcuts;
+console.log(shortcuts);
 
 // This is the position of the subtitle array that is currently being displayed
 let pos = 0;

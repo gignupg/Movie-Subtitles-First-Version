@@ -1,23 +1,10 @@
 let extensionOn = true;
 let shortcuts = null;
-let blacklist = null;
+let blacklist = chrome.extension.getBackgroundPage().defaultBlacklist;
 
 chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
     isContentScriptRunning(tab[0]);
 });
-
-const defaultShortcuts = {
-    previous: "\u2190",
-    next: "\u2192",
-    rewind: "a",
-    forward: "s",
-    subtitles: "c",
-    relocate: "r",
-    slower: "",
-    faster: "",
-    rewindTwo: "",
-    forwardTwo: ""
-};
 
 // Initializing tooltip
 M.Tooltip.init(document.querySelectorAll('.tooltipped'), { enterDelay: 500 });
@@ -28,12 +15,12 @@ chrome.storage.sync.get(null, (storage) => {
     }
 
     if (storage.shortcuts === undefined) {
-        shortcuts = defaultShortcuts;
+        shortcuts = chrome.extension.getBackgroundPage().defaultShortcuts;
     } else {
         shortcuts = storage.shortcuts;
     }
 
-    blacklist = storage.blacklist || {};
+    if (storage.blacklist !== undefined) blacklist = storage.blacklist;
 
     updatePopup();
 });

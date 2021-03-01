@@ -602,12 +602,10 @@ function defineVideoController() {
                     if (thisVideo.clientWidth > iconThreshold[screenSize]) {
                         // fullscreen, show big icon
                         shadow.getElementById("video-img").src = videoIcon[screenSize].bigIcon;
-                        // shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-38.png");
 
                     } else {
                         // small screen, show small icon
                         shadow.getElementById("video-img").src = videoIcon[screenSize].smallIcon;
-                        // shadow.getElementById("video-img").src = chrome.runtime.getURL("icons/movie-subtitles-28.png");
                     }
                     shadow.getElementById("video-icon").classList.remove("hide");
                 }

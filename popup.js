@@ -289,7 +289,7 @@ function isContentScriptRunning(tab) {
 
             window.close();
         }
-    }, 500);
+    }, 1000);
 }
 
 function updateSubtitleDisplay() {

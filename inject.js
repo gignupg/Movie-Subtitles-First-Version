@@ -21,7 +21,7 @@ const iconThreshold = {
 };
 const videoIcon = {
     small: {
-        smallIcon: chrome.runtime.getURL("icons/movie-subtitles-19.png"),
+        smallIcon: chrome.runtime.getURL("icons/movie-subtitles-24.png"),
         bigIcon: chrome.runtime.getURL("icons/movie-subtitles-28.png")
     },
     medium: {

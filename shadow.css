@@ -371,7 +371,7 @@ button:hover {
 #sync-box {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
 }
 
@@ -451,6 +451,9 @@ option {
     * {
         --menu-font-size: 14px;
     }
+    #video-img {
+        padding: 4px;
+    }
     #settings-wrapper {
       max-width: 500px;
     }
@@ -476,6 +479,10 @@ option {
     * {
         --menu-font-size: 26px;
     }
+    #video-img {
+        padding: 10px;
+        border-radius: 7px;
+    }
     #settings-wrapper {
       max-width: 800px;
     }
@@ -490,7 +497,7 @@ option {
         margin: 16px;
     }
     #settings-spacer {
-        height: 30px;
+        height: 20px;
     }
     #settings-close {
         font-size: 45px;
@@ -510,6 +517,10 @@ option {
     * {
         --menu-font-size: 34px;
     }
+    #video-img {
+        padding: 15px;
+        border-radius: 10px;
+    }
     #settings-wrapper {
       max-width: 1100px;
     }
@@ -517,14 +528,14 @@ option {
         font-size: 48px;
     }
     .menu-item {
-        padding: 30px 45px 30px 60px;
+        padding: 23px 34px 23px 45px;
     }
     .settings-button {
         padding: 15px 30px;
         margin: 20px;
     }
     #settings-spacer {
-        height: 40px;
+        height: 20px;
     }
     #settings-close {
         font-size: 55px;

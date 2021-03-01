@@ -7,9 +7,24 @@ chrome.runtime.onConnect.addListener(() => {
     console.log("something connected");
 });
 
+chrome.storage.sync.get(null, (storage) => {
+    if (storage.enabled !== undefined) extensionOn = storage.enabled;
+
+    const suffix = `${extensionOn ? "" : "_disabled"}.png`;
+    chrome.browserAction.setIcon({
+        path: {
+            "19": "icons/movie-subtitles-19" + suffix,
+            "38": "icons/movie-subtitles-38" + suffix,
+            "48": "icons/movie-subtitles-48" + suffix
+        }
+    });
+});
+
+
+
 // On tab switch let the content script know
 chrome.tabs.onActivated.addListener(function () {
-    chrome.storage.sync.get("enabled", storage => {
+    chrome.storage.sync.get(null, (storage) => {
         if (storage.enabled !== undefined) extensionOn = storage.enabled;
         if (storage.blacklist !== undefined) blacklist = storage.blacklist;
 
@@ -19,10 +34,10 @@ chrome.tabs.onActivated.addListener(function () {
 
             if (extensionOn && !blacklist[thisSite]) {
                 // Reloading the shadow dom
-                chrome.tabs.sendMessage(tab[0].id, { show: true });
+                chrome.tabs.sendMessage(tab[0].id, { show: true, blacklist: blacklist });
             } else {
                 // Unloading the shadow dom!
-                chrome.tabs.sendMessage(tab[0].id, { hide: true });
+                chrome.tabs.sendMessage(tab[0].id, { hide: true, blacklist: blacklist });
             }
         });
     });
@@ -42,9 +57,3 @@ chrome.runtime.onMessage.addListener(
         }
     }
 );
-
-function messageContentScript(message) {
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-        chrome.tabs.sendMessage(tab[0].id, message);
-    });
-}

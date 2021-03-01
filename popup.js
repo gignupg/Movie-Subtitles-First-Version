@@ -285,10 +285,10 @@ function updateSubtitleDisplay() {
 
         if (extensionOn && !blacklist[thisSite]) {
             // Reloading the shadow dom
-            chrome.tabs.sendMessage(tab[0].id, { show: true });
+            chrome.tabs.sendMessage(tab[0].id, { show: true, blacklist: blacklist });
         } else {
             // Unloading the shadow dom!
-            chrome.tabs.sendMessage(tab[0].id, { hide: true });
+            chrome.tabs.sendMessage(tab[0].id, { hide: true, blacklist: blacklist });
         }
     });
 }

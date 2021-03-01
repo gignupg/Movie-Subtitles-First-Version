@@ -328,11 +328,11 @@ function defineVideoController() {
             <div id="bottom-space"></div>
         </div>
         <div id="controller" class="hide">
-            <div id="subtitle-div" style="background-color: rgba(0, 0, 0, ${opacity});">
-                <button id="prev-button" class="subtitle-button">«</button>
-                <div id="subtitles">${subs[0].text}</div>
-                <button id="next-button" class="subtitle-button">»</button>
-            </div>
+            <div id="subtitle-div"><!-- We need these comments to prevent whitespace between the divs
+            --><button id="prev-button" class="subtitle-button">«</button><!--
+            --><div id="subtitles">${subs[0].text}</div><!--
+            --><button id="next-button" class="subtitle-button">»</button><!--
+            --></div>
             <div class="line-break"></div>
             <div id="below-subtitles">
                 <div id="skip-music" class="hide sync-msg"></div>
@@ -599,9 +599,6 @@ function defineVideoController() {
                 }
 
                 if (!menuOpen) {
-                    console.log("iconThreshold[screenSize]", iconThreshold[screenSize]);
-                    console.log("thisVideo.clientWidth", thisVideo.clientWidth);
-
                     if (thisVideo.clientWidth > iconThreshold[screenSize]) {
                         // fullscreen, show big icon
                         shadow.getElementById("video-img").src = videoIcon[screenSize].bigIcon;
@@ -672,7 +669,6 @@ function defineVideoController() {
 
         shadow.querySelector("#display-range-1").addEventListener("input", (e) => {
             const newSize = e.target.value;
-            console.log(newSize);
             shadow.querySelector("#display-range-1").value = newSize;
             shadow.querySelector("#subtitles").style.fontSize = newSize + "px";
             shadow.querySelectorAll(".subtitle-button").forEach(elem => elem.style.fontSize = newSize + "px");

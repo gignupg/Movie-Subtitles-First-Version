@@ -59,7 +59,6 @@ let thisVideo = null;
 let videoIconCount = 0;
 let speedChangeCount = 0;
 let blacklist = defaultBlacklist;
-console.log("blacklist 1", blacklist);
 let thisSite = null;
 let lastTimeExtClicked = {};
 let recentlyForcedPlayback = null;
@@ -167,11 +166,6 @@ chrome.storage.sync.get(null, function (storage) {
     if (storage.opacity !== undefined) opacity = storage.opacity;
     if (storage.fontSize !== undefined && storage.fontSize[screenSize] !== undefined) fontSize.val = storage.fontSize[screenSize];
     if (storage.blacklist !== undefined) blacklist = storage.blacklist;
-
-    console.log("blacklist 2", blacklist);
-
-    console.log("storage.enabled", storage.enabled);
-    console.log("extensionOn", extensionOn);
 
     // Update thisSite
     chrome.runtime.sendMessage("getUrl", function (response) {
@@ -885,24 +879,15 @@ function getShadow(parent) {
 }
 
 function initializeNow(document) {
-    console.log("inside the initialize function");
-
-    console.log("extensionOn", extensionOn);
-    console.log("blacklist", blacklist);
-    console.log("thisSite", thisSite);
-
     if (!extensionOn || blacklist[thisSite]) {
-        console.log("enxtension off or blacklisted");
         return;
     }
-    console.log(2);
+
     // enforce init-once due to redundant callers
     if (!document.body || document.body.classList.contains("movie-subtitles-initialized")) {
-        console.log("Prevent initializing multiple times");
         return;
     }
 
-    console.log(3);
     document.body.classList.add("movie-subtitles-initialized");
 
     if (document === window.document) {
@@ -1217,13 +1202,10 @@ function processMessage(msg, sender, sendResponse) {
         sendResponse(true);
 
     } else if (msg.show) {
-        console.log("show request");
         const initialized = document.body.classList.contains("movie-subtitles-initialized");
-        console.log("initialized", initialized);
         if (!initialized) {
             extensionOn = true;
             blacklist = msg.blacklist;
-            console.log("initializing now");
             initializeNow(document);
         }
 

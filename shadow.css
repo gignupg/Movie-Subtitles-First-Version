@@ -5,6 +5,7 @@
     --active-orange: #ff754b;
     --active-grey: rgb(211, 210, 210);
     --menu-font-size: 17px;
+    --subtitle-margin: 5px;
 }
 
 i {
@@ -30,7 +31,8 @@ p {
     display: inline-block;
     background-color: transparent;
     font-weight: 900;
-    margin: 5px;
+    margin-left: var(--subtitle-margin);
+    margin-right: var(--subtitle-margin);
     color: white;
     border: none;
     user-select: none;
@@ -185,6 +187,8 @@ button:hover {
     display: inline-block;
     margin-left: 0;
     margin-right: 0;
+    margin-top: var(--subtitle-margin);
+    margin-bottom: var(--subtitle-margin);
     user-select: none;
     -webkit-user-select: none;
 }
@@ -450,6 +454,7 @@ option {
 @media screen and (max-width: 1024px) {
     * {
         --menu-font-size: 14px;
+        --subtitle-margin: 4px;
     }
     #video-img {
         padding: 4px;
@@ -478,6 +483,7 @@ option {
 @media screen and (min-width: 1600px) {
     * {
         --menu-font-size: 26px;
+        --subtitle-margin: 8px;
     }
     #video-img {
         padding: 10px;
@@ -516,6 +522,7 @@ option {
 @media screen and (min-width: 2304px) {
     * {
         --menu-font-size: 34px;
+        --subtitle-margin: 12px;
     }
     #video-img {
         padding: 15px;

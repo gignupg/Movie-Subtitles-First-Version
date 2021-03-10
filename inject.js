@@ -273,7 +273,7 @@ function defineVideoController() {
                 </div>
                 <div id="subtitle-content" class="section">
                     <div id="centered-box">
-                        <div class="settings-button subtitle-search-button">Subtitle Search</div>
+                        <div class="settings-button subtitle-search-button">Select Subtitles</div>
                         <label for="chooseFile" class="fileLabel settings-button subtitle-upload-button tooltip">
                             Load Subtitles from PC
                             <span class="tooltiptext">Make sure the file ending is either .srt, .txt or .sub!</span>
@@ -1325,6 +1325,9 @@ function detectEncoding(file, reader, encoding) {
             }
 
             if (utf8) {
+                console.log("inside utf8 if statement");
+                // Send message to background script to detect the language
+                chrome.runtime.sendMessage({ detectLanguage: ["The classical European violin was developed in the 16th century.", "El violín clásico europeo se desarrolló en el siglo XVI.", "Klassíska evrópska fiðlan var þróuð á 16. öld.", "a native or inhabitant of Europe.", "Nativo o habitante de Europa.", "un natif ou un habitant de l'Europe."] });
                 processSubtitles(content.split("\n"));
 
             } else {
@@ -1527,7 +1530,8 @@ function detectEncoding(file, reader, encoding) {
                 }
 
             } else {
-                console.log("Please try another subtitle file! Make sure it ends with .srt");
+                // If no language was detected we will try to read it with latin 1
+                detectEncoding(file, reader, "CP1252");
             }
 
         } else {  // Process and load the subtitles

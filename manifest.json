@@ -20,7 +20,7 @@
     "default_popup": "popup.html"
   },
   "background": {
-    "scripts": ["config.js", "background.js"],
+    "page": "background.html",
     "persistent": false
   },
   "content_scripts": [
@@ -37,5 +37,6 @@
       "js": ["config.js", "inject.js"]
     }
   ],
-  "web_accessible_resources": ["inject.css", "shadow.css", "icons/*.png"]
+  "web_accessible_resources": ["inject.css", "shadow.css", "icons/*.png"],
+  "content_security_policy": "script-src 'self' https://www.gstatic.com/? https://*.firebaseio.com? https://www.googleapis.com? https://www.googletagmanager.com;? object-src 'self'"
 }

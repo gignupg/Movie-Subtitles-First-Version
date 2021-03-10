@@ -1,3 +1,6 @@
+const LanguageDetect = require('languagedetect');
+const lngDetector = new LanguageDetect();
+
 let extensionOn = true;
 let blacklist = defaultBlacklist;
 
@@ -19,8 +22,6 @@ chrome.storage.sync.get(null, (storage) => {
         }
     });
 });
-
-
 
 // On tab switch let the content script know
 chrome.tabs.onActivated.addListener(function () {
@@ -52,8 +53,10 @@ chrome.runtime.onMessage.addListener(
 
             sendResponse({ url: thisSite });
 
-        } else if (request === "backgroundRunning") {
-            sendResponse(true);
+        } else if (request.detectLanguage) {
+            console.log("request.detectLanguage", request.detectLanguage);
+            console.log("background detector");
+            console.log(lngDetector.detect('Instrumento musical de cuerda de unos 60 cm de largo (mástil incluido) formado por una caja de madera hueca y alargada, con un estrechamiento en la parte media y con dos aberturas acústicas en forma de f en el centro, y un brazo (mástil) corto y sin trastes, a lo largo del cual se prolongan cuatro cuerdas y en cuyo extremo se sitúan las clavijas, que permiten afinar el instrumento; se toca colocándola entre el hombro y el mentón y frotando las cuerdas con un arco.'));
         }
     }
 );

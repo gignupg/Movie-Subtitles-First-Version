@@ -1,3 +1,5 @@
+﻿const languageEncoding = require('detect-file-encoding-and-language');
+
 const screenSize = getScreenSize();
 const red = "#C62828";
 const orange = "#f0653b";
@@ -168,7 +170,7 @@ chrome.storage.sync.get(null, function (storage) {
     if (storage.blacklist !== undefined) blacklist = storage.blacklist;
 
     // Update thisSite
-    chrome.runtime.sendMessage("getUrl", function (response) {
+    chrome.runtime.sendMessage({ getUrl: true }, function (response) {
         thisSite = response.url;
         initializeWhenReady(document);
     });
@@ -787,8 +789,23 @@ function defineVideoController() {
         // Creating our subtitle array once an srt file is being uploaded
         shadow.getElementById("chooseFile").addEventListener("change", (e) => {
             const file = e.target.files[0];
-            const reader = new FileReader;
-            detectEncoding(file, reader, "UTF-8");
+            const fileName = file.name;
+
+            // Process the file name in the background script!
+            chrome.runtime.sendMessage({ fileName: fileName });
+
+            languageEncoding(file).then(fileInfo => {
+                const reader = new FileReader();
+
+                reader.onload = function (evt) {
+                    const content = evt.target.result;
+                    processSubtitles(content.split("\n"));
+                };
+                reader.readAsText(file, fileInfo.encoding);
+
+            }).catch(err => {
+                console.log("Error caught:", err);
+            });
         });
 
         shadow
@@ -1308,239 +1325,6 @@ function hideOrShowSubtitles() {
         shadow.getElementById("controller").classList.add("hide");
     }
 }
-
-function detectEncoding(file, reader, encoding) {
-    reader.onload = () => {
-        const content = reader.result;
-
-        if (encoding === "UTF-8") {  // Any language
-            let utf8 = true;
-
-            for (let b = 0; b < content.length; b++) {
-                // If � is encountered it's definitely not utf8!
-                if (content[b] === "�") {
-                    utf8 = false;
-                    break;
-                }
-            }
-
-            if (utf8) {
-                console.log("inside utf8 if statement");
-                // Send message to background script to detect the language
-                chrome.runtime.sendMessage({ detectLanguage: ["The classical European violin was developed in the 16th century.", "El violín clásico europeo se desarrolló en el siglo XVI.", "Klassíska evrópska fiðlan var þróuð á 16. öld.", "a native or inhabitant of Europe.", "Nativo o habitante de Europa.", "un natif ou un habitant de l'Europe."] });
-                processSubtitles(content.split("\n"));
-
-            } else {
-                detectEncoding(file, reader, "ISO-8859-1");
-            }
-
-        } else if (encoding === "ISO-8859-1") {  // Detect the encoding. If it's a Latin language process the file otherwise pass in the correct encoding
-            const languageCount = {
-                polish: 0,
-                czech: 0,
-                hungarian: 0,
-                romanian: 0,
-                slovak: 0,
-                slovenian: 0,
-                albanian: 0,
-                russian: 0,
-                ukrainian: 0,
-                bulgarian: 0,
-                english: 0,
-                french: 0,
-                spaPort: 0,
-                german: 0,
-                italian: 0,
-                danishNorSwe: 0,
-                dutch: 0,
-                finnish: 0,
-                croatianSerbBos: 0,
-                estonian: 0,
-                icelandic: 0,
-                indonesian: 0,
-                greek: 0,
-                turkish: 0,
-                hebrew: 0,
-                arabic: 0,
-                chineseSimple: 0,
-                chineseTrad: 0,
-                japanese: 0,
-                korean: 0,
-                thai: 0
-            };
-
-            const srtSplit = content.split("\n");
-
-            srtSplit.forEach(phrase => {
-                if (/siê/i.test(phrase)) {
-                    languageCount.polish++;
-                }
-                if (/jsem/i.test(phrase) || /jsi/i.test(phrase)) {
-                    languageCount.czech++;
-                }
-                if (/\snem\s/i.test(phrase)) {
-                    languageCount.hungarian++;
-                }
-                if (/sunt/i.test(phrase) || /eºti/i.test(phrase)) {
-                    languageCount.romanian++;
-                }
-                if (/\sako\s/i.test(phrase) || /poriadku/i.test(phrase) || /myslím/i.test(phrase)) {
-                    languageCount.slovak++;
-                }
-                if (/kaj/i.test(phrase)) {
-                    languageCount.slovenian++;
-                }
-                if (/nuk/i.test(phrase)) {
-                    languageCount.albanian++;
-                }
-                if (/÷òî/i.test(phrase)) {
-                    languageCount.russian++;
-                }
-                if (/â³í/i.test(phrase) || /àëå/i.test(phrase)) {
-                    languageCount.ukrainian++;
-                }
-                if (/òîâà/i.test(phrase) || /äîáðå/i.test(phrase) || /êaêâo/i.test(phrase)) {
-                    languageCount.bulgarian++;
-                }
-                if (/\sthe\s/i.test(phrase)) {
-                    languageCount.english++;
-                }
-                if (/c'est/i.test(phrase)) {
-                    languageCount.french++;
-                }
-                if (/está/i.test(phrase) || /\spor\s/i.test(phrase)) {
-                    languageCount.spaPort++;
-                }
-                if (/\sdas\s/i.test(phrase)) {
-                    languageCount.german++;
-                }
-                if (/\sche/i.test(phrase)) {
-                    languageCount.italian++;
-                }
-                if (/\sdet\s/i.test(phrase)) {
-                    languageCount.danishNorSwe++;
-                }
-                if (/\shet\s/i.test(phrase)) {
-                    languageCount.dutch++;
-                }
-                if (/hän/i.test(phrase)) {
-                    languageCount.finnish++;
-                }
-                if (/\ssam\s/i.test(phrase) || /\skako\s/i.test(phrase)) {
-                    languageCount.croatianSerbBos++;
-                }
-                if (/see/i.test(phrase)) {
-                    languageCount.estonian++;
-                }
-                if (/Það/i.test(phrase)) {
-                    languageCount.icelandic++;
-                }
-                if (/tidak/i.test(phrase)) {
-                    languageCount.indonesian++;
-                }
-                if (/åßíáé/i.test(phrase)) {
-                    languageCount.greek++;
-                }
-                if (/\sbir\s/i.test(phrase)) {
-                    languageCount.turkish++;
-                }
-                if (/àúä/i.test(phrase)) {
-                    languageCount.hebrew++;
-                }
-                if (/åðç/i.test(phrase)) {
-                    languageCount.arabic++;
-                }
-                if (/´ó/i.test(phrase) || /¶¯/i.test(phrase) || /Å®/i.test(phrase)) {
-                    languageCount.chineseSimple++;
-                }
-                if (/¦b/i.test(phrase)) {
-                    languageCount.chineseTrad++;
-                }
-                if (/‚»/i.test(phrase)) {
-                    languageCount.japanese++;
-                }
-                if (/àö¾î/i.test(phrase) || /å¾ß/i.test(phrase) || /¡¼­/i.test(phrase)) {
-                    languageCount.korean++;
-                }
-                if (/áîãìãõè/i.test(phrase) || /¾íµàµíãì/i.test(phrase)) {
-                    languageCount.thai++;
-                }
-
-            });
-
-            const detectedLang = Object.keys(languageCount).reduce((a, b) => languageCount[a] > languageCount[b] ? a : b);
-
-            if (languageCount[detectedLang] > 0) {
-                switch (detectedLang) {
-                    case "polish":
-                    case "czech":
-                    case "hungarian":
-                    case "romanian":
-                    case "slovak":
-                    case "slovenian":
-                    case "albanian":
-                        detectEncoding(file, reader, "CP1250");
-                        break;
-                    case "russian":
-                    case "ukrainian":
-                    case "bulgarian":
-                        detectEncoding(file, reader, "CP1251");
-                        break;
-                    case "english":
-                    case "french":
-                    case "spaPort":
-                    case "german":
-                    case "italian":
-                    case "danishNorSwe":
-                    case "dutch":
-                    case "finnish":
-                    case "croatianSerbBos":
-                    case "estonian":
-                    case "icelandic":
-                    case "indonesian":
-                        detectEncoding(file, reader, "CP1252");
-                        break;
-                    case "greek":
-                        detectEncoding(file, reader, "CP1253");
-                        break;
-                    case "turkish":
-                        detectEncoding(file, reader, "CP1254");
-                        break;
-                    case "hebrew":
-                        detectEncoding(file, reader, "CP1255");
-                        break;
-                    case "arabic":
-                        detectEncoding(file, reader, "CP1256");
-                        break;
-                    case "chineseSimple":
-                        detectEncoding(file, reader, "GB18030");
-                        break;
-                    case "chineseTrad":
-                        detectEncoding(file, reader, "BIG5");
-                        break;
-                    case "japanese":
-                        detectEncoding(file, reader, "Shift-JIS");
-                        break;
-                    case "korean":
-                        detectEncoding(file, reader, "EUC-KR");
-                        break;
-                    case "thai":
-                        detectEncoding(file, reader, "TIS-620");
-                        break;
-                }
-
-            } else {
-                // If no language was detected we will try to read it with latin 1
-                detectEncoding(file, reader, "CP1252");
-            }
-
-        } else {  // Process and load the subtitles
-            processSubtitles(content.split("\n"));
-        }
-    };
-
-    reader.readAsText(file, encoding);
-};
 
 function processSubtitles(content) {
     const newSubs = [];

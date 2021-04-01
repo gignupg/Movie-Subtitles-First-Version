@@ -2,10 +2,10 @@
   "name": "movie-subtitles",
   "version": "1.0.0",
   "description": "Watch your favorite movies with subtitles",
-  "main": "background.js",
+  "main": "inject.js",
   "scripts": {
-    "build": "browserify background.js -o bundle.js",
-    "watch": "watchify background.js -o bundle.js"
+    "build": "browserify inject.js -o bundle.js",
+    "watch": "watchify inject.js -o bundle.js"
   },
   "repository": {
     "type": "git",
@@ -17,11 +17,7 @@
     "url": "https://github.com/gignupg/movie-subtitles/issues"
   },
   "homepage": "https://github.com/gignupg/movie-subtitles#readme",
-  "devDependencies": {
-    "browserify": "^17.0.0",
-    "watchify": "^4.0.0"
-  },
   "dependencies": {
-    "languagedetect": "^2.0.0"
+    "detect-file-encoding-and-language": "^1.7.2"
   }
 }

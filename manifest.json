@@ -34,9 +34,9 @@
         "https://meet.google.com/*"
       ],
       "css": ["inject.css"],
-      "js": ["config.js", "inject.js"]
+      "js": ["config.js", "bundle.js"]
     }
   ],
   "web_accessible_resources": ["inject.css", "shadow.css", "icons/*.png"],
-  "content_security_policy": "script-src 'self' https://www.gstatic.com/? https://*.firebaseio.com? https://www.googleapis.com? https://www.googletagmanager.com;? object-src 'self'"
+  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com https://www.googletagmanager.com; object-src 'self'"
 }

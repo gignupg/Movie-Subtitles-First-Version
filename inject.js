@@ -789,10 +789,6 @@ function defineVideoController() {
         // Creating our subtitle array once an srt file is being uploaded
         shadow.getElementById("chooseFile").addEventListener("change", (e) => {
             const file = e.target.files[0];
-            const fileName = file.name;
-
-            // Process the file name in the background script!
-            chrome.runtime.sendMessage({ fileName: fileName });
 
             languageEncoding(file).then(fileInfo => {
                 const reader = new FileReader();

@@ -46,7 +46,7 @@ const menuIcon = {
     large: chrome.runtime.getURL("icons/movie-subtitles-48.png"),
     XL: chrome.runtime.getURL("icons/movie-subtitles-64.png")
 };
-let extensionOn = true;
+let extensionOn = false;
 let exactUrl = window.location.href;
 let wrapper = null;
 let monitoring = false;
@@ -163,7 +163,6 @@ var tc = {
 
 // Initializing Video Controller
 chrome.storage.sync.get(null, function (storage) {
-    if (storage.enabled !== undefined) extensionOn = storage.enabled;
     if (storage.shortcuts !== undefined) shortcuts = storage.shortcuts;
     if (storage.opacity !== undefined) opacity = storage.opacity;
     if (storage.fontSize !== undefined && storage.fontSize[screenSize] !== undefined) fontSize.val = storage.fontSize[screenSize];
@@ -1224,6 +1223,9 @@ function processMessage(msg, sender, sendResponse) {
         } else {
             sendResponse({ videoDetected: false });
         }
+
+    } else if (msg.status) {
+        sendResponse(extensionOn);
     }
 }
 

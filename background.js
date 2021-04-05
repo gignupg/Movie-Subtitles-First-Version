@@ -1,22 +1,12 @@
-let extensionOn = true;
-
 // Necessary because if nothing is listening to the connect event from the content script
 // it will immediately disconnect. So we're preventing an immediate disconnect event being fired.
 chrome.runtime.onConnect.addListener(() => {
-    console.log("something connected");
+    setIcon();
 });
 
-chrome.storage.sync.get(null, (storage) => {
-    if (storage.enabled !== undefined) extensionOn = storage.enabled;
-
-    const suffix = `${extensionOn ? "" : "_disabled"}.png`;
-    chrome.browserAction.setIcon({
-        path: {
-            "19": "icons/movie-subtitles-19" + suffix,
-            "38": "icons/movie-subtitles-38" + suffix,
-            "48": "icons/movie-subtitles-48" + suffix
-        }
-    });
+// On tab switch let the content script know
+chrome.tabs.onActivated.addListener(function () {
+    setIcon();
 });
 
 // Incomming messages
@@ -30,3 +20,20 @@ chrome.runtime.onMessage.addListener(
         }
     }
 );
+
+function setIcon() {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+        chrome.tabs.sendMessage(tab[0].id, { status: true }, function (response) {
+            const extensionOn = response;
+
+            const suffix = `${extensionOn ? "" : "_disabled"}.png`;
+            chrome.browserAction.setIcon({
+                path: {
+                    "19": "icons/movie-subtitles-19" + suffix,
+                    "38": "icons/movie-subtitles-38" + suffix,
+                    "48": "icons/movie-subtitles-48" + suffix
+                }
+            });
+        });
+    });
+}

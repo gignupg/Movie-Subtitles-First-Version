@@ -1,22 +1,25 @@
-let extensionOn = true;
-let shortcuts = null;
-
 // Initializing tooltip
 M.Tooltip.init(document.querySelectorAll('.tooltipped'), { enterDelay: 500 });
 
-chrome.storage.sync.get(null, (storage) => {
-    if (storage.enabled !== undefined) {
-        extensionOn = storage.enabled;
-    }
+let extensionOn = false;
+let shortcuts = null;
 
-    if (storage.shortcuts === undefined) {
-        shortcuts = chrome.extension.getBackgroundPage().defaultShortcuts;
-    } else {
-        shortcuts = storage.shortcuts;
-    }
+chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+    chrome.tabs.sendMessage(tab[0].id, { status: true }, function (response) {
+        chrome.storage.sync.get(null, function (storage) {
+            extensionOn = response;
 
-    updatePopup();
+            if (storage.shortcuts === undefined) {
+                shortcuts = chrome.extension.getBackgroundPage().defaultShortcuts;
+            } else {
+                shortcuts = storage.shortcuts;
+            }
+
+            updatePopup();
+        });
+    });
 });
+
 
 $(".power-button").addEventListener("click", toggleExtensionOnOff);
 
@@ -29,7 +32,6 @@ $("#feedback-link").addEventListener("click", () => {
 function toggleExtensionOnOff() {
     extensionOn = !extensionOn;
     updatePopup();
-    chrome.storage.sync.set({ enabled: extensionOn });
     updateSubtitleDisplay();
 }
 
@@ -209,7 +211,6 @@ function $(selector, multiple = false) {
 
 function updateSubtitleDisplay() {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-
         if (extensionOn) {
             // Reloading the shadow dom
             chrome.tabs.sendMessage(tab[0].id, { show: true });

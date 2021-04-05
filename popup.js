@@ -1,10 +1,5 @@
 let extensionOn = true;
 let shortcuts = null;
-let blacklist = chrome.extension.getBackgroundPage().defaultBlacklist;
-
-chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-    isContentScriptRunning(tab[0]);
-});
 
 // Initializing tooltip
 M.Tooltip.init(document.querySelectorAll('.tooltipped'), { enterDelay: 500 });
@@ -20,8 +15,6 @@ chrome.storage.sync.get(null, (storage) => {
         shortcuts = storage.shortcuts;
     }
 
-    if (storage.blacklist !== undefined) blacklist = storage.blacklist;
-
     updatePopup();
 });
 
@@ -29,7 +22,9 @@ $(".power-button").addEventListener("click", toggleExtensionOnOff);
 
 $("#shortcuts").addEventListener("click", openShortcutMenu);
 
-$("#blacklist-switch").addEventListener("change", updateBlacklist);
+$("#feedback-link").addEventListener("click", () => {
+    chrome.tabs.create({ active: true, url: "https://github.com/gignupg/Movie-Subtitles/issues" });
+});
 
 function toggleExtensionOnOff() {
     extensionOn = !extensionOn;
@@ -57,22 +52,6 @@ function updatePopup() {
         // Changing the hover color of the power button
         $(".power-button").classList.remove("turn-on");
         $(".power-button").classList.add("turn-off");
-
-        // Update the blacklist switch
-        chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-            let thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
-            if (!/^www/.test(thisSite)) thisSite = "www." + thisSite;
-
-            // Turn the visual display of blacklist on/off
-            if (blacklist[thisSite]) {
-                $("#blacklist-switch").checked = true;
-                $("#blacklist-tooltip").dataset.tooltip = `Remove "${thisSite}" from your blacklist to enable the extension on this site.`;
-
-            } else {
-                $("#blacklist-switch").checked = false;
-                $("#blacklist-tooltip").dataset.tooltip = `Blacklist "${thisSite}" to disable the extension on this site.`;
-            }
-        });
 
     } else {
         // Hide the popup settings
@@ -228,67 +207,15 @@ function $(selector, multiple = false) {
     return document.querySelector(selector);
 }
 
-function updateBlacklist() {
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-        const addToList = $("#blacklist-switch").checked;
-        let thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
-        if (!/^www/.test(thisSite)) thisSite = "www." + thisSite;
-
-        // Update list locally
-        if (addToList) {
-            blacklist[thisSite] = true;
-
-            // Unloading the shadow dom!
-            messageContentScript({ hide: true, blacklist: blacklist });
-
-            $("#blacklist-tooltip").dataset.tooltip = `Remove "${thisSite}" from your blacklist to enable the extension on this site.`;
-
-        } else {
-            delete blacklist[thisSite];
-
-            // Reloading the shadow dom
-            messageContentScript({ show: true, blacklist: blacklist });
-
-            $("#blacklist-tooltip").dataset.tooltip = `Blacklist "${thisSite}" to disable the extension on this site.`;
-        }
-
-        // Update chrome storage
-        chrome.storage.sync.set({ blacklist: blacklist });
-    });
-}
-
-function isContentScriptRunning(tab) {
-    let contentOn = null;
-
-    // send message to backgroundscript to see if it is enabled
-    chrome.tabs.sendMessage(tab.id, { contentRunning: "request" }, (response) => {
-        contentOn = response;
-    });
-
-    // After 1 second, if there is no response show the reload dialog
-    setTimeout(() => {
-        if (!contentOn && (tab.url !== "chrome://extensions/" && tab.url !== "chrome://newtab/")) {
-            // Tell the user to reload the page!
-            let confirmation = confirm('To use Moive Subtitles please reload the page! Reload now?');
-            if (confirmation == true) {
-                chrome.tabs.reload(tab.id);
-                window.close();
-            }
-        }
-    }, 1000);
-}
-
 function updateSubtitleDisplay() {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-        let thisSite = tab[0].url.replace(/^.*\/\//, "").replace(/\/.*/, "");
-        if (!/^www/.test(thisSite)) thisSite = "www." + thisSite;
 
-        if (extensionOn && !blacklist[thisSite]) {
+        if (extensionOn) {
             // Reloading the shadow dom
-            chrome.tabs.sendMessage(tab[0].id, { show: true, blacklist: blacklist });
+            chrome.tabs.sendMessage(tab[0].id, { show: true });
         } else {
             // Unloading the shadow dom!
-            chrome.tabs.sendMessage(tab[0].id, { hide: true, blacklist: blacklist });
+            chrome.tabs.sendMessage(tab[0].id, { hide: true });
         }
     });
 }

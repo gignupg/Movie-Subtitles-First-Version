@@ -19,5 +19,8 @@
   "homepage": "https://github.com/gignupg/movie-subtitles#readme",
   "dependencies": {
     "detect-file-encoding-and-language": "^1.7.2"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.0"
   }
 }

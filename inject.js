@@ -60,7 +60,6 @@ let shadow = null;
 let thisVideo = null;
 let videoIconCount = 0;
 let speedChangeCount = 0;
-let blacklist = defaultBlacklist;
 let thisSite = null;
 let lastTimeExtClicked = {};
 let recentlyForcedPlayback = null;
@@ -167,7 +166,6 @@ chrome.storage.sync.get(null, function (storage) {
     if (storage.shortcuts !== undefined) shortcuts = storage.shortcuts;
     if (storage.opacity !== undefined) opacity = storage.opacity;
     if (storage.fontSize !== undefined && storage.fontSize[screenSize] !== undefined) fontSize.val = storage.fontSize[screenSize];
-    if (storage.blacklist !== undefined) blacklist = storage.blacklist;
 
     // Update thisSite
     chrome.runtime.sendMessage({ getUrl: true }, function (response) {
@@ -348,7 +346,7 @@ function defineVideoController() {
         // Hiding the subtitle controller on youtube when loading another video without refreshing the page.
         // This is definitely not a perfect solution but it's the best I could come up with today. 
         document.body.addEventListener("click", function () {
-            if (!extensionOn || blacklist[thisSite]) {
+            if (!extensionOn) {
                 setTimeout(() => {
                     wrapper.classList.add("vsc-nosource");
                 }, 1000);
@@ -377,12 +375,10 @@ function defineVideoController() {
         function messageReceived(msg) {
             if (msg.hide) {
                 extensionOn = false;
-                blacklist = msg.blacklist;
                 wrapper.classList.add("vsc-nosource");
 
             } else if (msg.show) {
                 extensionOn = true;
-                blacklist = msg.blacklist;
                 wrapper.classList.remove("vsc-nosource");
 
             } else if (msg.shortcuts) {
@@ -892,7 +888,7 @@ function getShadow(parent) {
 }
 
 function initializeNow(document) {
-    if (!extensionOn || blacklist[thisSite]) {
+    if (!extensionOn) {
         return;
     }
 
@@ -1218,7 +1214,6 @@ function processMessage(msg, sender, sendResponse) {
         const initialized = document.body.classList.contains("movie-subtitles-initialized");
         if (!initialized) {
             extensionOn = true;
-            blacklist = msg.blacklist;
             initializeNow(document);
         }
 

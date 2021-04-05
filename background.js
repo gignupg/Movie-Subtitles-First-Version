@@ -1,5 +1,4 @@
 let extensionOn = true;
-let blacklist = defaultBlacklist;
 
 // Necessary because if nothing is listening to the connect event from the content script
 // it will immediately disconnect. So we're preventing an immediate disconnect event being fired.

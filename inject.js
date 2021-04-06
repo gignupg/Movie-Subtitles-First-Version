@@ -3,7 +3,7 @@
 const screenSize = getScreenSize();
 const red = "#C62828";
 const orange = "#f0653b";
-const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
+const defaultSubtitles = "";
 const subtitleFontSizes = {
     small: { min: 1, value: 20, max: 39 },
     medium: { min: 2, value: 28, max: 54 },
@@ -46,7 +46,6 @@ const menuIcon = {
     XL: chrome.runtime.getURL("icons/movie-subtitles-64.png")
 };
 let extensionOn = false;
-let exactUrl = window.location.href;
 let wrapper = null;
 let monitoring = false;
 let pausing = false;
@@ -317,9 +316,9 @@ function defineVideoController() {
         </div>
         <div id="controller" class="hide">
             <div id="subtitle-div"><!-- We need these comments to prevent whitespace between the divs
-            --><button id="prev-button" class="subtitle-button">«</button><!--
-            --><div id="subtitles">${subs[0].text}</div><!--
-            --><button id="next-button" class="subtitle-button">»</button><!--
+            --><button id="prev-button" class="subtitle-button"></button><!--
+            --><div id="subtitles"></div><!--
+            --><button id="next-button" class="subtitle-button"></button><!--
             --></div>
             <div class="line-break"></div>
             <div id="below-subtitles">
@@ -342,28 +341,8 @@ function defineVideoController() {
             true
         );
 
-        // Hiding the subtitle controller on youtube when loading another video without refreshing the page.
-        // This is definitely not a perfect solution but it's the best I could come up with today. 
+        // Make sure to disable highlighting!
         document.body.addEventListener("click", function () {
-            if (!extensionOn) {
-                setTimeout(() => {
-                    wrapper.classList.add("vsc-nosource");
-                }, 1000);
-            }
-
-            // If the url changed, it means another video was loaded. 
-            const newUrl = window.location.href;
-            if (newUrl !== exactUrl) {
-                exactUrl = newUrl;
-                // Reset the subtitles
-                subs = [{ text: defaultSubtitles }];
-                shadow.querySelector("#subtitles").innerHTML = subs[0].text;
-                shadow.querySelector("#chooseFile").value = "";
-
-                // Make sure the subtitles are being placed correctly! Definitely don't omit this step on Youtube!
-                subtitlePlacer();
-            }
-
             disableHighlighting(shadow);
         });
 
@@ -384,6 +363,9 @@ function defineVideoController() {
                 shortcuts = msg.shortcuts;
             }
         }
+
+        // Blur the background
+        thisVideo.style.filter = "blur(10px)";
 
         // Place the subtitles at the correct position in the video;
         subtitlePlacer();
@@ -775,10 +757,6 @@ function defineVideoController() {
                 pausing = false;
                 forwardRewind = false;
             }
-        });
-
-        shadow.getElementById("chooseFile").addEventListener("click", () => {
-            handleMenuClose(thisVideo, shadow);
         });
 
         // Creating our subtitle array once an srt file is being uploaded
@@ -1509,6 +1487,8 @@ function processSubtitles(content) {
         thisVideo.play();
         thisVideo.pause();
     }
+
+    handleMenuClose(thisVideo, shadow);
 }
 
 function getScreenSize() {

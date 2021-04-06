@@ -3,7 +3,7 @@
 const screenSize = getScreenSize();
 const red = "#C62828";
 const orange = "#f0653b";
-const defaultSubtitles = "";
+const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
 const subtitleFontSizes = {
     small: { min: 1, value: 20, max: 39 },
     medium: { min: 2, value: 28, max: 54 },
@@ -79,10 +79,6 @@ let pos = 0;
 
 // The subtitle array before putting our subtitles in there
 let subs = [{ text: defaultSubtitles }];
-
-// Subtitle calibration/Synchronization
-let offset = 0;
-let direction = "earlier";
 
 function subtitleCalibrator(calibration, video, shadow) {
     if (subs.length > 1) {
@@ -250,14 +246,21 @@ function defineVideoController() {
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
         
-        <div id="video-icon">
+        <div id="video-icon" class="blinking-icon">
             <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="video-img"/>
+        </div>
+        <div id="feature-discovery">
+            <div class="discovery-text-block">
+                <p class="discovery-text">Click here to load subtitles,</p>
+                <p class="discovery-text">synchronize them</p>
+                <p class="discovery-text">or adjust the styling!</p>
+            </div>
         </div>
         <div id="speed-indicator" class="hide sync-msg"></div>
         <div id="settings-wrapper" class="hide">
             <div id="settings-header">
                 <div id="settings-close" class="settings-header-item">&times;</div>
-                <div id="settings-title" class="settings-header-item">Subtitle Options</div>
+                <div id="settings-title" class="settings-header-item teal">Subtitle Options</div>
                 <div class="settings-header-item">
                     <img src="${menuIcon[screenSize]}" alt="Logo" class="logo" id="settings-icon"/>
                 </div>
@@ -271,10 +274,9 @@ function defineVideoController() {
                 </div>
                 <div id="subtitle-content" class="section">
                     <div id="centered-box">
-                        <div class="settings-button subtitle-search-button">Select Subtitles</div>
-                        <label for="chooseFile" class="fileLabel settings-button subtitle-upload-button tooltip">
+                        <label for="chooseFile" class="fileLabel settings-button subtitle-search-button tooltip">
                             Load Subtitles from PC
-                            <span class="tooltiptext">Make sure the file ending is either .srt, .txt or .sub!</span>
+                            <span class="tooltiptext">Make sure the filename ends with either .srt, .txt or .sub!</span>
                         </label>
                         <input id="chooseFile" type="file" accept=".srt, .txt, .sub"></input>
                     </div>
@@ -316,9 +318,9 @@ function defineVideoController() {
         </div>
         <div id="controller" class="hide">
             <div id="subtitle-div"><!-- We need these comments to prevent whitespace between the divs
-            --><button id="prev-button" class="subtitle-button"></button><!--
-            --><div id="subtitles"></div><!--
-            --><button id="next-button" class="subtitle-button"></button><!--
+            --><button id="prev-button" class="subtitle-button">«</button><!--
+            --><div id="subtitles">${subs[0].text}</div><!--
+            --><button id="next-button" class="subtitle-button">»</button><!--
             --></div>
             <div class="line-break"></div>
             <div id="below-subtitles">
@@ -354,10 +356,16 @@ function defineVideoController() {
             if (msg.hide) {
                 extensionOn = false;
                 wrapper.classList.add("vsc-nosource");
+                shadow.getElementById("chooseFile").value = "";
+                thisVideo.style.filter = null;
 
             } else if (msg.show) {
                 extensionOn = true;
                 wrapper.classList.remove("vsc-nosource");
+                shadow.getElementById("controller").classList.add("hide");
+                thisVideo.style.filter = "blur(10px)";
+                shadow.getElementById("feature-discovery").classList.remove("hide");
+                shadow.getElementById("video-icon").classList.add("blinking-icon");
 
             } else if (msg.shortcuts) {
                 shortcuts = msg.shortcuts;
@@ -366,6 +374,10 @@ function defineVideoController() {
 
         // Blur the background
         thisVideo.style.filter = "blur(10px)";
+
+        // Hide the video controller
+        subtitlesHidden = true;
+        shadow.getElementById("controller").classList.add("hide");
 
         // Place the subtitles at the correct position in the video;
         subtitlePlacer();
@@ -487,6 +499,9 @@ function defineVideoController() {
             thisVideo.style.filter = "blur(10px)";
             // Hide video icon!
             shadow.getElementById("video-icon").classList.add("hide");
+            // Hide the feature discovery and make the video icon doesn't continue to blink
+            shadow.getElementById("feature-discovery").classList.add("hide");
+            shadow.getElementById("video-icon").classList.remove("blinking-icon");
             // Show the menu
             shadow.getElementById("settings-wrapper").classList.remove("hide");
         });
@@ -865,6 +880,9 @@ function getShadow(parent) {
 }
 
 function initializeNow(document) {
+    // Grey out the extension icon!
+    chrome.runtime.sendMessage({ contentLoading: true });
+
     if (!extensionOn) {
         return;
     }
@@ -1489,6 +1507,10 @@ function processSubtitles(content) {
     }
 
     handleMenuClose(thisVideo, shadow);
+
+    // Unhide the subtitles
+    subtitlesHidden = false;
+    shadow.getElementById("controller").classList.remove("hide");
 }
 
 function getScreenSize() {

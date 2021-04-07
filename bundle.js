@@ -1319,7 +1319,7 @@ function hideOrShowSubtitles() {
 function processSubtitles(content) {
     const newSubs = [];
     const emptyLines = [];
-    const musicRegEx = new RegExp('♪');
+    const musicRegEx = new RegExp(/♪|\[Music\]/);
     let count = 0;
     let type = null;
     let previousTextWithoutHtml = { text: null, count: -1 };

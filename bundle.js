@@ -170,6 +170,7 @@ chrome.storage.sync.get(null, function (storage) {
 });
 
 function defineVideoController() {
+    console.log('defining video controller');
     // Data structures
     // ---------------
     // videoController (JS object) instances:
@@ -352,6 +353,8 @@ function defineVideoController() {
         chrome.runtime.onMessage.addListener(messageReceived);
 
         thisVideo = this.video;
+
+        console.log('thisVideo:', thisVideo);
 
         function messageReceived(msg) {
             if (msg.hide) {
@@ -537,10 +540,12 @@ function defineVideoController() {
         shadow.addEventListener("keydown", (e) => {
             if (extensionOn) {
                 // If a number was pressed while the input field of the settings menu is focused, stop it from skipping to 10%, 20%, 30% and so on...
-                if (e.keyCode >= 48 && e.keyCode <= 57) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
+                // I'm commenting it out because it had a side effect. It was also disabling any manual user input,
+                // such as typing in the the number of seconds that you want to synchronize.
+                // if (e.keyCode >= 48 && e.keyCode <= 57) {
+                //     e.preventDefault();
+                //     e.stopPropagation();
+                // }
 
                 // If space was pressed play/stop the video!
                 if (e.keyCode == 32) {

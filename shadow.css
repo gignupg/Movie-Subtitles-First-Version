@@ -150,12 +150,13 @@ button:hover {
 
 #feature-discovery {
     position: relative;
-    background: linear-gradient(to right, rgb(255 135 0), rgb(210 179 122));
+    background: linear-gradient(to right, rgba(255, 135, 0, 0.85), rgba(210, 179, 122, 0.85));
     top: -500px;
     left: -500px;
     height: 1000px;
     width: 1000px;
     border-radius: 100%;
+    pointer-events: none;
     z-index: 9999999;
 }
 
@@ -164,6 +165,7 @@ button:hover {
     top: 570px;
     left: 590px;
     color: white;
+    text-align: left;
 }
 
 .discovery-text {
@@ -207,13 +209,13 @@ button:hover {
 
 @keyframes glowing {
     0% {
-        box-shadow: 0 0 5px;
+        box-shadow: 0 0 5px white;
     }
     50% {
-        box-shadow: 0 0 10px 10px;
+        box-shadow: 0 0 10px 10px white;
     }
     100% {
-        box-shadow: 0 0 5px;
+        box-shadow: 0 0 5px white;
     }
 }
 

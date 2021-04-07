@@ -251,9 +251,9 @@ function defineVideoController() {
         </div>
         <div id="feature-discovery">
             <div class="discovery-text-block">
-                <p class="discovery-text">Click here to load subtitles,</p>
-                <p class="discovery-text">synchronize them</p>
-                <p class="discovery-text">or adjust the styling!</p>
+                <div class="discovery-text">Click here to load subtitles,</div>
+                <div class="discovery-text">synchronize them</div>
+                <div class="discovery-text">or adjust the styling!</div>
             </div>
         </div>
         <div id="speed-indicator" class="hide sync-msg"></div>

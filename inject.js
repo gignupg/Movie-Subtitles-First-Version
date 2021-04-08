@@ -247,15 +247,8 @@ function defineVideoController() {
           @import "${chrome.runtime.getURL("shadow.css")}";
         </style>
         
-        <div id="video-icon" class="blinking-icon">
+        <div id="video-icon">
             <img src="${chrome.runtime.getURL("icons/movie-subtitles-28.png")}" alt="Logo" class="logo" id="video-img"/>
-        </div>
-        <div id="feature-discovery">
-            <div class="discovery-text-block">
-                <div class="discovery-text">Click here to load subtitles,</div>
-                <div class="discovery-text">synchronize them</div>
-                <div class="discovery-text">or adjust the styling!</div>
-            </div>
         </div>
         <div id="speed-indicator" class="hide sync-msg"></div>
         <div id="settings-wrapper" class="hide">
@@ -360,27 +353,16 @@ function defineVideoController() {
                 extensionOn = false;
                 wrapper.classList.add("vsc-nosource");
                 shadow.getElementById("chooseFile").value = "";
-                thisVideo.style.filter = null;
 
             } else if (msg.show) {
                 extensionOn = true;
                 wrapper.classList.remove("vsc-nosource");
                 shadow.getElementById("controller").classList.add("hide");
-                thisVideo.style.filter = "blur(10px)";
-                shadow.getElementById("feature-discovery").classList.remove("hide");
-                shadow.getElementById("video-icon").classList.add("blinking-icon");
 
             } else if (msg.shortcuts) {
                 shortcuts = msg.shortcuts;
             }
         }
-
-        // Blur the background
-        thisVideo.style.filter = "blur(10px)";
-
-        // Hide the video controller
-        subtitlesHidden = true;
-        shadow.getElementById("controller").classList.add("hide");
 
         // Place the subtitles at the correct position in the video;
         subtitlePlacer();
@@ -502,9 +484,6 @@ function defineVideoController() {
             thisVideo.style.filter = "blur(10px)";
             // Hide video icon!
             shadow.getElementById("video-icon").classList.add("hide");
-            // Hide the feature discovery and make the video icon doesn't continue to blink
-            shadow.getElementById("feature-discovery").classList.add("hide");
-            shadow.getElementById("video-icon").classList.remove("blinking-icon");
             // Show the menu
             shadow.getElementById("settings-wrapper").classList.remove("hide");
         });
@@ -1003,6 +982,34 @@ function initializeNow(document) {
 
                     } else if (key === shortcuts.relocate) {
                         shadow.getElementById("controller").style[controllerPos] = "100px";
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.moveUp) {
+                        const currentPosition = shadow.getElementById("controller").style;
+                        const positionValue = Number(currentPosition[controllerPos].replace(/px/i, ""));
+
+                        if (thisSite === "www.youtube.com") {
+                            currentPosition[controllerPos] = (positionValue - 10) + "px";
+
+                        } else {
+                            currentPosition[controllerPos] = (positionValue + 10) + "px";
+                        }
+
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                    } else if (key === shortcuts.moveDown) {
+                        const currentPosition = shadow.getElementById("controller").style;
+                        const positionValue = Number(currentPosition[controllerPos].replace(/px/i, ""));
+
+                        if (thisSite === "www.youtube.com") {
+                            currentPosition[controllerPos] = (positionValue + 10) + "px";
+
+                        } else {
+                            currentPosition[controllerPos] = (positionValue - 10) + "px";
+                        }
+
                         event.preventDefault();
                         event.stopPropagation();
 

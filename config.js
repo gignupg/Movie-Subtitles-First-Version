@@ -5,6 +5,8 @@ var defaultShortcuts = {
     forward: "s",
     subtitles: "c",
     relocate: "r",
+    moveUp: "\u2191",
+    moveDown: "\u2193",
     slower: "",
     faster: "",
     rewindTwo: "",

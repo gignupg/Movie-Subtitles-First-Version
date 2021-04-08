@@ -207,22 +207,6 @@ button:hover {
     z-index: 99999999;
 }
 
-@keyframes glowing {
-    0% {
-        box-shadow: 0 0 5px white;
-    }
-    50% {
-        box-shadow: 0 0 10px 10px white;
-    }
-    100% {
-        box-shadow: 0 0 5px white;
-    }
-}
-
-.blinking-icon {
-    animation: glowing 1300ms infinite;
-}
-
 #subtitles {
     display: inline-block;
     margin-left: 0;

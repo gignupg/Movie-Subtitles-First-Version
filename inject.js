@@ -3,7 +3,7 @@
 const screenSize = getScreenSize();
 const red = "#C62828";
 const orange = "#f0653b";
-const defaultSubtitles = "To load subtitles click on the icon in the top left corner!";
+const defaultSubtitles = "No subtitles loaded";
 const subtitleFontSizes = {
     small: { min: 1, value: 20, max: 39 },
     medium: { min: 2, value: 28, max: 54 },

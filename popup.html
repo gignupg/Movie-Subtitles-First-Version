@@ -32,81 +32,244 @@
         >
       </div>
     </div>
-    <div id="settings" class="collection">
-      <a href="#!" class="collection-item menu" id="shortcuts"
-        ><span class="badge"><i class="material-icons">keyboard</i></span
-        >Shortcuts</a
-      >
-      <a href="#!" class="collection-item menu" id="feedback-link"
-        ><span class="badge"><i class="material-icons">feedback</i></span
-        >Feedback</a
-      >
-      <a href="#!" class="collection-item menu"
-        ><span class="badge"><i class="material-icons">group</i></span
-        >About</a
-      >
+    <div id="settings">
+      <div id="subtitle-section">
+        <h3 class="menu-heading red-text text-darken-3">Subtitles:</h3>
+        <div class="collection">
+          <a
+            id="subtitle-import"
+            href="#!"
+            class="collection-item menu black-text tooltipped"
+            data-position="top"
+            data-tooltip="Accepts .srt, .txt, and .sub files"
+            ><span class="badge"><i class="material-icons">file_upload</i></span
+            >Load Subtitles from PC</a
+          >
+        </div>
+        <h3
+          class="menu-heading red-text text-darken-3"
+          style="margin-top: 30px"
+        >
+          Display:
+        </h3>
+        <div class="collection">
+          <a href="#!" class="collection-item menu black-text default-cursor"
+            ><span class="badge"
+              ><i class="material-icons pointer-cursor" id="size-minus"
+                >remove_circle</i
+              ><i class="material-icons pointer-cursor" id="size-plus"
+                >add_circle</i
+              ></span
+            >Subtitle Size</a
+          >
+          <a href="#!" class="collection-item menu black-text default-cursor"
+            ><span class="badge"
+              ><i class="material-icons pointer-cursor" id="opacity-minus"
+                >remove_circle</i
+              ><i class="material-icons pointer-cursor" id="opacity-plus"
+                >add_circle</i
+              ></span
+            >Transparency</a
+          >
+        </div>
+        <h3
+          class="menu-heading red-text text-darken-3"
+          style="margin-top: 30px"
+        >
+          Synchronization:
+        </h3>
+        <div class="collection">
+          <div id="earlier-later-block" class="input-field col s6">
+            <select id="sync-direction">
+              <option value="earlier">Display Subtitles Earlier</option>
+              <option value="later">Display Subtitles Later</option>
+            </select>
+          </div>
+          <hr />
+          <form id="range-block" action="#">
+            <p class="range-field">
+              <input
+                type="range"
+                id="input-range"
+                step="0.1"
+                min="0"
+                max="10"
+                value="0"
+              />
+            </p>
+            <input
+              type="number"
+              class="browser-default sync-input center-align"
+              id="sync-input"
+              min="0"
+              step="0.1"
+              value="0"
+            />
+            <p class="sync-sec-display">sec</p>
+          </form>
+          <hr />
+          <p
+            id="success-message"
+            class="light-green-text text-accent-4 message center-align hide"
+          >
+            Successful!
+          </p>
+          <div class="centered-container">
+            <i
+              id="sync-progress-indicator"
+              style="font-size: 22px; margin: 20px"
+              class="fa fa-refresh fa-spin grey-text hide"
+            ></i>
+          </div>
+          <p id="error-message" class="red-text message hide">
+            Something went wrong. Please make sure your input is valid!
+          </p>
+          <a href="#!" class="collection-item black-text default-cursor">
+            <div class="flex-container">
+              <button
+                class="btn waves-effect waves-light"
+                type="submit"
+                name="action"
+              >
+                Sync Now
+                <i class="material-icons right">sync</i>
+              </button>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="general-section">
+        <h3
+          class="menu-heading red-text text-darken-3"
+          style="margin-top: 30px"
+        >
+          General:
+        </h3>
+        <div class="collection">
+          <a href="#!" class="collection-item menu" id="shortcuts"
+            ><span class="badge"><i class="material-icons">keyboard</i></span
+            >Shortcuts</a
+          >
+          <a href="#!" class="collection-item menu" id="feedback-link"
+            ><span class="badge"><i class="material-icons">feedback</i></span
+            >Feedback</a
+          >
+          <a href="#!" class="collection-item menu"
+            ><span class="badge"><i class="material-icons">group</i></span
+            >About</a
+          >
+        </div>
+      </div>
     </div>
     <div id="shortcut-settings" class="hide">
       <i id="shortcut-back" class="material-icons">keyboard_backspace</i>
       <hr />
       <div class="shortcut">
         <div class="label">Previous sentence</div>
-        <input name="previous" type="text" class="browser-default arrow" />
+        <input
+          name="previous"
+          type="text"
+          class="browser-default arrow shortcut-input"
+        />
       </div>
       <hr />
       <div class="shortcut">
         <div class="label">Next sentence</div>
-        <input name="next" type="text" class="browser-default arrow" />
+        <input
+          name="next"
+          type="text"
+          class="browser-default arrow shortcut-input"
+        />
       </div>
       <hr />
       <div class="shortcut">
         <div class="label">Rewind 5 seconds</div>
-        <input name="rewind" type="text" class="browser-default" />
+        <input
+          name="rewind"
+          type="text"
+          class="browser-default shortcut-input"
+        />
       </div>
       <hr />
       <div class="shortcut">
         <div class="label">Fast-forward 5 seconds</div>
-        <input name="forward" type="text" class="browser-default" />
+        <input
+          name="forward"
+          type="text"
+          class="browser-default shortcut-input"
+        />
       </div>
       <hr />
       <div class="shortcut">
         <div class="label">Subtitles on/off</div>
-        <input name="subtitles" type="text" class="browser-default" />
-      </div>
-      <hr />
-      <div class="shortcut">
-        <div class="label">Move subtitles up</div>
-        <input name="moveUp" type="text" class="browser-default" />
-      </div>
-      <hr />
-      <div class="shortcut">
-        <div class="label">Move subtitles down</div>
-        <input name="moveDown" type="text" class="browser-default" />
+        <input
+          name="subtitles"
+          type="text"
+          class="browser-default shortcut-input"
+        />
       </div>
       <hr />
       <div class="shortcut">
         <div class="label">Relocate subtitles</div>
-        <input name="relocate" type="text" class="browser-default" />
+        <input
+          name="relocate"
+          type="text"
+          class="browser-default shortcut-input"
+        />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Move subtitles up</div>
+        <input
+          name="moveUp"
+          type="text"
+          class="browser-default shortcut-input"
+        />
+      </div>
+      <hr />
+      <div class="shortcut">
+        <div class="label">Move subtitles down</div>
+        <input
+          name="moveDown"
+          type="text"
+          class="browser-default shortcut-input"
+        />
       </div>
       <hr />
       <div class="shortcut">
         <div class="label">Speed (slower)</div>
-        <input name="slower" type="text" class="browser-default" />
+        <input
+          name="slower"
+          type="text"
+          class="browser-default shortcut-input"
+        />
       </div>
       <hr />
       <div class="shortcut">
         <div class="label">Speed (faster)</div>
-        <input name="faster" type="text" class="browser-default" />
+        <input
+          name="faster"
+          type="text"
+          class="browser-default shortcut-input"
+        />
       </div>
       <hr />
       <div class="shortcut">
         <div class="label">Rewind 2.5 seconds</div>
-        <input name="rewindTwo" type="text" class="browser-default" />
+        <input
+          name="rewindTwo"
+          type="text"
+          class="browser-default shortcut-input"
+        />
       </div>
       <hr />
       <div class="shortcut">
         <div class="label">Fast-forward 2.5 seconds</div>
-        <input name="forwardTwo" type="text" class="browser-default" />
+        <input
+          name="forwardTwo"
+          type="text"
+          class="browser-default shortcut-input"
+        />
       </div>
       <hr />
     </div>

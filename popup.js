@@ -6,24 +6,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
 let extensionOn = false;
 let shortcuts = null;
+let videoDetected = false;
 
+// Load and display the correct shortcuts
+chrome.storage.sync.get(null, function (storage) {
+  if (storage.shortcuts === undefined) {
+    shortcuts = chrome.extension.getBackgroundPage().defaultShortcuts;
+  } else {
+    shortcuts = storage.shortcuts;
+  }
+
+  updatePopup();
+});
+
+// Check whether a video has been detected
 chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
   chrome.tabs.sendMessage(tab[0].id, { status: true }, function (response) {
-    chrome.storage.sync.get(null, function (storage) {
-      extensionOn = response;
-
-      if (storage.shortcuts === undefined) {
-        shortcuts = chrome.extension.getBackgroundPage().defaultShortcuts;
-      } else {
-        shortcuts = storage.shortcuts;
-      }
-
+    if (response) {
+      extensionOn = true;
+      videoDetected = true;
       updatePopup();
-    });
+    }
   });
 });
 
+// Listen for incoming messages
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.videoDetected) {
+    extensionOn = true;
+    videoDetected = true;
+    updatePopup();
+  }
+});
+
 $(".power-button").addEventListener("click", toggleExtensionOnOff);
+
+$("#subtitle-import").addEventListener("click", () =>
+  messageContentScript({ import: true })
+);
 
 $("#shortcuts").addEventListener("click", openShortcutMenu);
 
@@ -66,6 +86,11 @@ function updatePopup() {
     // Changing the hover color of the power button
     $(".power-button").classList.remove("turn-off");
     $(".power-button").classList.add("turn-on");
+  }
+
+  if (videoDetected) {
+    // Display all settings
+    $("#subtitle-section").classList.remove("hide");
   }
 }
 

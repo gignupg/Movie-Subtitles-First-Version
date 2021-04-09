@@ -12,6 +12,10 @@ hr {
   margin: 0;
 }
 
+.collection {
+  margin: 0 !important;
+}
+
 .secondary {
   font-size: 0.95em;
   margin: 0.15em 0;

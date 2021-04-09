@@ -382,19 +382,27 @@ function defineVideoController() {
           shadow.querySelector("#display-range-1").value
         );
         const newSize = currentSize - 2;
-        if (newSize > fontSize.min && newSize < fontSize.max)
+        if (newSize >= fontSize.min && newSize <= fontSize.max)
           adjustSize(newSize);
       } else if (msg.sizePlus) {
         const currentSize = Number(
           shadow.querySelector("#display-range-1").value
         );
         const newSize = currentSize + 2;
-        if (newSize > fontSize.min && newSize < fontSize.max)
+        if (newSize >= fontSize.min && newSize <= fontSize.max)
           adjustSize(newSize);
       } else if (msg.opacityMinus) {
-        console.log("info");
+        const currentOpacity = Number(
+          shadow.querySelector("#display-range-2").value
+        );
+        const newOpacity = currentOpacity - 0.05;
+        if (newOpacity >= 0 && newOpacity <= 1) adjustOpacity(newOpacity);
       } else if (msg.opacityPlus) {
-        console.log("info");
+        const currentOpacity = Number(
+          shadow.querySelector("#display-range-2").value
+        );
+        const newOpacity = currentOpacity + 0.05;
+        if (newOpacity >= 0 && newOpacity <= 1) adjustOpacity(newOpacity);
       }
     }
 
@@ -691,6 +699,11 @@ function defineVideoController() {
       adjustSize(newSize);
     });
 
+    shadow.querySelector("#display-range-2").addEventListener("input", (e) => {
+      const newOpacity = e.target.value;
+      adjustOpacity(newOpacity);
+    });
+
     function adjustSize(newSize) {
       shadow.querySelector("#display-range-1").value = newSize;
       shadow.querySelector("#subtitles").style.fontSize = newSize + "px";
@@ -705,15 +718,14 @@ function defineVideoController() {
       });
     }
 
-    shadow.querySelector("#display-range-2").addEventListener("input", (e) => {
-      const newOpacity = e.target.value;
+    function adjustOpacity(newOpacity) {
       shadow.querySelector("#display-range-2").value = newOpacity;
       shadow.querySelector(
         "#subtitle-div"
       ).style.backgroundColor = `rgba(0, 0, 0, ${newOpacity})`;
       opacity = newOpacity;
       chrome.storage.sync.set({ opacity: newOpacity });
-    });
+    }
 
     shadow.querySelector("#sync-range").addEventListener("input", (e) => {
       // update #sync-seconds

@@ -377,6 +377,24 @@ function defineVideoController() {
       } else if (msg.import) {
         console.log("importing");
         shadow.getElementById("chooseFile").click();
+      } else if (msg.sizeMinus) {
+        const currentSize = Number(
+          shadow.querySelector("#display-range-1").value
+        );
+        const newSize = currentSize - 2;
+        if (newSize > fontSize.min && newSize < fontSize.max)
+          adjustSize(newSize);
+      } else if (msg.sizePlus) {
+        const currentSize = Number(
+          shadow.querySelector("#display-range-1").value
+        );
+        const newSize = currentSize + 2;
+        if (newSize > fontSize.min && newSize < fontSize.max)
+          adjustSize(newSize);
+      } else if (msg.opacityMinus) {
+        console.log("info");
+      } else if (msg.opacityPlus) {
+        console.log("info");
       }
     }
 
@@ -670,6 +688,10 @@ function defineVideoController() {
 
     shadow.querySelector("#display-range-1").addEventListener("input", (e) => {
       const newSize = e.target.value;
+      adjustSize(newSize);
+    });
+
+    function adjustSize(newSize) {
       shadow.querySelector("#display-range-1").value = newSize;
       shadow.querySelector("#subtitles").style.fontSize = newSize + "px";
       shadow
@@ -681,7 +703,7 @@ function defineVideoController() {
           [screenSize]: newSize
         }
       });
-    });
+    }
 
     shadow.querySelector("#display-range-2").addEventListener("input", (e) => {
       const newOpacity = e.target.value;

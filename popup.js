@@ -45,6 +45,22 @@ $("#subtitle-import").addEventListener("click", () =>
   messageContentScript({ import: true })
 );
 
+$("#size-minus").addEventListener("click", () =>
+  messageContentScript({ sizeMinus: true })
+);
+
+$("#size-plus").addEventListener("click", () =>
+  messageContentScript({ sizePlus: true })
+);
+
+$("#opacity-minus").addEventListener("click", () =>
+  messageContentScript({ opacityMinus: true })
+);
+
+$("#opacity-plus").addEventListener("click", () =>
+  messageContentScript({ opacityPlus: true })
+);
+
 $("#shortcuts").addEventListener("click", openShortcutMenu);
 
 $("#feedback-link").addEventListener("click", () => {

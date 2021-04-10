@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
 let extensionOn = false;
 let shortcuts = null;
 let videoDetected = false;
+let syncObj = { value: 0, direction: "earlier" };
 
 // Load and display the correct shortcuts
 chrome.storage.sync.get(null, function (storage) {
@@ -19,12 +20,13 @@ chrome.storage.sync.get(null, function (storage) {
   updatePopup();
 });
 
-// Check whether a video has been detected
+// Check whether a video has been detected and update the synchronization values
 chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
   chrome.tabs.sendMessage(tab[0].id, { status: true }, function (response) {
     if (response) {
       extensionOn = true;
       videoDetected = true;
+      syncObj = response;
       updatePopup();
     }
   });
@@ -61,6 +63,37 @@ $("#opacity-plus").addEventListener("click", () =>
   messageContentScript({ opacityPlus: true })
 );
 
+$("#sync-direction").addEventListener("change", (e) => {
+  messageContentScript({ direction: e.target.value });
+});
+
+// Updating the input value when the range slider is moved
+$("#input-range").addEventListener("change", function () {
+  const newValue = $("#input-range").value;
+  $("#sync-input").value = newValue;
+  messageContentScript({
+    syncRange: {
+      newVal: Number(newValue),
+      direction: $("#sync-direction").value
+    }
+  });
+});
+
+$("#sync-input").addEventListener("input", function () {
+  const newValue = $("#sync-input").value;
+  $("#input-range").value = newValue;
+  messageContentScript({
+    syncRange: {
+      newVal: Number(newValue),
+      direction: $("#sync-direction").value
+    }
+  });
+});
+
+$("#sync-now").addEventListener("click", () => {
+  messageContentScript({ syncNow: true });
+});
+
 $("#shortcuts").addEventListener("click", openShortcutMenu);
 
 $("#feedback-link").addEventListener("click", () => {
@@ -95,6 +128,20 @@ function updatePopup() {
     // Changing the hover color of the power button
     $(".power-button").classList.remove("turn-on");
     $(".power-button").classList.add("turn-off");
+
+    if (videoDetected) {
+      // Display all settings
+      $("#subtitle-section").classList.remove("hide");
+
+      // Update the synchronization values
+      $("#input-range").value = syncObj.value;
+      $("#sync-input").value = syncObj.value;
+      if (syncObj.direction === "later") {
+        $("#sync-direction")[0].selected = false;
+        $("#sync-direction")[1].selected = true;
+        M.FormSelect.init(document.querySelectorAll("select"), {});
+      }
+    }
   } else {
     // Hide the popup settings
     $("#settings").classList.add("hide");
@@ -102,11 +149,6 @@ function updatePopup() {
     // Changing the hover color of the power button
     $(".power-button").classList.remove("turn-off");
     $(".power-button").classList.add("turn-on");
-  }
-
-  if (videoDetected) {
-    // Display all settings
-    $("#subtitle-section").classList.remove("hide");
   }
 }
 

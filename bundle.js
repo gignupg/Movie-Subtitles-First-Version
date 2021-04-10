@@ -373,9 +373,11 @@ function defineVideoController() {
       } else if (msg.shortcuts) {
         shortcuts = msg.shortcuts;
       } else if (msg.status) {
-        sendResponse(true);
+        const syncObj = {};
+        syncObj.value = Math.abs(shadow.getElementById("sync-range").value);
+        syncObj.direction = shadow.getElementById("offset-direction").value;
+        sendResponse(syncObj);
       } else if (msg.import) {
-        console.log("importing");
         shadow.getElementById("chooseFile").click();
       } else if (msg.sizeMinus) {
         const currentSize = Number(
@@ -403,6 +405,18 @@ function defineVideoController() {
         );
         const newOpacity = currentOpacity + 0.05;
         if (newOpacity >= 0 && newOpacity <= 1) adjustOpacity(newOpacity);
+      } else if (msg.direction) {
+        adjustDirection(msg.direction);
+        setDisplayedDirection(msg.direction);
+      } else if (msg.syncRange) {
+        adjustRange(msg.syncRange.newVal, msg.syncRange.direction);
+        if (msg.syncRange.direction === "earlier") {
+          shadow.getElementById("sync-range").value = -msg.syncRange.newVal;
+        } else {
+          shadow.getElementById("sync-range").value = msg.syncRange.newVal;
+        }
+      } else if (msg.syncNow) {
+        shadow.getElementById("subtitle-sync-button").click();
       }
     }
 
@@ -730,9 +744,17 @@ function defineVideoController() {
     shadow.querySelector("#sync-range").addEventListener("input", (e) => {
       // update #sync-seconds
       const newVal = Math.abs(e.target.value);
-      shadow.getElementById("sync-seconds").value = newVal;
-
       const direction = e.target.value <= 0 ? "earlier" : "later";
+      adjustRange(newVal, direction);
+    });
+
+    shadow.getElementById("sync-seconds").addEventListener("input", (e) => {
+      const newVal = Math.abs(e.target.value);
+      adjustSyncSecs(newVal);
+    });
+
+    function adjustRange(newVal, direction) {
+      shadow.getElementById("sync-seconds").value = newVal;
       const mySelect = shadow.getElementById("offset-direction");
 
       for (let i, j = 0; (i = mySelect.options[j]); j++) {
@@ -757,10 +779,9 @@ function defineVideoController() {
           break;
         }
       }
-    });
+    }
 
-    shadow.getElementById("sync-seconds").addEventListener("input", (e) => {
-      const newVal = Math.abs(e.target.value);
+    function adjustSyncSecs(newVal) {
       const direction = shadow.getElementById("offset-direction").value;
       const earlier = direction === "earlier" ? true : false;
       const buttonStyle = shadow.getElementById("subtitle-sync-button").style;
@@ -788,20 +809,38 @@ function defineVideoController() {
           buttonStyle.cursor = "default";
         }
       }
-    });
+    }
+
+    function setDisplayedDirection(direction) {
+      const mySelect = shadow.getElementById("offset-direction");
+
+      for (let i, j = 0; (i = mySelect.options[j]); j++) {
+        if (i.value === direction) {
+          mySelect.selectedIndex = j;
+          break;
+        }
+      }
+    }
 
     shadow
       .querySelector("#offset-direction")
       .addEventListener("change", (e) => {
         const direction = e.target.value;
-        shadow.getElementById("sync-range").value = -shadow.getElementById(
-          "sync-range"
-        ).value;
-        shadow.getElementById("offset-direction").style.color =
-          direction === "earlier" ? orange : red;
-        shadow.getElementById("subtitle-sync-button").style.backgroundColor =
-          direction === "earlier" ? orange : red;
+        adjustDirection(direction);
       });
+
+    function adjustDirection(direction) {
+      const rangeVal = Math.abs(shadow.getElementById("sync-range").value);
+      if (direction === "earlier") {
+        shadow.getElementById("sync-range").value = -rangeVal;
+      } else {
+        shadow.getElementById("sync-range").value = rangeVal;
+      }
+      shadow.getElementById("offset-direction").style.color =
+        direction === "earlier" ? orange : red;
+      shadow.getElementById("subtitle-sync-button").style.backgroundColor =
+        direction === "earlier" ? orange : red;
+    }
 
     shadow.querySelector("#settings-icon").addEventListener("click", () => {
       shadow.querySelector("#subtitle-settings").classList.remove("hide");

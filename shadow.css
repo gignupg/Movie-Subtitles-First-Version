@@ -1,575 +1,579 @@
 * {
-    font-family: sans-serif;
-    --red: #C62828;
-    --orange: #ec7903;
-    --menu-font-size: 17px;
-    --subtitle-margin: 5px;
+  font-family: sans-serif;
+  --red: #c62828;
+  --orange: #ec7903;
+  --menu-font-size: 17px;
+  --subtitle-margin: 5px;
 }
 
 i {
-    /* This makes the i tag unclickable which allows me to click the element beneath it
+  /* This makes the i tag unclickable which allows me to click the element beneath it
        which in this case is the subtitle div which can be dragged this way */
-    pointer-events: none;
+  pointer-events: none;
 }
 
 hr {
-    width: 100%;
-    border: 0;
-    height: 0;
-    border-top: 1px solid rgba(122, 122, 122, 0.3);
-    margin: 0.6em 0;
+  width: 100%;
+  border: 0;
+  height: 0;
+  border-top: 1px solid rgba(122, 122, 122, 0.3);
+  margin: 0.6em 0;
 }
 
 p {
-    font-size: 15px;
-    margin: 5px 5px;
+  font-size: 15px;
+  margin: 5px 5px;
 }
 
 .subtitle-button {
-    display: inline-block;
-    background-color: transparent;
-    font-weight: 900;
-    margin-left: var(--subtitle-margin);
-    margin-right: var(--subtitle-margin);
-    color: white;
-    border: none;
-    user-select: none;
-    -webkit-user-select: none;
+  display: inline-block;
+  background-color: transparent;
+  font-weight: 900;
+  margin-left: var(--subtitle-margin);
+  margin-right: var(--subtitle-margin);
+  color: white;
+  border: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #controller {
-    position: absolute;
-    width: 100%;
-    overflow: visible;
-    background: none !important;
-    text-align: center;
-    color: white;
-    cursor: default;
-    z-index: 9999999;
+  position: absolute;
+  width: 100%;
+  overflow: visible;
+  background: none !important;
+  text-align: center;
+  color: white;
+  cursor: default;
+  z-index: 9999999;
 }
 
 #settings-wrapper {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.795);
-    color: black;
-    width: 90%;
-    max-width: 600px;
-    top: 5vh;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 1px solid rgb(218, 218, 218);
-    border-radius: 10px;
-    box-shadow: 3px 3px 10px rgb(160, 160, 160);
-    z-index: 9999998;
+  position: absolute;
+  background-color: rgb(230, 230, 230);
+  color: black;
+  width: 90%;
+  max-width: 600px;
+  top: 5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid rgb(218, 218, 218);
+  border-radius: 10px;
+  box-shadow: 3px 3px 10px rgb(160, 160, 160);
+  z-index: 9999998;
 }
 
 #settings-header {
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 }
 
 #settings-body {
-    display: flex;
-    margin-top: 10px;
-    font-size: var(--menu-font-size);
+  display: flex;
+  margin-top: 10px;
+  font-size: var(--menu-font-size);
 }
 
 .settings-header-item {
-    margin: 10px;
+  margin: 10px;
 }
 
 #settings-title {
-    font-size: 23px;
-    color: black;
+  font-size: 23px;
+  color: black;
 }
 
 #settings-close {
-    font-size: 30px;
-    margin-top: 0px;
-    line-height: 1.3;
-    cursor: pointer;
+  font-size: 30px;
+  margin-top: 0px;
+  line-height: 1.3;
+  cursor: pointer;
 }
 
 .section-heading {
-    text-align: center;
-    font-size: 16px;
-    color: #C62828;
-    margin: 0;
+  text-align: center;
+  font-size: 16px;
+  color: #c62828;
+  margin: 0;
 }
 
 #controller.dragging {
-    cursor: -webkit-grabbing;
+  cursor: -webkit-grabbing;
 }
 
 #subtitle-div {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 40px;
-    max-width: 90%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 40px;
+  max-width: 90%;
 }
 
 #below-subtitles {
-    display: inline-block;
+  display: inline-block;
 }
 
 button:focus {
-    outline: 0;
+  outline: 0;
 }
 
 button:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 #chooseFile {
-    display: none;
+  display: none;
 }
 
 .fileLabel {
-    background-color: yellowgreen;
+  background-color: yellowgreen;
 }
 
 #speed-indicator {
-    position: absolute;
-    top: 60px;
-    left: 10px;
-    color: white;
-    z-index: 99999999;
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  color: white;
+  z-index: 99999999;
 }
 
 .sync-msg {
-    display: inline-block;
-    font-size: 16px;
-    font-weight: 600;
-    text-align: center;
-    margin-top: 5px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    background-color: rgba(0, 0, 0, 0.8);
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 5px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 #feature-discovery {
-    position: relative;
-    background: linear-gradient(to right, rgba(255, 135, 0, 0.85), rgba(210, 179, 122, 0.85));
-    top: -500px;
-    left: -500px;
-    height: 1000px;
-    width: 1000px;
-    border-radius: 100%;
-    pointer-events: none;
-    z-index: 9999999;
+  position: relative;
+  background: linear-gradient(
+    to right,
+    rgba(255, 135, 0, 0.85),
+    rgba(210, 179, 122, 0.85)
+  );
+  top: -500px;
+  left: -500px;
+  height: 1000px;
+  width: 1000px;
+  border-radius: 100%;
+  pointer-events: none;
+  z-index: 9999999;
 }
 
 .discovery-text-block {
-    position: relative; 
-    top: 570px;
-    left: 590px;
-    color: white;
-    text-align: left;
+  position: relative;
+  top: 570px;
+  left: 590px;
+  color: white;
+  text-align: left;
 }
 
 .discovery-text {
-    font-size: 25px;
-    line-height: 50px;
+  font-size: 25px;
+  line-height: 50px;
 }
 
 #skip-music {
-    color: rgb(255, 142, 50);
-    cursor: pointer;
+  color: rgb(255, 142, 50);
+  cursor: pointer;
 }
 
 #skip-music:hover {
-    color: var(--orange);
+  color: var(--orange);
 }
 
 #loaded {
-    color: rgb(0, 255, 0);
+  color: rgb(0, 255, 0);
 }
 
 #synced {
-    color: rgb(0, 255, 0);
+  color: rgb(0, 255, 0);
 }
 
 #not-synced {
-    color: rgb(255, 0, 0);
+  color: rgb(255, 0, 0);
 }
 
 .hide {
-    display: none !important;
+  display: none !important;
 }
 
 #video-icon {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    cursor: pointer;
-    line-height: 0;  /* Necessary to prevent the bottom border from sticking out while the animation is running */
-    z-index: 99999999;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  cursor: pointer;
+  line-height: 0; /* Necessary to prevent the bottom border from sticking out while the animation is running */
+  z-index: 99999999;
 }
 
 #subtitles {
-    display: inline-block;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: var(--subtitle-margin);
-    margin-bottom: var(--subtitle-margin);
-    user-select: none;
-    -webkit-user-select: none;
+  display: inline-block;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: var(--subtitle-margin);
+  margin-bottom: var(--subtitle-margin);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #video-img {
-    padding: 5px;
-    border-radius: 3px;
-    background-color: rgba(255, 255, 255, 0.849);
+  padding: 5px;
+  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.849);
 }
 
 #settings-menu {
-    text-align: start;
-    font-size: 16px;
-    font-weight: 600;
-    color: black;
+  text-align: start;
+  font-size: 16px;
+  font-weight: 600;
+  color: black;
 }
 
 .menu-item {
-    font-size: var(--menu-font-size);
-    padding: 10px 15px 10px 30px;
-    border-right: 1px solid rgb(189, 189, 189);
-    cursor: pointer;
+  font-size: var(--menu-font-size);
+  padding: 10px 15px 10px 30px;
+  border-right: 1px solid rgb(189, 189, 189);
+  cursor: pointer;
 }
 
 .menu-item:hover {
-    background-color: rgba(0, 0, 0, 0.103);
+  background-color: rgba(0, 0, 0, 0.103);
 }
 
 .selected-menu-item {
-    background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .selected-menu-item:hover {
-    background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .settings-button {
-    text-align: center;
-    padding: 8px 16px;
-    margin: 10px;
-    font-size: var(--menu-font-size);
-    font-weight: 600;
-    border-radius: 5px;
-    box-shadow: 3px 3px 10px rgb(136, 136, 136);
-    cursor: pointer;
+  text-align: center;
+  padding: 8px 16px;
+  margin: 10px;
+  font-size: var(--menu-font-size);
+  font-weight: 600;
+  border-radius: 5px;
+  box-shadow: 3px 3px 10px rgb(136, 136, 136);
+  cursor: pointer;
 }
 
 .subtitle-search-button {
-    color: white;
-    background-color: var(--orange);
+  color: white;
+  background-color: var(--orange);
 }
 
 .subtitle-upload-button {
-    color: rgb(30,30,30); 
-    background-color: rgb(200,200,200);
+  color: rgb(30, 30, 30);
+  background-color: rgb(200, 200, 200);
 }
 
 #centered-box {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
 #bottom-space {
-    height: 20px;
-    width: 170.45px;
+  height: 20px;
+  width: 170.45px;
 }
 
 #subtitle-content {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-top: -10px
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: -10px;
 }
 
 #display-content {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
 .display-label {
-    font-size: var(--menu-font-size);
+  font-size: var(--menu-font-size);
 }
 
 .display-box {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
 }
-  
+
 .slider {
-    --range-size: 13px;
-    -webkit-appearance: none;
-    width: 150px;
-    height: 3px;
-    border-radius: 5px;
-    background: #b8b8b8;
-    margin-top: auto;
-    margin-bottom: auto;
-    outline: none;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
+  --range-size: 13px;
+  -webkit-appearance: none;
+  width: 150px;
+  height: 3px;
+  border-radius: 5px;
+  background: #b8b8b8;
+  margin-top: auto;
+  margin-bottom: auto;
+  outline: none;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
 }
-  
+
 .slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: var(--range-size);
-    height: var(--range-size);
-    border-radius: 50%;
-    background: var(--orange);
-    cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--range-size);
+  height: var(--range-size);
+  border-radius: 50%;
+  background: var(--orange);
+  cursor: pointer;
 }
-  
+
 .slider::-moz-range-thumb {
-    width: var(--range-size);
-    height: var(--range-size);
-    border-radius: 50%;
-    background: var(--orange);
-    cursor: pointer;
+  width: var(--range-size);
+  height: var(--range-size);
+  border-radius: 50%;
+  background: var(--orange);
+  cursor: pointer;
 }
 
 #sync-range::-webkit-slider-thumb {
-    background: grey;
+  background: grey;
 }
 
 #sync-range::-moz-range-thumb {
-    background: grey;
+  background: grey;
 }
 
 .tooltip {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
-  
+
 .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 240px;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 10px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -60px;
-    opacity: 0;
-    font-weight: 300;
-    transition: opacity 0.3s;
+  visibility: hidden;
+  width: 240px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  font-weight: 300;
+  transition: opacity 0.3s;
 }
-  
+
 .tooltip .tooltiptext::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
 }
-  
+
 .tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
+  visibility: visible;
+  opacity: 1;
 }
 
 #sync-box {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .sync-style {
-    font-size: var(--menu-font-size);
+  font-size: var(--menu-font-size);
 }
 
 #subtitle-sync-button {
-    width: 100%;
-    padding-left: 0;
-    padding-right: 0;
-    color: rgba(255, 255, 255, 0.849);
-    cursor: default;
-    background-color: rgba(0,0,0,0.2);
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  color: rgba(255, 255, 255, 0.849);
+  cursor: default;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 #sync-range {
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 0px;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 0px;
 }
 
 #sync-content {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
 #settings-spacer {
-    height: 20px;
+  height: 20px;
 }
 
 .sync-input {
-    background: transparent;
-    border: none;
-    width: 45px;
-    margin-left: 32px;
-    font-size: var(--menu-font-size);
+  background: transparent;
+  border: none;
+  width: 45px;
+  margin-left: 32px;
+  font-size: var(--menu-font-size);
 }
 
 .sync-input:focus {
-    outline: none !important;
+  outline: none !important;
 }
 
 #offset-direction {
-    -moz-appearance: none; /* Firefox */
-    -webkit-appearance: none; /* Safari and Chrome */
-    appearance: none;
-    background: none;
-    border: none;
-    outline: none;
-    color: #ee5122;
-    font-size: var(--menu-font-size);
-    font-weight: 600;
-    cursor: pointer;
+  -moz-appearance: none; /* Firefox */
+  -webkit-appearance: none; /* Safari and Chrome */
+  appearance: none;
+  background: none;
+  border: none;
+  outline: none;
+  color: #ee5122;
+  font-size: var(--menu-font-size);
+  font-weight: 600;
+  cursor: pointer;
 }
 
 option {
-    background-color: rgb(240, 240, 240);
-    font-weight: 600;
+  background-color: rgb(240, 240, 240);
+  font-weight: 600;
 }
 
 .option-earlier {
-    color: #f0653b;
+  color: #f0653b;
 }
 
 .option-later {
-    color: #C62828;
+  color: #c62828;
 }
 
 .text-cursor {
-    cursor: text;
+  cursor: text;
 }
 
 @media screen and (max-width: 1024px) {
-    * {
-        --menu-font-size: 14px;
-        --subtitle-margin: 4px;
-    }
-    #video-img {
-        padding: 4px;
-    }
-    #settings-wrapper {
-      max-width: 500px;
-    }
-    #settings-title {
-        font-size: 19px;
-    }
-    .menu-item {
-        padding: 7px 10px 7px 20px;
-    }
-    .settings-button {
-        padding: 6px 12px;
-        margin: 8px;
-    }
-    #settings-spacer {
-        height: 10px;
-    }
-    #settings-close {
-        font-size: 25px;
-    }
+  * {
+    --menu-font-size: 14px;
+    --subtitle-margin: 4px;
+  }
+  #video-img {
+    padding: 4px;
+  }
+  #settings-wrapper {
+    max-width: 500px;
+  }
+  #settings-title {
+    font-size: 19px;
+  }
+  .menu-item {
+    padding: 7px 10px 7px 20px;
+  }
+  .settings-button {
+    padding: 6px 12px;
+    margin: 8px;
+  }
+  #settings-spacer {
+    height: 10px;
+  }
+  #settings-close {
+    font-size: 25px;
+  }
 }
 
 @media screen and (min-width: 1600px) {
-    * {
-        --menu-font-size: 26px;
-        --subtitle-margin: 8px;
-    }
-    #video-img {
-        padding: 10px;
-        border-radius: 7px;
-    }
-    #settings-wrapper {
-      max-width: 800px;
-    }
-    #settings-title {
-        font-size: 33px;
-    }
-    .menu-item {
-        padding: 20px 30px 20px 40px;
-    }
-    .settings-button {
-        padding: 12px 24px;
-        margin: 16px;
-    }
-    #settings-spacer {
-        height: 20px;
-    }
-    #settings-close {
-        font-size: 45px;
-        margin-top: 5px;
-    }
-    .settings-header-item {
-        margin: 20px;
-    }
-    .slider {
-        width: 250px;
-        --range-size: 20px;
-        height: 4px;
-    }
+  * {
+    --menu-font-size: 26px;
+    --subtitle-margin: 8px;
+  }
+  #video-img {
+    padding: 10px;
+    border-radius: 7px;
+  }
+  #settings-wrapper {
+    max-width: 800px;
+  }
+  #settings-title {
+    font-size: 33px;
+  }
+  .menu-item {
+    padding: 20px 30px 20px 40px;
+  }
+  .settings-button {
+    padding: 12px 24px;
+    margin: 16px;
+  }
+  #settings-spacer {
+    height: 20px;
+  }
+  #settings-close {
+    font-size: 45px;
+    margin-top: 5px;
+  }
+  .settings-header-item {
+    margin: 20px;
+  }
+  .slider {
+    width: 250px;
+    --range-size: 20px;
+    height: 4px;
+  }
 }
 
 @media screen and (min-width: 2304px) {
-    * {
-        --menu-font-size: 34px;
-        --subtitle-margin: 12px;
-    }
-    #video-img {
-        padding: 15px;
-        border-radius: 10px;
-    }
-    #settings-wrapper {
-      max-width: 1100px;
-    }
-    #settings-title {
-        font-size: 48px;
-    }
-    .menu-item {
-        padding: 23px 34px 23px 45px;
-    }
-    .settings-button {
-        padding: 15px 30px;
-        margin: 20px;
-    }
-    #settings-spacer {
-        height: 20px;
-    }
-    #settings-close {
-        font-size: 55px;
-        margin-top: 10px;
-    }
-    .settings-header-item {
-        margin: 30px;
-    }
-    .slider {
-        width: 300px;
-        --range-size: 27px;
-        height: 5px;
-    }
+  * {
+    --menu-font-size: 34px;
+    --subtitle-margin: 12px;
+  }
+  #video-img {
+    padding: 15px;
+    border-radius: 10px;
+  }
+  #settings-wrapper {
+    max-width: 1100px;
+  }
+  #settings-title {
+    font-size: 48px;
+  }
+  .menu-item {
+    padding: 23px 34px 23px 45px;
+  }
+  .settings-button {
+    padding: 15px 30px;
+    margin: 20px;
+  }
+  #settings-spacer {
+    height: 20px;
+  }
+  #settings-close {
+    font-size: 55px;
+    margin-top: 10px;
+  }
+  .settings-header-item {
+    margin: 30px;
+  }
+  .slider {
+    width: 300px;
+    --range-size: 27px;
+    height: 5px;
+  }
 }

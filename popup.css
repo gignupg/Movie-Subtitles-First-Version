@@ -86,11 +86,6 @@ hr {
   display: none;
 }
 
-#sync-now {
-  padding-left: 100px;
-  padding-right: 100px;
-}
-
 .sync-input {
   border: none;
   width: 45px;

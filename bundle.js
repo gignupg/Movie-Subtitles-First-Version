@@ -333,7 +333,7 @@ function defineVideoController() {
             <div id="below-subtitles">
                 <div id="skip-music" class="hide sync-msg"></div>
                 <div id="synced" class="hide sync-msg">Subtitles successfully synced!</div>
-                <div id="not-synced" class="hide sync-msg">Error: No subtitles selected!</div>
+                <div id="not-synced" class="hide sync-msg">Sync-error: No subtitles loaded!</div>
                 <div id="loaded" class="hide sync-msg">Subtitles successfully loaded!</div>
             </div>
         </div>

@@ -1,1 +1,1 @@
-This is the first version of [Movie Subtitles](https://chrome.google.com/webstore/detail/movie-subtitles/ifimcneililngppkpddcliecbpcgdjag). If you want to contribute to this project you can do so in the new [repository](https://github.com/gignupg/Movie-Subtitles)
+This is the first version of [Movie Subtitles](https://chrome.google.com/webstore/detail/movie-subtitles/ifimcneililngppkpddcliecbpcgdjag). If you want to contribute to this project you can do so in the [new repository](https://github.com/gignupg/Movie-Subtitles)!
